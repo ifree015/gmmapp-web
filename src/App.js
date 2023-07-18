@@ -1,57 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import React, { Suspense } from 'react';
+import { HashRouter as Router } from 'react-router-dom';
+import AppRoutes from '@app/AppRoutes';
+// import { ThemeProvider } from '@mui/material/styles';
+// import { theme } from '@app/theme';
+import CssBaseline from '@mui/material/CssBaseline';
+// import { useTheme } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import LoadingSpinner from '@components/LoadingSpinner';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import ScrollToTop from '@components/ScrollToTop';
+import ErrorDialog from '@components/ErrorDialog';
+import GAlertDialog from '@components/GAlertDialog';
+import GConfirmDialog from '@components/GConfirmDialog';
+import GAlertSnackbar from '@components/GAlertSnackbar';
+import GErrorDialog from '@components/GErrorDialog';
+// import GlobalStyles from '@mui/material/GlobalStyles';
 import './App.css';
 
 function App() {
+  // const theme = useTheme();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    // <ThemeProvider theme={theme}>
+    <React.Fragment>
+      <CssBaseline />
+      {/* <GlobalStyles
+        styles={{
+          body: {
+            backgroundColor:
+              theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+          },
+        }}
+      /> */}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            // <ErrorBoundary onReset={reset} FallbackComponent={ErrorDialog}>
+            <ErrorBoundary
+              onReset={reset}
+              fallbackRender={({ error, resetErrorBoundary }) => (
+                <ErrorDialog open={true} error={error} resetError={resetErrorBoundary} />
+              )}
+            >
+              <Suspense fallback={<LoadingSpinner open={true} />}>
+                <Router>
+                  <ScrollToTop />
+                  <AppRoutes />
+                </Router>
+              </Suspense>
+            </ErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
+        <GAlertDialog />
+        <GConfirmDialog />
+        <GAlertSnackbar />
+        <GErrorDialog />
+      </LocalizationProvider>
+    </React.Fragment>
+    // </ThemeProvider>
   );
 }
 

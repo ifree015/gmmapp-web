@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "GMM App",
+  "name": "단말기 현장관리 App",
   "icons": [
     {
       "src": "favicon.ico",
