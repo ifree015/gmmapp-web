@@ -105,4 +105,4 @@ class IOSApp extends NativeApp {
 
 const nativeApp = NativeApp.isIOS() ? new IOSApp() : new AndroidApp();
 
-export default nativeApp;
+export { nativeApp as default, NativeApp };
