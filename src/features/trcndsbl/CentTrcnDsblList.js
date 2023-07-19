@@ -19,22 +19,24 @@ import { fetchCentTrcnDsblList } from '@features/trcndsbl/trcnDsblAPI';
 import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import useCmmCode from '@common/hooks/useCmnCode';
-import { USER_ROLE } from '@common/constants/appConstants';
+import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
 import PartLoadingSpinner from '@components/PartLoadingSpinner';
 import ErrorDialog from '@components/ErrorDialog';
 import CentTrcnDsblListItem from './CentTrcnDsblListItem';
+import dayjs from 'dayjs';
 
 export default function CentTrcnDsblList() {
   const user = useUser();
+  console.log(user?.userNm);
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParams = {
-    categoryId: searchParams.get('categoryId'),
-    dsblAcptDt: searchParams.get('dsblAcptDt'),
-    dprtId: searchParams.get('dprtId') ?? '',
-    dsblPrcgPicId: searchParams.get('dsblPrcgPicId'),
-    dsblPrsrName: searchParams.get('dsblPrsrName'),
-    dsblPrcgDt: searchParams.get('dsblPrcgDt'),
+    categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
+    dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
+    dprtId: searchParams.get('dprtId') ?? userRole === USER_ROLE.SELECTOR ? '' : user.dprtId,
+    dsblPrcgPicId: searchParams.get('dsblPrcgPicId') ?? user.userId,
+    dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
+    dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
   };
   const [ref, inView] = useInView();
   const centCds = useCmmCode('CENT');
