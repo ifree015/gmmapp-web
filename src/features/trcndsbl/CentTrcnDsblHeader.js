@@ -3,16 +3,18 @@ import { useSearchParams } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
+import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
 import { useInView } from 'react-intersection-observer';
 import useSmUp from '@common/hooks/useSmUp';
+import dayjs from 'dayjs';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(2, -2, 0, -2),
   padding: theme.spacing(1, 2),
   position: 'sticky',
-  top: 56,
+  top: 48,
   // justifyContent: 'center',
   [theme.breakpoints.up('sm')]: {
     margin: theme.spacing(2, -3, 0, -3),
@@ -25,15 +27,21 @@ const StickyStack = styled(Stack)(({ theme }) => ({
 
 export default function CentTrcnDsblHeader() {
   const [sticky, setSticky] = useState(undefined);
+  const user = useUser();
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParams = {
-    categoryId: searchParams.get('categoryId'),
-    dsblAcptDt: searchParams.get('dsblAcptDt'),
-    dprtId: searchParams.get('dprtId') ?? '',
-    dsblPrcgPicId: searchParams.get('dsblPrcgPicId'),
-    dsblPrsrName: searchParams.get('dsblPrsrName'),
-    dsblPrcgDt: searchParams.get('dsblPrcgDt'),
+    categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
+    dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
+    dprtId: searchParams.get('dprtId')
+      ? searchParams.get('dprtId')
+      : userRole === USER_ROLE.SELECTOR
+      ? ''
+      : user.dprtId,
+    dsblPrcgPicId: searchParams.get('dsblPrcgPicId') ?? user.userId,
+    dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
+    dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
+    backButton: searchParams.get('backButton') ?? '',
   };
   const isSmUp = useSmUp();
   const [ref, inView] = useInView({
@@ -66,9 +74,9 @@ export default function CentTrcnDsblHeader() {
           <Chip
             label={category.title}
             color="primary"
-            variant={category.id === searchParams.get('categoryId') ? 'filled' : 'outlined'}
+            variant={category.id === queryParams['categoryId'] ? 'filled' : 'outlined'}
             onClick={
-              category.id === searchParams.get('categoryId')
+              category.id === queryParams['categoryId']
                 ? null
                 : () => {
                     queryParams.categoryId = category.id;

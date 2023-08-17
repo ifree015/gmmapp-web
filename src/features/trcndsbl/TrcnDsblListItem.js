@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import HybridLink from '@app//HybridLink';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -21,9 +22,14 @@ const TrcnDsblListItem = React.forwardRef(({ trcnDsbl }, ref) => {
   return (
     <ListItem disablePadding ref={ref}>
       <ListItemButton
-        component={RouterLink}
+        component={HybridLink}
         to={`/trcndsbl/trcndsbldetail/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}`}
-        state={{ from: location.pathname }}
+        state={{
+          from: location.pathname,
+          barSwipable: false,
+          title: '단말기장애 상세',
+          subTitle: `${trcnDsbl.vhclNo} - ${trcnDsbl.tropNm}`,
+        }}
       >
         <ListItemAvatar>
           <Avatar

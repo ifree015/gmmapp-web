@@ -20,9 +20,9 @@ import AppVerCheck from '@features/app/AppVerCheck';
 import { fetchAutoLogin } from '@features/login/loginAPI';
 import useAuth from '@common/hooks/useAuth';
 import { login } from '@features/user/userSlice';
+import useApp from '@common/hooks/useApp';
 import { getLocalItem, setLocalItem } from '@common/utils/storage';
 import nativeApp from '@common/utils/nativeApp';
-import useNativeCall from '@common/hooks/useNativeCall';
 import { APP_NAME } from '@common/constants/appConstants';
 import LoadingSpinner from '@components/LoadingSpinner';
 
@@ -30,7 +30,7 @@ export default function Dashboard() {
   const auth = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const appInfo = useNativeCall('getAppInfo');
+  const appInfo = useApp();
   const { reset } = useQueryErrorResetBoundary();
   // const [scrollTarget, setScrollTarget] = useState(undefined);
 
@@ -48,8 +48,10 @@ export default function Dashboard() {
     onSuccess: ({ data }) => {
       dispatch(login(data));
       setLocalItem('remember', true);
+      if (nativeApp.isNativeApp()) {
+        nativeApp.loggedIn(data);
+      }
       mutateReset();
-      // nativeApp.showWebView();
     },
   });
 
@@ -58,12 +60,11 @@ export default function Dashboard() {
       if (nativeApp.isNativeApp() && !appInfo) return;
       setLocalItem('remember', false);
       autoLogin({ ...appInfo, moappNm: APP_NAME });
-      nativeApp.showWebView();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoLogin, appInfo]);
 
-  if (!nativeApp.isNativeApp() && isAutoLoading) return <LoadingSpinner open={isAutoLoading} />;
+  if (isAutoLoading) return <LoadingSpinner open={isAutoLoading} />;
 
   return (
     <Box>
@@ -88,7 +89,7 @@ export default function Dashboard() {
         // }}
         // className="no-scroll"
       >
-        <Toolbar id="back-to-top-anchor" />
+        <Toolbar id="back-to-top-anchor" variant="dense" />
         <UserCard />
         <ErrorBoundary
           onReset={reset}

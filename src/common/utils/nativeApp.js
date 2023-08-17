@@ -13,6 +13,14 @@ class NativeApp {
     return NativeApp.isAndroid() || NativeApp.isIOS();
   }
 
+  isAndroid() {
+    return NativeApp.isAndroid();
+  }
+
+  isIOS() {
+    return NativeApp.isIOS();
+  }
+
   getWebView() {
     return this.isNativeApp() ? (NativeApp.isAndroid() ? window.android : window.webkit) : null;
   }
@@ -23,15 +31,6 @@ class NativeApp {
 }
 
 class AndroidApp extends NativeApp {
-  showWebView() {
-    return;
-    //this.getWebView()?.showWebView();
-  }
-
-  loggedIn(loginInfo) {
-    return;
-  }
-
   getAppName() {
     return this.getWebView()?.getAppName();
   }
@@ -48,30 +47,47 @@ class AndroidApp extends NativeApp {
     return JSON.parse(this.getWebView()?.getLastKnownLocation() ?? null);
   }
 
+  showToastMessage(message) {
+    this.getWebView()?.showToastMessage(message);
+  }
+
+  showWebView() {
+    return;
+    //this.getWebView()?.showWebView();
+  }
+
+  loginView(from, viewInfo) {
+    // todo
+  }
+
+  loggedIn(loginInfo) {
+    // todo
+  }
+
   setThemeMode(mode) {
     this.getWebView()?.setThemeMode(mode);
   }
 
-  showToastMessage(message) {
-    this.getWebView()?.showToastMessage(message);
+  pushView(location, viewInfo) {
+    // todo
+  }
+
+  setViewInfo(viewInfo) {}
+
+  goBack() {
+    // todo
+  }
+
+  navigateView(location, viewInfo) {
+    // todo
+  }
+
+  loggedOut() {
+    // todo
   }
 }
 
 class IOSApp extends NativeApp {
-  showWebView() {
-    //if (!this.getWebView()) return;
-    this.getWebView().messageHandlers.showWebView.postMessage({
-      guid: promiseNativeCaller.generateUUID(),
-    });
-  }
-
-  loggedIn(loginInfo) {
-    this.getWebView().messageHandlers.loggedIn.postMessage({
-      guid: promiseNativeCaller.generateUUID(),
-      data: loginInfo,
-    });
-  }
-
   async getAppName() {
     return promiseNativeCaller.postMessage('getAppName');
   }
@@ -88,6 +104,34 @@ class IOSApp extends NativeApp {
     return JSON.parse((await promiseNativeCaller.postMessage('getLastKnownLocation')) ?? null);
   }
 
+  showToastMessage(message) {
+    this.getWebView().messageHandlers.showToastMessage.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: message,
+    });
+  }
+
+  showWebView() {
+    //if (!this.getWebView()) return;
+    this.getWebView().messageHandlers.showWebView.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+    });
+  }
+
+  loginView(from, viewInfo) {
+    this.getWebView().messageHandlers.loginView.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: { from, viewInfo },
+    });
+  }
+
+  loggedIn(loginInfo) {
+    this.getWebView().messageHandlers.loggedIn.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: loginInfo,
+    });
+  }
+
   setThemeMode(mode) {
     this.getWebView().messageHandlers.setThemeMode.postMessage({
       guid: promiseNativeCaller.generateUUID(),
@@ -95,10 +139,36 @@ class IOSApp extends NativeApp {
     });
   }
 
-  showToastMessage(message) {
-    this.getWebView().messageHandlers.showToastMessage.postMessage({
+  pushView(location, viewInfo) {
+    this.getWebView().messageHandlers.pushView.postMessage({
       guid: promiseNativeCaller.generateUUID(),
-      data: message,
+      data: { location, viewInfo },
+    });
+  }
+
+  setViewInfo(viewInfo) {
+    this.getWebView().messageHandlers.setViewInfo.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: viewInfo,
+    });
+  }
+
+  goBack() {
+    this.getWebView().messageHandlers.goBack.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+    });
+  }
+
+  navigateView(location, viewInfo) {
+    this.getWebView().messageHandlers.navigateView.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: { location, viewInfo },
+    });
+  }
+
+  loggedOut() {
+    this.getWebView().messageHandlers.loggedOut.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
     });
   }
 }

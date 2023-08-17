@@ -15,12 +15,13 @@ import produce from 'immer';
 import { useInView } from 'react-intersection-observer';
 import useSmUp from '@common/hooks/useSmUp';
 import TrcnDsblSearchCondition from './TrcnDsblSearchCondition';
+import useUser from '@common/hooks/useUser';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(0, -2, 0, -2),
   padding: theme.spacing(1, 2),
   position: 'sticky',
-  top: 56,
+  top: 48,
   // justifyContent: 'center',
   [theme.breakpoints.up('sm')]: {
     margin: theme.spacing(0, -3, 0, -3),
@@ -60,6 +61,15 @@ export default function TrcnDsblHeader() {
     threshold: 1,
     rootMargin: isSmUp ? '-65px 0px 0px 0px' : '-57px 0px 0px 0px',
   });
+  const user = useUser();
+
+  if (!searchParams.get('dsblAcptDtDvs') && !searchParams.get('dsblAcptSttDt')) {
+    searchParams.append('dsblAcptDtDvs', '3month');
+    searchParams.append('dsblAcptSttDt', dayjs().subtract(3, 'month').format('YYYYMMDD'));
+    searchParams.append('dsblAcptEndDt', dayjs().format('YYYYMMDD'));
+    searchParams.append('dprtId', user.trcnDsblCentYn === 'Y' ? user.dprtId : '');
+    searchParams.append('dprtNm', user.trcnDsblCentYn === 'Y' ? user.dprtNm : '');
+  }
 
   const conditions = useMemo(() => {
     const conditions = [];
@@ -223,7 +233,7 @@ export default function TrcnDsblHeader() {
             </InputAdornment>
           }
           endAdornment={
-            conditions.length > 1 ? (
+            conditions.filter((condition) => condition.deletable).length > 1 ? (
               <InputAdornment position="end">
                 <IconButton
                   type="button"

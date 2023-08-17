@@ -1,0 +1,22 @@
+.navigate-push-enter {
+  transform: translateX(100%);
+}
+
+.navigate-push-enter-active {
+  transform: translateX(0);
+  transition: transform 300ms ease-in-out;
+}
+
+.navigate-push-exit {
+  transform: translateX(0);
+}
+
+.navigate-push-exit-active {
+  transform: translateX(-100%);
+  transition: transform 300ms ease-in-out;
+}
+
+.transition-wrapper {
+  position: relative;
+  width: 100vw;
+}

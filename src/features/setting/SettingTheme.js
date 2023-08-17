@@ -32,6 +32,7 @@ const SettingTheme = () => {
           onChange={(event, newValue) => {
             if (!newValue) return;
             themeMode.setThemeMode(newValue);
+            themeMode.setPreferThemeMode('');
             nativeApp.setThemeMode(newValue);
           }}
           exclusive

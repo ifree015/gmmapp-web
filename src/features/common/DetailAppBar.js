@@ -25,7 +25,7 @@ const DetailAppBar = ({ title, elevation = 1 }) => {
       // sx={{ maxWidth: 'sm', left: '50%', transform: 'translateX(-50%)' }}
       elevation={elevation}
     >
-      <Toolbar>
+      <Toolbar variant="dense">
         <IconButton
           color="inherit"
           onClick={() => {

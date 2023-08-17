@@ -12,10 +12,21 @@ import { fetchTrcnDsblList } from '@features/trcndsbl/trcnDsblAPI';
 import PartLoadingSpinner from '@components/PartLoadingSpinner';
 import ErrorDialog from '@components/ErrorDialog';
 import TrcnDsblListItem from './TrcnDsblListItem';
+import useUser from '@common/hooks/useUser';
+import dayjs from 'dayjs';
 
 export default function TrcnDsblList() {
   const [searchParams] = useSearchParams();
   const [ref, inView] = useInView();
+  const user = useUser();
+
+  if (!searchParams.get('dsblAcptDtDvs')) {
+    searchParams.append('dsblAcptDtDvs', '3month');
+    searchParams.append('dsblAcptSttDt', dayjs().subtract(3, 'month').format('YYYYMMDD'));
+    searchParams.append('dsblAcptEndDt', dayjs().format('YYYYMMDD'));
+    searchParams.append('dprtId', user.trcnDsblCentYn === 'Y' ? user.dprtId : '');
+    searchParams.append('dprtNm', user.trcnDsblCentYn === 'Y' ? user.dprtNm : '');
+  }
 
   const queryParams = {
     dsblAcptSttDt: searchParams.get('dsblAcptSttDt'),

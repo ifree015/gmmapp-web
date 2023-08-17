@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Button from '@mui/material/Button';
-import { selectMoappVer, setMoappVer } from './appSlice';
+import useApp from '@common/hooks/useApp';
 import { useQuery } from '@common/queries/query';
 import { fetchLstAppVer } from '@features/app/appAPI';
-import useNativeCall from '@common/hooks/useNativeCall';
 
 export default function AppVerCheck() {
   const [open, setOpen] = useState(true);
-  const appInfo = useNativeCall('getAppInfo');
-  const moappVer = useSelector(selectMoappVer);
-  const dispatch = useDispatch();
+  const appInfo = useApp();
 
   const { data, refetch } = useQuery(['readLstAppVer'], () => fetchLstAppVer(appInfo), {
     enabled: false,
@@ -39,16 +35,15 @@ export default function AppVerCheck() {
   }, [data]);
 
   const handleClose = useCallback(() => {
-    dispatch(setMoappVer(data.data.moappVer));
     setOpen(false);
-  }, [dispatch, data]);
+  }, []);
 
   const ntfcTtlNm = data?.data.ntfcTtlNm ?? 'App Update 알림';
   const ntfcCtt =
     data?.data.ntfcCtt ??
     `새 버전<strong>(${data?.data.moappVer})</strong>의 App을 설치하시겠습니까?`;
 
-  if (!data?.data.moappVer || data?.data.moappVer === moappVer) return null;
+  if (!data?.data.moappVer || (appInfo && data?.data.moappVer === appInfo.moappVer)) return null;
   return (
     <Dialog open={open} aria-describedby="app-dialog-description">
       <Alert severity="info">

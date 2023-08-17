@@ -5,10 +5,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import nativeApp from '@common/utils/nativeApp';
-import useNativeCall from '@common/hooks/useNativeCall';
+import useApp from '@common/hooks/useApp';
 
 const SettingAppInfo = () => {
-  const appInfo = useNativeCall('getAppInfo');
+  const appInfo = useApp();
 
   return (
     <React.Fragment>

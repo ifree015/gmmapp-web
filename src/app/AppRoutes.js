@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useContext } from 'react';
 import { useRoutes, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import useAuth from '@common/hooks/useAuth';
 import Login from '@features/login/Login';
@@ -8,15 +8,23 @@ import TrcnDsbl from '@features/trcndsbl/TrcnDsbl';
 import TrcnDsblDetail from '@features/trcndsbl/TrcnDsblDetail';
 import NotFound from '@features/notfound/NotFound';
 import { getLocalItem } from '@common/utils/storage';
+import { ThemeModeContext } from '@app/ThemeMode';
+import nativeApp from '@common/utils/nativeApp';
 
 export default function AppRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
+  const themeMode = useContext(ThemeModeContext);
+
   const webViewHandler = useCallback(
     (event) => {
       //console.log(event.detail.data);
       const data = JSON.parse(event.detail.data);
       switch (data.eventType) {
+        case 'theme':
+          themeMode.setThemeMode(data.themeMode);
+          themeMode.setPreferThemeMode(data.preferThemeMode);
+          break;
         case 'navigate':
           if (data.toLocation === 'goBack') {
             if (location.state?.from) {
@@ -41,7 +49,7 @@ export default function AppRoutes() {
           break;
       }
     },
-    [navigate, location]
+    [themeMode, location, navigate]
   );
 
   useEffect(() => {
@@ -115,9 +123,14 @@ function RequireAuth({ children, autoLoginable }) {
     if (autoLoginable && getLocalItem('remember')) {
       return children;
     } else {
-      return <Navigate to="/login" state={{ from: location }} replace />;
-      // window.open('#/login', '_blank');
-      // return null;
+      if (nativeApp.isIOS()) {
+        nativeApp.loginView(location.pathname + (location.search ? `?${location.search}` : ''));
+        return null;
+      } else {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+        // window.open('#/login', '_blank');
+        // return null;
+      }
     }
   }
 

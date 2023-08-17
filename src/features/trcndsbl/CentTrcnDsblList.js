@@ -27,16 +27,20 @@ import dayjs from 'dayjs';
 
 export default function CentTrcnDsblList() {
   const user = useUser();
-  console.log(user?.userNm);
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParams = {
     categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
     dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
-    dprtId: searchParams.get('dprtId') ?? userRole === USER_ROLE.SELECTOR ? '' : user.dprtId,
+    dprtId: searchParams.get('dprtId')
+      ? searchParams.get('dprtId')
+      : userRole === USER_ROLE.SELECTOR
+      ? ''
+      : user.dprtId,
     dsblPrcgPicId: searchParams.get('dsblPrcgPicId') ?? user.userId,
     dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
     dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
+    backButton: searchParams.get('backButton') ?? '',
   };
   const [ref, inView] = useInView();
   const centCds = useCmmCode('CENT');

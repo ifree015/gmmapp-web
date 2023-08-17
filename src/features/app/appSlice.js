@@ -8,14 +8,14 @@ export const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    setMoappVer: (state, action) => {
-      state.app.moappVer = action.payload;
+    setApp: (state, action) => {
+      state.app = action.payload;
     },
   },
 });
 
-export const { setMoappVer } = appSlice.actions;
+export const { setApp } = appSlice.actions;
 
-export const selectMoappVer = (state) => state.app.app.moappVer;
+export const selectApp = (state) => (state.app.app.moappVer ? state.app.app : null);
 
 export default appSlice.reducer;

@@ -19,6 +19,7 @@ import { useQuery } from '@common/queries/query';
 import { fetchSrchVhclList } from '@features/common/commonAPI';
 import TrcnDsblVhclSearchStorage from './TrcnDsblVhclSearchStorage';
 import TrcnDsblVhclSearchSuggestion from './TrcnDsblVhclSearchSuggestion';
+import nativeApp from '@common/utils/nativeApp';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="left" ref={ref} {...props} />;
@@ -117,7 +118,7 @@ export default function TrcnDsblVhclSearch({ open, onClose }) {
                     user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtId : ''
                   }&dprtNm=${
                     user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtNm : ''
-                  }&srchKwd=${srchKwd.trim()}`}
+                  }&srchKwd=${srchKwd.trim()}&backButton=${nativeApp.isIOS() ? 'Y' : ''}`}
                 >
                   <SearchOutlinedIcon />
                 </IconButton>

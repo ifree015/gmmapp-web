@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
+import nativeApp from '@common/utils/nativeApp';
 
 const MenuMenuList = ({ onParentClose }) => {
   const location = useLocation();
@@ -56,17 +57,21 @@ const MenuMenuList = ({ onParentClose }) => {
         queryParams = null;
     }
 
-    const isCurrentPage = location.pathname === menus[index].link;
-    if (isCurrentPage) {
-      onParentClose();
-    }
-    navigate(
-      menus[index].link + (queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ''),
-      {
-        replace: isCurrentPage,
-        state: { from: isCurrentPage ? location.state?.from : location.pathname },
+    if (nativeApp.isIOS()) {
+      nativeApp.navigateView(menus[index].link);
+    } else {
+      const isCurrentPage = location.pathname === menus[index].link;
+      if (isCurrentPage) {
+        onParentClose();
       }
-    );
+      navigate(
+        menus[index].link + (queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ''),
+        {
+          replace: isCurrentPage,
+          state: { from: isCurrentPage ? location.state?.from : location.pathname },
+        }
+      );
+    }
   };
 
   return (

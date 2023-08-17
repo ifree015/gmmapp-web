@@ -17,6 +17,7 @@ import TrcnDsblDetailContentTab3 from './TrcnDsblDetailContentTab3';
 import AlertSnackbar from '@components/AlertSnackbar';
 import { useQuery } from '@common/queries/query';
 import { fetchTrcnDsbl } from '@features/trcndsbl/trcnDsblAPI';
+import nativeApp from '@common/utils/nativeApp';
 
 function a11yProps(name, index) {
   return {
@@ -123,6 +124,14 @@ export default function TrcnDsblDetailContent() {
   const changeProcessStatus = useCallback((processStatus) => {
     dispatch({ type: 'PROCESS', payload: processStatus });
   }, []);
+
+  useEffect(() => {
+    if (otherCached || !trcnDsbl) return;
+    nativeApp.setViewInfo({
+      title: '단말기장애 상세',
+      subTitle: `${trcnDsbl.vhclNo} - ${trcnDsbl.tropNm}`,
+    });
+  }, [otherCached, trcnDsbl]);
 
   return (
     <React.Fragment>

@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import AppRoutes from '@app/AppRoutes';
+// import AnimationAppRoutes from '@app/AnimationAppRoutes';
 // import { ThemeProvider } from '@mui/material/styles';
 // import { theme } from '@app/theme';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -47,6 +48,7 @@ function App() {
               <Suspense fallback={<LoadingSpinner open={true} />}>
                 <Router>
                   <ScrollToTop />
+                  {/* <AnimationAppRoutes /> */}
                   <AppRoutes />
                 </Router>
               </Suspense>

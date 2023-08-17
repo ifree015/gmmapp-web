@@ -32,7 +32,7 @@ export default function CentTrcnDsbl() {
           minHeight: '100vh',
         }}
       >
-        <Toolbar id="back-to-top-anchor" />
+        <Toolbar id="back-to-top-anchor" variant="dense" />
         <CentTrcnDsblHeader />
         <ErrorBoundary
           onReset={reset}
@@ -45,7 +45,7 @@ export default function CentTrcnDsbl() {
           </Suspense>
         </ErrorBoundary>
         <Copyright sx={{ pt: 3, pb: 1 }} />
-        <BackToTop bottom={nativeApp.isNativeApp() ? '72px' : '16px'} />
+        <BackToTop bottom={nativeApp.isIOS() ? '16px' : '72px'} />
       </Container>
       <BottomNavBar currentNav="/centtrcndsbl" />
     </Box>

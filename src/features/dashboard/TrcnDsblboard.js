@@ -33,6 +33,7 @@ import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
 import { fetchTrcnDsblNcnt, fetchCentTrcnDsblNcnt } from '@features/trcndsbl/trcnDsblAPI';
+import nativeApp from '@common/utils/nativeApp';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Legend, Tooltip);
 
@@ -128,6 +129,9 @@ export default function TrcnDsblboard() {
 
   const handleCard = (categoryId) => {
     queryParams.categoryId = categoryId;
+    if (nativeApp.isIOS()) {
+      queryParams.backButton = 'Y';
+    }
     navigate('/centtrcndsbl?' + new URLSearchParams(queryParams).toString(), {
       state: { from: location.pathname },
     });

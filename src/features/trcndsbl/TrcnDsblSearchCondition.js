@@ -33,6 +33,7 @@ import { fetchSrchTropList, fetchSrchVhclList } from '@features/common/commonAPI
 import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
 import ErrorDialog from '@components/ErrorDialog';
+import useUser from '@common/hooks/useUser';
 
 const initialState = {
   tropSrchKwd: '',
@@ -82,6 +83,15 @@ export default function TrcnDsblSearchCondition({ open, onClose }) {
   );
   const formRef = useRef();
   const openError = useError();
+  const user = useUser();
+
+  if (!searchParams.get('dsblAcptDtDvs')) {
+    searchParams.append('dsblAcptDtDvs', '3month');
+    searchParams.append('dsblAcptSttDt', dayjs().subtract(3, 'month').format('YYYYMMDD'));
+    searchParams.append('dsblAcptEndDt', dayjs().format('YYYYMMDD'));
+    searchParams.append('dprtId', user.trcnDsblCentYn === 'Y' ? user.dprtId : '');
+    searchParams.append('dprtNm', user.trcnDsblCentYn === 'Y' ? user.dprtNm : '');
+  }
 
   const initParams = useMemo(
     () => ({
@@ -107,6 +117,7 @@ export default function TrcnDsblSearchCondition({ open, onClose }) {
       asgtYn: searchParams.get('asgtYn') ?? '',
       dsblPrcgFnYn: searchParams.get('dsblPrcgFnYn') ?? '',
       dsblPrsrName: searchParams.get('dsblPrsrName') ?? '',
+      backButton: searchParams.get('backButton') ?? '',
     }),
     [searchParams]
   );

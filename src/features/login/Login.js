@@ -21,7 +21,7 @@ import useError from '@common/hooks/useError';
 import Copyright from '@features/common/Copyright';
 import { login } from '@features/user/userSlice';
 import { fetchLogin, fetchAutoLogin } from './loginAPI';
-import { default as nativeApp, NativeApp } from '@common/utils/nativeApp';
+import nativeApp from '@common/utils/nativeApp';
 import useNativeCall from '@common/hooks/useNativeCall';
 import { APP_NAME } from '@common/constants/appConstants';
 
@@ -42,11 +42,12 @@ export default function Loign() {
     },
     onSuccess: ({ data }) => {
       // console.log('success:', data);
-      data['from'] = from;
-      dispatch(login(data));
       setLocalItem('remember', formik.values.remember);
-      if (nativeApp.isNativeApp()) {
+      if (nativeApp.isIOS()) {
+        data['rememeber'] = formik.values.remember;
         nativeApp.loggedIn(data);
+      } else {
+        dispatch(login(data));
       }
       // navigate(from, { replace: true });
     },
@@ -84,13 +85,14 @@ export default function Loign() {
       nativeApp.showWebView();
     },
     onSuccess: ({ data }) => {
-      dispatch(login(data));
       setLocalItem('remember', true);
       if (nativeApp.isNativeApp()) {
+        data['rememeber'] = formik.values.remember;
         nativeApp.loggedIn(data);
+      } else {
+        dispatch(login(data));
       }
       mutateReset();
-      // nativeApp.showWebView();
     },
   });
 
@@ -99,7 +101,6 @@ export default function Loign() {
       if (nativeApp.isNativeApp() && !appInfo) return;
       setLocalItem('remember', false);
       autoLogin({ ...appInfo, moappNm: APP_NAME });
-      // nativeApp.showWebView();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoLogin, appInfo]);
@@ -112,13 +113,11 @@ export default function Loign() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (auth && !NativeApp.isIOS()) {
+  if (auth && !nativeApp.isIOS()) {
     return <Navigate to={from} repalce />;
   }
   if (getLocalItem('remember') || isAutoLoading) {
-    return nativeApp.isNativeApp() ? null : (
-      <LoadingSpinner open={getLocalItem('remember') || isAutoLoading} />
-    );
+    return <LoadingSpinner open={getLocalItem('remember') || isAutoLoading} />;
   }
 
   return (

@@ -20,7 +20,7 @@ export default function TrcnDsbl() {
   return (
     <Box>
       <ElevationScroll>
-        <SubAppBar title="단말기 장애" search={false}></SubAppBar>
+        <SubAppBar title="단말기 장애"></SubAppBar>
       </ElevationScroll>
       <Container
         component="main"
@@ -31,8 +31,7 @@ export default function TrcnDsbl() {
           minHeight: '100vh',
         }}
       >
-        <Toolbar id="back-to-top-anchor" />
-        <TrcnDsblHeader />
+        <Toolbar id="back-to-top-anchor" variant="dense" />
         <ErrorBoundary
           onReset={reset}
           fallbackRender={({ error, resetErrorBoundary }) => (
@@ -40,11 +39,12 @@ export default function TrcnDsbl() {
           )}
         >
           <Suspense fallback={<PartLoadingSpinner />}>
+            <TrcnDsblHeader />
             <TrcnDsblList />
           </Suspense>
         </ErrorBoundary>
         <Copyright sx={{ pt: 3, pb: 1 }} />
-        <BackToTop bottom={nativeApp.isNativeApp() ? '72px' : '16px'} />
+        <BackToTop bottom={nativeApp.isIOS() ? '16px' : '72px'} />
       </Container>
       <BottomNavBar currentNav="/trcndsbl" />
     </Box>

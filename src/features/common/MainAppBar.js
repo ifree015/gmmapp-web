@@ -125,7 +125,7 @@ export default function MainAppBar({ elevation = 1 }) {
       elevation={elevation}
       // sx={{ maxWidth: 'sm', left: '50%', transform: 'translateX(-50%)' }}
     >
-      <Toolbar>
+      <Toolbar variant="dense">
         <Typography component="h1" variant="h6" noWrap sx={{ mr: 3 }}>
           Home
         </Typography>

@@ -9,6 +9,7 @@ import TrcnDsblDetailContent from './TrcnDsblDetailContent';
 import HideOnScroll from '@components/HideOnScroll';
 // import BackToTop from '@components/BackToTop';
 import Copyright from '@features/common/Copyright';
+import nativeApp from '@common/utils/nativeApp';
 
 export default function TrcnDsblDetail() {
   return (
@@ -18,9 +19,13 @@ export default function TrcnDsblDetail() {
           theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
       }}
     >
-      <HideOnScroll threshold={42}>
-        <DetailAppBar title="단말기장애 상세"></DetailAppBar>
-      </HideOnScroll>
+      {nativeApp.isIOS() ? (
+        <Box sx={{ py: 0.25 }} />
+      ) : (
+        <HideOnScroll threshold={42}>
+          <DetailAppBar title="단말기장애 상세"></DetailAppBar>
+        </HideOnScroll>
+      )}
       <Container
         component="main"
         maxWidth="sm"
@@ -34,7 +39,7 @@ export default function TrcnDsblDetail() {
         <Suspense fallback={<PartLoadingSpinner />}>
           <TrcnDsblDetailContent />
         </Suspense>
-        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) / 2 + 8px)' }} />
+        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) / 1 + 8px)' }} />
         {/* <BackToTop /> */}
       </Container>
     </Box>

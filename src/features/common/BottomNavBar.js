@@ -5,7 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Paper from '@mui/material/Paper';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import BusAlertIcon from '@mui/icons-material/BusAlert';
@@ -63,15 +63,9 @@ export default function BottomNavBar({ currentNav }) {
 
   return (
     <React.Fragment>
-      {nativeApp.isNativeApp() ? (
+      {!nativeApp.isIOS() ? (
         <React.Fragment>
-          <Toolbar />
-          <Toolbar
-            sx={{
-              minHeight: 'calc(env(safe-area-inset-bottom) / 2)',
-              height: 'calc(env(safe-area-inset-bottom) / 2)',
-            }}
-          />
+          <Toolbar variant="dense" />
           <Paper
             sx={{
               position: 'fixed',
@@ -96,15 +90,15 @@ export default function BottomNavBar({ currentNav }) {
               <NavigationAction label="Home" value="/" color="secondary" icon={<HomeIcon />} />
               <NavigationAction label="장애" value="/trcndsbl" icon={<BusAlertIcon />} />
             </BottomNavigation>
-            <Box
-              sx={{
-                height: 'calc(env(safe-area-inset-bottom) / 2)',
-                backgroundColor: (theme) => theme.palette.background.paper,
-              }}
-            />
           </Paper>
         </React.Fragment>
-      ) : null}
+      ) : // <Toolbar
+      //   sx={{
+      //     minHeight: 'env(safe-area-inset-bottom)',
+      //     height: 'env(safe-area-inset-bottom)',
+      //   }}
+      // />
+      null}
     </React.Fragment>
   );
 }

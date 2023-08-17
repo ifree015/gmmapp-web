@@ -275,7 +275,12 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                         variant="standard"
                         fullWidth
                         error={state.validErrors[index]}
-                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        // type="number"
+                        inputProps={{
+                          ...params.inputProps,
+                          inputMode: 'numeric',
+                          pattern: '[0-9]*',
+                        }}
                         InputProps={{
                           ...params.InputProps,
                           endAdornment: (

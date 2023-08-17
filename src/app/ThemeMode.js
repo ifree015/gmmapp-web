@@ -1,23 +1,38 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import useLocalStorage from '@common/hooks/useLocalStorage';
 
-export const ThemeModeContext = React.createContext({ mode: '', setThemeMode: null });
+export const ThemeModeContext = React.createContext({
+  themeMode: '',
+  setThemeMode: null,
+  preferThemeMode: '',
+  setPreferThemeMode: null,
+});
 
 export default function ThemeMode({ children }) {
   const [themeMode, setThemeMode] = useLocalStorage('themeMode', 'system');
+  const [preferThemeMode, setPreferThemeMode] = useState(undefined);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   const contextValue = useMemo(
     () => ({
       themeMode,
       setThemeMode,
+      preferThemeMode,
+      setPreferThemeMode,
     }),
-    [themeMode, setThemeMode]
+    [themeMode, setThemeMode, preferThemeMode, setPreferThemeMode]
   );
 
-  const mode = themeMode === 'system' ? (prefersDarkMode ? 'dark' : 'light') : themeMode;
+  const mode =
+    themeMode === 'system'
+      ? preferThemeMode
+        ? preferThemeMode
+        : prefersDarkMode
+        ? 'dark'
+        : 'light'
+      : themeMode;
   const theme = useMemo(
     () =>
       createTheme({

@@ -16,6 +16,7 @@ export const { addCmdCode } = cmnCodeSlice.actions;
 export const selectCmnCode = (state, cmnCdId) => state.cmnCode.cmnCds[cmnCdId];
 export const selectCmnCodes = (state, cmnCdIds) =>
   cmnCdIds.map((cmnCdId) => state.cmnCode.cmnCds[cmnCdId]);
+export const selectCmnCds = (state) => state.cmnCode.cmnCds;
 export const selectCmnCodeName = (state, cmnCdId, code) =>
   state.cmnCode.cmnCds[cmnCdId]?.find((cmnCd) => cmnCd.code === code)?.name;
 

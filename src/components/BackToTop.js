@@ -30,7 +30,7 @@ export function ScrollTop({ children, bottom }) {
         role="presentation"
         sx={{
           position: 'fixed',
-          bottom: `calc(env(safe-area-inset-bottom) / 2 + ${bottom})`,
+          bottom: bottom,
           right: 16,
         }}
       >

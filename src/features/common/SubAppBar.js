@@ -1,5 +1,5 @@
 import React, { useReducer, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -39,9 +39,10 @@ function reducer(state, action) {
   });
 }
 
-const SubAppBar = ({ title, search = true, elevation = 1 }) => {
+const SubAppBar = ({ title, search = false, elevation = 1 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const closeSearch = useCallback(() => {
@@ -67,20 +68,22 @@ const SubAppBar = ({ title, search = true, elevation = 1 }) => {
       elevation={elevation}
       // sx={{ maxWidth: 'sm', left: '50%', transform: 'translateX(-50%)' }}
     >
-      <Toolbar>
-        <IconButton
-          color="inherit"
-          onClick={() => {
-            if (location.state?.from) {
-              navigate(-1);
-            } else {
-              navigate('/', { replace: true });
-            }
-          }}
-          edge="start"
-        >
-          <ArrowBackIcon />
-        </IconButton>
+      <Toolbar variant="dense">
+        {searchParams.get('backButton') === 'Y' ? (
+          <IconButton
+            color="inherit"
+            onClick={() => {
+              if (location.state?.from) {
+                navigate(-1);
+              } else {
+                navigate('/', { replace: true });
+              }
+            }}
+            edge="start"
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        ) : null}
         <Typography
           component="h1"
           variant="h6"

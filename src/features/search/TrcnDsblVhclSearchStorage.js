@@ -16,6 +16,7 @@ import Chip from '@mui/material/Chip';
 import dayjs from 'dayjs';
 import useLocalStorage from '@common/hooks/useLocalStorage';
 import { setLocalItem } from '@common/utils/storage';
+import nativeApp from '@common/utils/nativeApp';
 
 const TrcnDsblVhclSearchStorage = () => {
   const location = useLocation();
@@ -35,7 +36,9 @@ const TrcnDsblVhclSearchStorage = () => {
           .subtract(3, 'month')
           .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
           srchVhcl.tropId
-        }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${srchVhcl.vhclNo}`,
+        }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
+          srchVhcl.vhclNo
+        }&backButton=${nativeApp.isIOS() ? 'Y' : ''}`,
         { state: { from: location.pathname } }
       );
     },
@@ -112,6 +115,7 @@ const TrcnDsblVhclSearchStorage = () => {
                           color: 'text.primary',
                           pr: 0.5,
                         }}
+                        component="span"
                         variant="body1"
                         noWrap={true}
                       >

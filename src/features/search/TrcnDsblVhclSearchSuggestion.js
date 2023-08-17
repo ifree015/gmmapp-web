@@ -13,6 +13,7 @@ import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import { useTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { getLocalItem, setLocalItem } from '@common/utils/storage';
+import nativeApp from '@common/utils/nativeApp';
 
 const TrcnDsblVhclSearchSuggestion = ({ data }) => {
   const location = useLocation();
@@ -33,7 +34,9 @@ const TrcnDsblVhclSearchSuggestion = ({ data }) => {
           .subtract(3, 'month')
           .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
           srchVhcl.tropId
-        }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${srchVhcl.vhclNo}`,
+        }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
+          srchVhcl.vhclNo
+        }&backButton=${nativeApp.isIOS() ? 'Y' : ''}`,
         { state: { from: location.pathname } }
       );
     },
