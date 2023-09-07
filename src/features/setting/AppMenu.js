@@ -46,7 +46,7 @@ export default function AppMenu({ open, onClose }) {
             theme.palette.mode === 'light' ? 'secondary.main' : theme.palette.background.paper2,
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           <Typography component="h1" variant="h6" sx={{ flex: 1 }}>
             메뉴
           </Typography>
@@ -84,7 +84,7 @@ export default function AppMenu({ open, onClose }) {
         </ErrorBoundary>
         <MenuMenuList onParentClose={onClose} />
         <MenuLogout />
-        <Copyright sx={{ pt: 3 }} />
+        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) + 8px)' }} />
       </Container>
       <AppSetting open={setting} onClose={closeSetting} />
     </Dialog>

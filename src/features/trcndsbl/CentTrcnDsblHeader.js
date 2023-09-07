@@ -19,7 +19,7 @@ const StickyStack = styled(Stack)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     margin: theme.spacing(2, -3, 0, -3),
     padding: theme.spacing(1, 3),
-    top: 64,
+    top: 48,
     // justifyContent: 'flex-start',
   },
   zIndex: theme.zIndex.appBar + 1,
@@ -30,6 +30,8 @@ export default function CentTrcnDsblHeader() {
   const user = useUser();
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
+  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
+
   const queryParams = {
     categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
     dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
@@ -42,19 +44,22 @@ export default function CentTrcnDsblHeader() {
     dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
     dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
     backButton: searchParams.get('backButton') ?? '',
+    appBarHidden: searchParams.get('appBarHidden') ?? '',
   };
   const isSmUp = useSmUp();
   const [ref, inView] = useInView({
     threshold: 1,
-    rootMargin: isSmUp ? '-65px 0px 0px 0px' : '-57px 0px 0px 0px',
+    rootMargin: isSmUp
+      ? `-${appBarHidden ? 1 : 49}px 0px 0px 0px`
+      : `-${appBarHidden ? 1 : 49}px 0px 0px 0px`,
   });
 
   useEffect(() => {
-    if (sticky === undefined) {
-      setSticky(false);
-    } else {
-      setSticky(!inView);
-    }
+    // if (sticky === undefined) {
+    //   setSticky(false);
+    // } else {
+    setSticky(!inView);
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView]);
 
@@ -65,6 +70,8 @@ export default function CentTrcnDsblHeader() {
       sx={{
         bgcolor: sticky ? 'background.paper' : 'inherit',
         // boxShadow: sticky ? 1 : 0,
+        top: { xs: `${appBarHidden ? 0 : 48}px`, sm: `${appBarHidden ? 0 : 48}px` },
+        my: appBarHidden ? 1.25 : 2,
       }}
       component="header"
       ref={ref}

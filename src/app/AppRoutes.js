@@ -10,6 +10,7 @@ import NotFound from '@features/notfound/NotFound';
 import { getLocalItem } from '@common/utils/storage';
 import { ThemeModeContext } from '@app/ThemeMode';
 import nativeApp from '@common/utils/nativeApp';
+import usePushNotification from '@common/hooks/usePushNotification';
 
 export default function AppRoutes() {
   const location = useLocation();
@@ -118,6 +119,7 @@ export default function AppRoutes() {
 function RequireAuth({ children, autoLoginable }) {
   const auth = useAuth();
   const location = useLocation();
+  usePushNotification();
 
   if (!auth) {
     if (autoLoginable && getLocalItem('remember')) {

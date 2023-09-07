@@ -17,6 +17,7 @@ import { fetchNewNtfcPtNcnt } from '@features/notification/notificationAPI';
 import Notification from '@features/notification/Notification';
 import AppMenu from '@features/setting/AppMenu';
 import useAuth from '@common/hooks/useAuth';
+import nativeApp from '@common/utils/nativeApp';
 
 const SearchButton = styled(Button)(({ theme }) => {
   return {
@@ -86,6 +87,11 @@ export default function MainAppBar({ elevation = 1 }) {
       refetchOnWindowFocus: true,
       refetchInterval: 3 * 60 * 1000,
       // onError: (err) => {},
+      onSuccess: (data) => {
+        if (nativeApp.isIOS()) {
+          nativeApp.updatePushNtfcNcnt(data.data.pushNtfcNcnt);
+        }
+      },
     }
   );
 

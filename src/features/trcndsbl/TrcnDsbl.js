@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
@@ -17,21 +18,33 @@ import nativeApp from '@common/utils/nativeApp';
 
 export default function TrcnDsbl() {
   const { reset } = useQueryErrorResetBoundary();
+  const [searchParams] = useSearchParams();
+  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
+
   return (
-    <Box>
-      <ElevationScroll>
-        <SubAppBar title="단말기 장애"></SubAppBar>
-      </ElevationScroll>
+    <Box
+      sx={{
+        backgroundColor: (theme) =>
+          theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+      }}
+    >
+      {!appBarHidden ? (
+        <ElevationScroll>
+          <SubAppBar title="단말기 장애"></SubAppBar>
+        </ElevationScroll>
+      ) : null}
       <Container
         component="main"
         maxWidth="sm"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
           minHeight: '100vh',
         }}
       >
-        <Toolbar id="back-to-top-anchor" variant="dense" />
+        {!appBarHidden ? (
+          <Toolbar id="back-to-top-anchor" variant="dense" />
+        ) : (
+          <Toolbar id="back-to-top-anchor" sx={{ minHeight: 0, height: 0 }} />
+        )}
         <ErrorBoundary
           onReset={reset}
           fallbackRender={({ error, resetErrorBoundary }) => (
@@ -39,12 +52,14 @@ export default function TrcnDsbl() {
           )}
         >
           <Suspense fallback={<PartLoadingSpinner />}>
-            <TrcnDsblHeader />
+            <TrcnDsblHeader id={appBarHidden ? 'back-to-top-anchor' : ''} />
             <TrcnDsblList />
           </Suspense>
         </ErrorBoundary>
-        <Copyright sx={{ pt: 3, pb: 1 }} />
-        <BackToTop bottom={nativeApp.isIOS() ? '16px' : '72px'} />
+        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) + 8px)' }} />
+        <BackToTop
+          bottom={nativeApp.isIOS() ? 'calc(env(safe-area-inset-bottom) + 16px)' : '72px'}
+        />
       </Container>
       <BottomNavBar currentNav="/trcndsbl" />
     </Box>

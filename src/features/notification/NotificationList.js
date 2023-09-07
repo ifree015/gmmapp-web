@@ -6,7 +6,7 @@ import Alert from '@mui/material/Alert';
 import { useInfiniteQuery, useMutation } from '@common/queries/query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
-import { fetchNtfcPtList, updateNtfcPtPrcgYn } from '@features/notification/notificationAPI';
+import { fetchNtfcPtList, updateNtfcPtPrcgYns } from '@features/notification/notificationAPI';
 import PartLoadingSpinner from '@components/PartLoadingSpinner';
 import ErrorDialog from '@components/ErrorDialog';
 import NotificationListItem from './NotificationListItem';
@@ -15,7 +15,7 @@ export default function NotificationList({ queryParams, onParentClose }) {
   const [ref, inView] = useInView();
   const queryClient = useQueryClient();
 
-  const { mutate, reset } = useMutation(updateNtfcPtPrcgYn, {
+  const { mutate, reset } = useMutation(updateNtfcPtPrcgYns, {
     onError: (err) => {
       reset();
     },

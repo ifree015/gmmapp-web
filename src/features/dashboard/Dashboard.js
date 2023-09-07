@@ -43,7 +43,7 @@ export default function Dashboard() {
     onError: (err) => {
       //mutateReset();
       //setLocalItem('remember', true);
-      navigate('/login');
+      navigate('/');
     },
     onSuccess: ({ data }) => {
       dispatch(login(data));

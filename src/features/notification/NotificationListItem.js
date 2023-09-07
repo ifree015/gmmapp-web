@@ -23,6 +23,7 @@ import { useMutation } from '@common/queries/query';
 import { deleteNtfcPt } from '@features/notification/notificationAPI';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
+import nativeApp from '@common/utils/nativeApp';
 
 dayjs.extend(relativeTime);
 dayjs.locale('ko');
@@ -54,15 +55,19 @@ const NotificationListItem = React.forwardRef(({ ntfcPt, refetchData, onParentCl
     //   value.startsWith('/trcndsbl/trcndsbldetail')
     // );
 
-    if (isCurrentPage) {
-      onParentClose();
-    }
-
     const toLocation = cnctMoappScrnVal + (ntgtVal ? '?' + ntgtVal : '');
-    navigate(toLocation, {
-      replace: isCurrentPage,
-      state: { from: isCurrentPage ? location.state?.from : location.pathname },
-    });
+    if (nativeApp.isIOS()) {
+      nativeApp.navigateView(toLocation);
+    } else {
+      if (isCurrentPage) {
+        onParentClose();
+      }
+
+      navigate(toLocation, {
+        replace: isCurrentPage,
+        state: { from: isCurrentPage ? location.state?.from : location.pathname },
+      });
+    }
   };
 
   return (

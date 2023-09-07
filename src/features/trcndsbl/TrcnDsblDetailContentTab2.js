@@ -16,6 +16,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import produce from 'immer';
@@ -29,6 +34,8 @@ import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
 import useSmUp from '@common/hooks/useSmUp';
+import Stack from '@mui/material/Stack';
+import BuildCircleOutlinedIcon from '@mui/icons-material/BuildCircleOutlined';
 
 function LabelTableCell({ children }) {
   return (
@@ -38,10 +45,12 @@ function LabelTableCell({ children }) {
   );
 }
 
+const NSMT_DVS_CD_CNT = 6;
 const initialState = {
   dsblPrcgDelyRsnCdOpen: false,
   trcnErrPrcgTypCdOpen: false,
   atlDsblTypValOpen: false,
+  nsmtDvsCdsOpen: Array.from({ length: NSMT_DVS_CD_CNT }, () => false),
   trcnRplcInfStatus: 'idle',
 };
 
@@ -65,6 +74,12 @@ function reducer(state, action) {
         break;
       case 'ATL_DSBL_TYP_VAL_CLOSE':
         draft.atlDsblTypValOpen = false;
+        break;
+      case 'NSMT_DVS_CD_OPEN':
+        draft.nsmtDvsCdsOpen[action.payload] = true;
+        break;
+      case 'NSMT_DVS_CD_CLOSE':
+        draft.nsmtDvsCdsOpen[action.payload] = false;
         break;
       case 'TRCN_RPLC_INF':
         draft.trcnRplcInfStatus = action.payload;
@@ -111,6 +126,28 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
     trcnDsbl.atlDsblTypVal ? [{ code: trcnDsbl.atlDsblTypVal, name: trcnDsbl.atlDsblTypValNm }] : []
   );
   const atlDsblTypValLoadingable = state.atlDsblTypValOpen && atlDsblTypVals.length <= 1;
+  const [nsmtDvsCds, fetchNsmtDvsCds] = useAsyncCmmCode(
+    'CSM_TYP_CD' + (trcnDsbl.trcnDvsCd ? '-' + trcnDsbl.trcnDvsCd : ''),
+    {
+      trcnDvsCd: trcnDsbl.trcnDvsCd,
+    },
+    Array.from(Array(NSMT_DVS_CD_CNT), (v, i) => i + 1)
+      .map((number) => ({
+        code: trcnDsbl['nsmtDvsCd' + number],
+        name: trcnDsbl['nsmtDvsNm' + number],
+      }))
+      .filter((nsmtDvsCd) => !!nsmtDvsCd.code)
+      .map((e) => ({
+        code: e.code,
+        name: e.name.replaceAll('&#34;', '"'),
+      })),
+    true
+  );
+  const nsmtDvsCdsLoadingable = Array.from(
+    Array(NSMT_DVS_CD_CNT),
+    (v, i) => state.nsmtDvsCdsOpen[i] && nsmtDvsCds.length <= NSMT_DVS_CD_CNT
+  );
+  const nsmtDvsCdLoadingable = nsmtDvsCdsLoadingable.some((value) => value);
 
   useEffect(() => {
     if (dsblPrcgDelyRsnCdLoadingable) {
@@ -127,6 +164,11 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
       fetchAtlDsblTypVals();
     }
   }, [atlDsblTypValLoadingable, fetchAtlDsblTypVals]);
+  useEffect(() => {
+    if (nsmtDvsCdLoadingable) {
+      fetchNsmtDvsCds();
+    }
+  }, [nsmtDvsCdLoadingable, fetchNsmtDvsCds]);
 
   const { refetch } = useQuery(
     ['readTrcnRplcInf'],
@@ -208,6 +250,24 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
           atlDsblTypVal: otherCached
             ? null
             : atlDsblTypVals.find((cmdCode) => cmdCode.code === trcnDsbl.atlDsblTypVal) ?? null,
+          nsmtDvsCd1: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd1) ?? null,
+          nsmtDvsCd2: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd2) ?? null,
+          nsmtDvsCd3: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd3) ?? null,
+          nsmtDvsCd4: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd4) ?? null,
+          nsmtDvsCd5: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd5) ?? null,
+          nsmtDvsCd6: otherCached
+            ? null
+            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd6) ?? null,
           dsblPrcgDtlCtt: trcnDsbl.dsblPrcgDtlCtt ?? '',
           dsblEtcErrCtt: trcnDsbl.dsblEtcErrCtt ?? '',
         }}
@@ -256,6 +316,12 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
                 dsblPrcgDelyRsnCd: values.dsblPrcgDelyRsnCd,
                 trcnErrPrcgTypCd: values.trcnErrPrcgTypCd.code,
                 atlDsblTypVal: values.atlDsblTypVal?.code ?? '',
+                nsmtDvsCd1: values.nsmtDvsCd1?.code ?? '',
+                nsmtDvsCd2: values.nsmtDvsCd2?.code ?? '',
+                nsmtDvsCd3: values.nsmtDvsCd3?.code ?? '',
+                nsmtDvsCd4: values.nsmtDvsCd4?.code ?? '',
+                nsmtDvsCd5: values.nsmtDvsCd5?.code ?? '',
+                nsmtDvsCd6: values.nsmtDvsCd6?.code ?? '',
                 dsblPrcgDtlCtt: values.dsblPrcgDtlCtt,
                 dsblEtcErrCtt: values.dsblEtcErrCtt,
               });
@@ -555,6 +621,153 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
                           />
                         )}
                       />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={2}>
+                      <Autocomplete
+                        disablePortal
+                        size="small"
+                        selectOnFocus={false}
+                        open={state.nsmtDvsCdsOpen[0]}
+                        onOpen={() => {
+                          dispatch({
+                            type: 'NSMT_DVS_CD_OPEN',
+                            payload: 0,
+                          });
+                        }}
+                        onClose={() => {
+                          dispatch({
+                            type: 'NSMT_DVS_CD_CLOSE',
+                            payload: 0,
+                          });
+                        }}
+                        loading={nsmtDvsCdsLoadingable[0]}
+                        isOptionEqualToValue={(option, value) => option.code === value.code}
+                        getOptionLabel={(option) => option.name}
+                        options={nsmtDvsCds}
+                        id="nsmtDvsCd1"
+                        value={formik.values.nsmtDvsCd1}
+                        onChange={(event, newValue) => {
+                          formik.setFieldValue('nsmtDvsCd1', newValue);
+                        }}
+                        sx={
+                          {
+                            // maxWidth: 300,
+                            // '& .MuiAutocomplete-input': {
+                            //   fontSize: (theme) => theme.typography.fontSize,
+                            // },
+                          }
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            // placeholder="선택해주세요"
+                            label="소모품1"
+                            variant="standard"
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <React.Fragment>
+                                  {nsmtDvsCdsLoadingable[0] ? (
+                                    <CircularProgress color="inherit" size={20} />
+                                  ) : null}
+                                  {params.InputProps.endAdornment}
+                                </React.Fragment>
+                              ),
+                            }}
+                            error={formik.touched.nsmtDvsCd1 && Boolean(formik.errors.nsmtDvsCd1)}
+                            helperText={formik.touched.nsmtDvsCd1 && formik.errors.nsmtDvsCd1}
+                          />
+                        )}
+                      />
+                      <Accordion elevation={0} square sx={{ pt: 1 }}>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="csm-content"
+                          sx={{
+                            px: 0,
+                          }}
+                        >
+                          <Stack direction="row" alignItems="center" spacing={0.5}>
+                            <BuildCircleOutlinedIcon color="primary" />
+                            <Typography variant="body2">
+                              소모품{`(2~${NSMT_DVS_CD_CNT})`}
+                            </Typography>
+                          </Stack>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ pt: 0 }}>
+                          <Stack direction="column" spacing={1}>
+                            {Array.from({ length: NSMT_DVS_CD_CNT - 1 }, (v, i) => i + 2).map(
+                              (number, index) => (
+                                <Autocomplete
+                                  key={number}
+                                  disablePortal
+                                  size="small"
+                                  selectOnFocus={false}
+                                  open={state.nsmtDvsCdsOpen[index + 1]}
+                                  onOpen={() => {
+                                    dispatch({
+                                      type: 'NSMT_DVS_CD_OPEN',
+                                      payload: index + 1,
+                                    });
+                                  }}
+                                  onClose={() => {
+                                    dispatch({
+                                      type: 'NSMT_DVS_CD_CLOSE',
+                                      payload: index + 1,
+                                    });
+                                  }}
+                                  loading={nsmtDvsCdsLoadingable[index + 1]}
+                                  isOptionEqualToValue={(option, value) =>
+                                    option.code === value.code
+                                  }
+                                  getOptionLabel={(option) => option.name}
+                                  options={nsmtDvsCds}
+                                  id={`nsmtDvsCd${number}`}
+                                  value={formik.values['nsmtDvsCd' + number]}
+                                  onChange={(event, newValue) => {
+                                    formik.setFieldValue(`nsmtDvsCd${number}`, newValue);
+                                  }}
+                                  // sx={{
+                                  //   maxWidth: 350,
+                                  //   // '& .MuiAutocomplete-input': {
+                                  //   //   fontSize: (theme) => theme.typography.fontSize,
+                                  //   // },
+                                  // }}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      // placeholder="선택해주세요"
+                                      label={`소모품${number}`}
+                                      variant="standard"
+                                      InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                          <React.Fragment>
+                                            {nsmtDvsCdsLoadingable[index + 1] ? (
+                                              <CircularProgress color="inherit" size={20} />
+                                            ) : null}
+                                            {params.InputProps.endAdornment}
+                                          </React.Fragment>
+                                        ),
+                                      }}
+                                      error={
+                                        formik.touched['nsmtDvsCd' + number] &&
+                                        Boolean(formik.errors['nsmtDvsCd' + number])
+                                      }
+                                      helperText={
+                                        formik.touched['nsmtDvsCd' + number] &&
+                                        formik.errors['nsmtDvsCd' + number]
+                                      }
+                                    />
+                                  )}
+                                />
+                              )
+                            )}
+                          </Stack>
+                        </AccordionDetails>
+                      </Accordion>
                     </TableCell>
                   </TableRow>
                   <TableRow>

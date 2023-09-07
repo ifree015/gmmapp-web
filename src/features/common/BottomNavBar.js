@@ -65,7 +65,7 @@ export default function BottomNavBar({ currentNav }) {
     <React.Fragment>
       {!nativeApp.isIOS() ? (
         <React.Fragment>
-          <Toolbar variant="dense" />
+          <Toolbar />
           <Paper
             sx={{
               position: 'fixed',

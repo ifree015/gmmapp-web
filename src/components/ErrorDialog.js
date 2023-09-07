@@ -1,4 +1,6 @@
 // import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -6,13 +8,14 @@ import Typography from '@mui/material/Typography';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import { useDispatch } from 'react-redux';
-import { removeLocalItem } from '@common/utils/storage';
+import { setLocalItem } from '@common/utils/storage';
 import { logout } from '@features/user/userSlice';
+import nativeApp from '@common/utils/nativeApp';
 
 export default function ErrorDialog({ open, error, resetError }) {
   // const [_open, setOpen] = useState(open);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   setOpen(open);
@@ -22,8 +25,14 @@ export default function ErrorDialog({ open, error, resetError }) {
     // setOpen(false);
     if (error?.code) {
       if ('gmm.err.003 gmm.err.004'.includes(error.code)) {
-        removeLocalItem('remember');
+        setLocalItem('remember', false);
         dispatch(logout());
+        // setSessionItem('userInfo', null);
+        if (nativeApp.isIOS()) {
+          nativeApp.loggedOut();
+        } else {
+          navigate('/login');
+        }
       }
     }
   };

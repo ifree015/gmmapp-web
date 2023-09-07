@@ -18,7 +18,7 @@ import useLocalStorage from '@common/hooks/useLocalStorage';
 import { setLocalItem } from '@common/utils/storage';
 import nativeApp from '@common/utils/nativeApp';
 
-const TrcnDsblVhclSearchStorage = () => {
+const TrcnDsblVhclSearchStorage = ({ onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [storageSrchVhcls, setStorageSrchVhcls] = useLocalStorage('srchVhcls', []);
@@ -31,18 +31,23 @@ const TrcnDsblVhclSearchStorage = () => {
       storageSrchVhcls.unshift(srchVhcl);
       // setStorageSrchVhcls(srchVhcls);
       setLocalItem('srchVhcls', storageSrchVhcls);
-      navigate(
-        `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
-          .subtract(3, 'month')
-          .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
-          srchVhcl.tropId
-        }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
-          srchVhcl.vhclNo
-        }&backButton=${nativeApp.isIOS() ? 'Y' : ''}`,
-        { state: { from: location.pathname } }
-      );
+      const to = `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
+        .subtract(3, 'month')
+        .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
+        srchVhcl.tropId
+      }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
+        srchVhcl.vhclNo
+      }&appBarHidden=${nativeApp.isIOS() ? 'Y' : ''}`;
+      if (nativeApp.isIOS()) {
+        nativeApp.pushView(to, { title: '단말기장애' });
+        setTimeout(() => {
+          onClose();
+        }, 300);
+      } else {
+        navigate(to, { state: { from: location.pathname } });
+      }
     },
-    [storageSrchVhcls, location, navigate]
+    [storageSrchVhcls, location, navigate, onClose]
   );
 
   const removeStorageListItem = useCallback(

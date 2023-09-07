@@ -98,7 +98,7 @@ export default function TrcnDsblSignature({ open, onClose, trcnDsbl }) {
             theme.palette.mode === 'light' ? 'secondary.main' : theme.palette.background.paper2,
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           <Typography component="h1" variant="h6" sx={{ flex: 1 }}>
             서명
           </Typography>

@@ -131,10 +131,15 @@ export default function TrcnDsblboard() {
     queryParams.categoryId = categoryId;
     if (nativeApp.isIOS()) {
       queryParams.backButton = 'Y';
+      queryParams.appBarHidden = 'Y';
+      nativeApp.pushView('/centtrcndsbl?' + new URLSearchParams(queryParams).toString(), {
+        title: '센터 단말기장애',
+      });
+    } else {
+      navigate('/centtrcndsbl?' + new URLSearchParams(queryParams).toString(), {
+        state: { from: location.pathname },
+      });
     }
-    navigate('/centtrcndsbl?' + new URLSearchParams(queryParams).toString(), {
-      state: { from: location.pathname },
-    });
   };
 
   const chartDatas = [

@@ -3,7 +3,7 @@ import { selectCmnCode, addCmdCode } from '@features/common/cmnCodeSlice';
 import { useQuery } from '@common/queries/query';
 import { fetchCommonCode } from '@features/common/commonAPI';
 
-export default function useAsyncCmmCode(cmnCdId, params, defaultCmnCode) {
+export default function useAsyncCmmCode(cmnCdId, params, defaultCmnCode, entityReplaced) {
   const cmnCode = useSelector((state) => {
     return selectCmnCode(state, cmnCdId);
   });
@@ -17,7 +17,14 @@ export default function useAsyncCmmCode(cmnCdId, params, defaultCmnCode) {
       // refetchOnMount, refetchOnReconnect, refetchOnWindowFocus, ...
       enabled: false,
       onSuccess: ({ data }) => {
-        dispatch(addCmdCode({ cmnCdId: cmnCdId, cmnCd: data }));
+        dispatch(
+          addCmdCode({
+            cmnCdId: cmnCdId,
+            cmnCd: entityReplaced
+              ? data.map((e) => ({ code: e.code, name: e.name.replaceAll('&#34;', '"') }))
+              : data,
+          })
+        );
       },
     }
   );

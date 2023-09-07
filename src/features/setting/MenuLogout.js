@@ -7,7 +7,7 @@ import { useMutation } from '@common/queries/query';
 import { logout } from '@features/user/userSlice';
 import { processLogout } from '@features/login/loginAPI';
 import useError from '@common/hooks/useError';
-import { setLocalItem, setSessionItem } from '@common/utils/storage';
+import { setLocalItem } from '@common/utils/storage';
 import LoadingSpinner from '@components/LoadingSpinner';
 import nativeApp from '@common/utils/nativeApp';
 
@@ -21,9 +21,9 @@ const MenuLogout = () => {
       openError(err, reset);
     },
     onSuccess: ({ data }) => {
-      dispatch(logout(data));
       setLocalItem('remember', false);
-      setSessionItem('userInfo', null);
+      dispatch(logout());
+      // setSessionItem('userInfo', null);
       if (nativeApp.isIOS()) {
         nativeApp.loggedOut();
       } else {

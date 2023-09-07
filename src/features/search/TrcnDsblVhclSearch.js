@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import Container from '@mui/material/Container';
@@ -14,7 +14,7 @@ import Chip from '@mui/material/Chip';
 import { debounce } from 'lodash';
 import dayjs from 'dayjs';
 import ErrorDialog from '@components/ErrorDialog';
-import useUser from '@common/hooks/useUser';
+// import useUser from '@common/hooks/useUser';
 import { useQuery } from '@common/queries/query';
 import { fetchSrchVhclList } from '@features/common/commonAPI';
 import TrcnDsblVhclSearchStorage from './TrcnDsblVhclSearchStorage';
@@ -26,9 +26,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function TrcnDsblVhclSearch({ open, onClose }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [srchKwd, setSrchKwd] = useState('');
   // const [isPending, startTransition] = useTransition();
-  const user = useUser();
+  // const user = useUser();
 
   const { data, isError, error, reset, refetch, remove } = useQuery(
     ['readSrchVhclList'],
@@ -71,6 +73,26 @@ export default function TrcnDsblVhclSearch({ open, onClose }) {
     onClose();
   }, [remove, onClose]);
 
+  const handleSearch = useCallback(() => {
+    //   &dprtId=${
+    //   user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtId : ''
+    // }&dprtNm=${
+    //   user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtNm : ''}
+    const to = `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
+      .subtract(3, 'month')
+      .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format(
+      'YYYYMMDD'
+    )}&srchKwd=${srchKwd.trim()}&appBarHidden=${nativeApp.isIOS() ? 'Y' : ''}`;
+    if (nativeApp.isIOS()) {
+      nativeApp.pushView(to, { title: '단말기장애' });
+      setTimeout(() => {
+        onClose();
+      }, 300);
+    } else {
+      navigate(to, { state: { from: location.pathname } });
+    }
+  }, [srchKwd, onClose, navigate, location]);
+
   return (
     <Dialog
       fullScreen
@@ -111,14 +133,7 @@ export default function TrcnDsblVhclSearch({ open, onClose }) {
                   type="button"
                   color="secondary"
                   aria-label="search"
-                  component={RouterLink}
-                  to={`/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
-                    .subtract(3, 'month')
-                    .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&dprtId=${
-                    user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtId : ''
-                  }&dprtNm=${
-                    user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtNm : ''
-                  }&srchKwd=${srchKwd.trim()}&backButton=${nativeApp.isIOS() ? 'Y' : ''}`}
+                  onClick={handleSearch}
                 >
                   <SearchOutlinedIcon />
                 </IconButton>
@@ -127,9 +142,9 @@ export default function TrcnDsblVhclSearch({ open, onClose }) {
           />
           <Divider sx={{ bgcolor: 'secondary.main' }} />
           {srchKwd === '' ? (
-            <TrcnDsblVhclSearchStorage />
+            <TrcnDsblVhclSearchStorage onClose={handleClose} />
           ) : (
-            <TrcnDsblVhclSearchSuggestion data={data} />
+            <TrcnDsblVhclSearchSuggestion onClose={handleClose} data={data} />
           )}
           <Divider />
           <Chip

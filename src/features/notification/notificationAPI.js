@@ -20,6 +20,10 @@ export const updateNtfcPtPrcgYn = (queryParams) => {
   return fetchByFormUrlencoded('ntfc/UpdateNtfcPtPrcgYn.ajax', queryParams);
 };
 
+export const updateNtfcPtPrcgYns = (queryParams) => {
+  return fetchByFormUrlencoded('ntfc/UpdateNtfcPtPrcgYns.ajax', queryParams);
+};
+
 export const deleteNtfcPt = (queryParams) => {
   return fetchByFormUrlencoded('ntfc/DeleteNtfcPt.ajax', queryParams);
 };

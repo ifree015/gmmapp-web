@@ -45,7 +45,7 @@ export default function Notification({ open, onClose }) {
             theme.palette.mode === 'light' ? 'secondary.main' : theme.palette.background.paper2,
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           <Typography component="h1" variant="h6" sx={{ flex: 1 }}>
             알림
           </Typography>

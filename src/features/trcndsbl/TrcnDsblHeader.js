@@ -26,7 +26,7 @@ const StickyStack = styled(Stack)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     margin: theme.spacing(0, -3, 0, -3),
     padding: theme.spacing(1, 3),
-    top: 64,
+    top: 48,
     // justifyContent: 'flex-start',
   },
   flexWrap: 'wrap',
@@ -56,10 +56,13 @@ function reducer(state, action) {
 export default function TrcnDsblHeader() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
+  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
   const isSmUp = useSmUp();
   const [ref, inView] = useInView({
     threshold: 1,
-    rootMargin: isSmUp ? '-65px 0px 0px 0px' : '-57px 0px 0px 0px',
+    rootMargin: isSmUp
+      ? `-${appBarHidden ? 1 : 49}px 0px 0px 0px`
+      : `-${appBarHidden ? 1 : 49}px 0px 0px 0px`,
   });
   const user = useUser();
 
@@ -175,17 +178,17 @@ export default function TrcnDsblHeader() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (state.sticky === undefined) {
-      dispatch({
-        type: 'STICKY',
-        payload: false,
-      });
-    } else {
-      dispatch({
-        type: 'STICKY',
-        payload: !inView,
-      });
-    }
+    // if (state.sticky === undefined) {
+    //   dispatch({
+    //     type: 'STICKY',
+    //     payload: false,
+    //   });
+    // } else {
+    dispatch({
+      type: 'STICKY',
+      payload: !inView,
+    });
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView]);
 
@@ -256,6 +259,7 @@ export default function TrcnDsblHeader() {
         // spacing={{ xs: 0.5, sm: 1 }}
         sx={{
           bgcolor: state.sticky ? 'background.paper' : 'inherit',
+          top: { xs: `${appBarHidden ? 0 : 48}px`, sm: `${appBarHidden ? 0 : 48}px` },
         }}
         component="header"
         ref={ref}

@@ -29,6 +29,7 @@ export default function CentTrcnDsblList() {
   const user = useUser();
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
+
   const queryParams = {
     categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
     dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
@@ -41,6 +42,7 @@ export default function CentTrcnDsblList() {
     dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
     dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
     backButton: searchParams.get('backButton') ?? '',
+    appBarHidden: searchParams.get('appBarHidden') ?? '',
   };
   const [ref, inView] = useInView();
   const centCds = useCmmCode('CENT');

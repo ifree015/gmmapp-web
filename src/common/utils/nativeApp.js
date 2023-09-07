@@ -68,6 +68,18 @@ class AndroidApp extends NativeApp {
     this.getWebView()?.setThemeMode(mode);
   }
 
+  updatePushNtfcNcnt(pushNtfcNcnt) {
+    // todo
+  }
+
+  navigateView(location, viewInfo) {
+    // todo
+  }
+
+  modalView(location, viewInfo) {
+    // todo
+  }
+
   pushView(location, viewInfo) {
     // todo
   }
@@ -75,10 +87,6 @@ class AndroidApp extends NativeApp {
   setViewInfo(viewInfo) {}
 
   goBack() {
-    // todo
-  }
-
-  navigateView(location, viewInfo) {
     // todo
   }
 
@@ -139,6 +147,27 @@ class IOSApp extends NativeApp {
     });
   }
 
+  updatePushNtfcNcnt(pushNtfcNcnt) {
+    this.getWebView().messageHandlers.updatePushNtfcNcnt.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: pushNtfcNcnt,
+    });
+  }
+
+  navigateView(location, viewInfo) {
+    this.getWebView().messageHandlers.navigateView.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: { location, viewInfo },
+    });
+  }
+
+  modalView(location, viewInfo) {
+    this.getWebView().messageHandlers.modalView.postMessage({
+      guid: promiseNativeCaller.generateUUID(),
+      data: { location, viewInfo },
+    });
+  }
+
   pushView(location, viewInfo) {
     this.getWebView().messageHandlers.pushView.postMessage({
       guid: promiseNativeCaller.generateUUID(),
@@ -156,13 +185,6 @@ class IOSApp extends NativeApp {
   goBack() {
     this.getWebView().messageHandlers.goBack.postMessage({
       guid: promiseNativeCaller.generateUUID(),
-    });
-  }
-
-  navigateView(location, viewInfo) {
-    this.getWebView().messageHandlers.navigateView.postMessage({
-      guid: promiseNativeCaller.generateUUID(),
-      data: { location, viewInfo },
     });
   }
 

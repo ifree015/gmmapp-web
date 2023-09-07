@@ -57,6 +57,7 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
             sx={{
               bgcolor: (theme) =>
                 theme.palette.mode === 'light' ? 'warning.main' : 'warning.dark',
+              py: 1,
             }}
             color={(theme) => theme.palette.common.white}
           >
