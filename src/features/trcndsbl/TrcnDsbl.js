@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
@@ -18,8 +17,6 @@ import nativeApp from '@common/utils/nativeApp';
 
 export default function TrcnDsbl() {
   const { reset } = useQueryErrorResetBoundary();
-  const [searchParams] = useSearchParams();
-  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
 
   return (
     <Box
@@ -28,7 +25,7 @@ export default function TrcnDsbl() {
           theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
       }}
     >
-      {!appBarHidden ? (
+      {!nativeApp.isIOS() ? (
         <ElevationScroll>
           <SubAppBar title="단말기 장애"></SubAppBar>
         </ElevationScroll>
@@ -40,7 +37,7 @@ export default function TrcnDsbl() {
           minHeight: '100vh',
         }}
       >
-        {!appBarHidden ? (
+        {!nativeApp.isIOS() ? (
           <Toolbar id="back-to-top-anchor" variant="dense" />
         ) : (
           <Toolbar id="back-to-top-anchor" sx={{ minHeight: 0, height: 0 }} />
@@ -52,7 +49,7 @@ export default function TrcnDsbl() {
           )}
         >
           <Suspense fallback={<PartLoadingSpinner />}>
-            <TrcnDsblHeader id={appBarHidden ? 'back-to-top-anchor' : ''} />
+            <TrcnDsblHeader id={nativeApp.isIOS() ? 'back-to-top-anchor' : ''} />
             <TrcnDsblList />
           </Suspense>
         </ErrorBoundary>

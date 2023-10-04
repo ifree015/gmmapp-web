@@ -42,7 +42,6 @@ export default function CentTrcnDsblList() {
     dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
     dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
     backButton: searchParams.get('backButton') ?? '',
-    appBarHidden: searchParams.get('appBarHidden') ?? '',
   };
   const [ref, inView] = useInView();
   const centCds = useCmmCode('CENT');

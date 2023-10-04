@@ -26,6 +26,7 @@ export default function ErrorDialog({ open, error, resetError }) {
     if (error?.code) {
       if ('gmm.err.003 gmm.err.004'.includes(error.code)) {
         setLocalItem('remember', false);
+        setLocalItem('themeMode', '');
         dispatch(logout());
         // setSessionItem('userInfo', null);
         if (nativeApp.isIOS()) {

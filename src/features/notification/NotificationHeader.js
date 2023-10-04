@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -17,17 +17,18 @@ import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useConfirm from '@common/hooks/useConfirm';
 import useError from '@common/hooks/useError';
 import LoadingSpinner from '@components/LoadingSpinner';
+import nativeApp from '@common/utils/nativeApp';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(0, -2, 0, -2),
   padding: theme.spacing(1, 2),
   position: 'sticky',
-  top: 56,
+  top: 48,
   // justifyContent: 'center',
   [theme.breakpoints.up('sm')]: {
     margin: theme.spacing(0, -3, 0, -3),
     padding: theme.spacing(1, 3),
-    top: 64,
+    top: 48,
     // justifyContent: 'flex-start',
   },
   zIndex: theme.zIndex.appBar + 1,
@@ -44,8 +45,12 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
   const openError = useError();
   const [ref, inView] = useInView({
     threshold: 1,
-    rootMargin: isSmUp ? '-65px 0px 0px 0px' : '-57px 0px 0px 0px',
+    initialInView: nativeApp.isIOS() ? false : true,
+    rootMargin: isSmUp
+      ? `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`
+      : `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
   });
+  const delayInView = useRef(false);
 
   const { data, refetch } = useQuery(
     ['readNtfcPtNcnt', queryParams.categoryId],
@@ -72,7 +77,11 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
   });
 
   useEffect(() => {
-    setSticky(!inView);
+    if (!inView && !delayInView.current) {
+      delayInView.current = true;
+    } else {
+      setSticky(!inView);
+    }
   }, [inView]);
 
   return (
@@ -115,6 +124,7 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
         spacing={{ xs: 0.5, sm: 1 }}
         sx={{
           bgcolor: sticky ? 'background.paper' : 'inherit',
+          top: { xs: `${nativeApp.isIOS() ? 0 : 48}px`, sm: `${nativeApp.isIOS() ? 0 : 48}px` },
         }}
         component="header"
         ref={ref}

@@ -21,7 +21,7 @@ import { useMutation } from '@common/queries/query';
 import { deleteTrcnDsblSgn } from '@features/trcndsbl/trcnDsblAPI';
 import { API_ROOT_URL } from '@common/constants/appEnv';
 
-export default function TrcnDsblSignatureTab1({ trcnDsbl, data, refetch }) {
+export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
   const theme = useTheme();
   // const openAlert = useAlert();
   const openConfirm = useConfirm();

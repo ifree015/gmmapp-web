@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
@@ -18,8 +17,6 @@ import nativeApp from '@common/utils/nativeApp';
 
 export default function CentTrcnDsbl() {
   const { reset } = useQueryErrorResetBoundary();
-  const [searchParams] = useSearchParams();
-  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
 
   return (
     <Box
@@ -28,12 +25,12 @@ export default function CentTrcnDsbl() {
           theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
       }}
     >
-      {!appBarHidden ? (
+      {!nativeApp.isIOS() ? (
         <ElevationScroll>
           <SubAppBar title="센터 단말기장애"></SubAppBar>
         </ElevationScroll>
       ) : (
-        <Box sx={{ py: 0.25 }} />
+        <Box sx={{ pt: 0.125 }} />
       )}
       <Container
         component="main"
@@ -42,7 +39,7 @@ export default function CentTrcnDsbl() {
           minHeight: '100vh',
         }}
       >
-        {!appBarHidden ? (
+        {!nativeApp.isIOS() ? (
           <Toolbar id="back-to-top-anchor" variant="dense" />
         ) : (
           <Toolbar id="back-to-top-anchor" sx={{ minHeight: 0, height: 0 }} />

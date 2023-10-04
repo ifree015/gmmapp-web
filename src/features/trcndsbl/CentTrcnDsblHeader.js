@@ -9,6 +9,7 @@ import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstan
 import { useInView } from 'react-intersection-observer';
 import useSmUp from '@common/hooks/useSmUp';
 import dayjs from 'dayjs';
+import nativeApp from '@common/utils/nativeApp';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(2, -2, 0, -2),
@@ -30,7 +31,6 @@ export default function CentTrcnDsblHeader() {
   const user = useUser();
   const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
-  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
 
   const queryParams = {
     categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
@@ -44,14 +44,14 @@ export default function CentTrcnDsblHeader() {
     dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
     dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
     backButton: searchParams.get('backButton') ?? '',
-    appBarHidden: searchParams.get('appBarHidden') ?? '',
   };
   const isSmUp = useSmUp();
   const [ref, inView] = useInView({
     threshold: 1,
+    initialInView: true,
     rootMargin: isSmUp
-      ? `-${appBarHidden ? 1 : 49}px 0px 0px 0px`
-      : `-${appBarHidden ? 1 : 49}px 0px 0px 0px`,
+      ? `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`
+      : `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
   });
 
   useEffect(() => {
@@ -70,8 +70,8 @@ export default function CentTrcnDsblHeader() {
       sx={{
         bgcolor: sticky ? 'background.paper' : 'inherit',
         // boxShadow: sticky ? 1 : 0,
-        top: { xs: `${appBarHidden ? 0 : 48}px`, sm: `${appBarHidden ? 0 : 48}px` },
-        my: appBarHidden ? 1.25 : 2,
+        top: { xs: `${nativeApp.isIOS() ? 0 : 48}px`, sm: `${nativeApp.isIOS() ? 0 : 48}px` },
+        my: 1.5,
       }}
       component="header"
       ref={ref}

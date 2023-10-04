@@ -118,7 +118,6 @@ export default function TrcnDsblSearchCondition({ open, onClose }) {
       dsblPrcgFnYn: searchParams.get('dsblPrcgFnYn') ?? '',
       dsblPrsrName: searchParams.get('dsblPrsrName') ?? '',
       backButton: searchParams.get('backButton') ?? '',
-      appBarHidden: searchParams.get('appBarHidden') ?? '',
     }),
     [searchParams]
   );
@@ -270,7 +269,6 @@ export default function TrcnDsblSearchCondition({ open, onClose }) {
             if (queryParams.dsblPrsrName)
               queryParams.dsblPrsrName = queryParams.dsblPrsrName.trim();
             queryParams.backButton = searchParams.get('backButton') ?? '';
-            queryParams.appBarHidden = searchParams.get('appBarHidden') ?? '';
             setSearchParams(new URLSearchParams(queryParams), { replace: true });
             onClose();
           }}

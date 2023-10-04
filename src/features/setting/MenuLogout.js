@@ -22,6 +22,7 @@ const MenuLogout = () => {
     },
     onSuccess: ({ data }) => {
       setLocalItem('remember', false);
+      setLocalItem('themeMode', '');
       dispatch(logout());
       // setSessionItem('userInfo', null);
       if (nativeApp.isIOS()) {

@@ -10,14 +10,14 @@ import Badge from '@mui/material/Badge';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
 import produce from 'immer';
-import dayjs from 'dayjs';
-import TrcnDsblVhclSearch from '@features/search/TrcnDsblVhclSearch';
+// import dayjs from 'dayjs';
+import TrcnDsblVhclSearchDialog from '@features/search/TrcnDsblVhclSearchDialog';
 import { useQuery } from '@common/queries/query';
 import { fetchNewNtfcPtNcnt } from '@features/notification/notificationAPI';
-import Notification from '@features/notification/Notification';
-import AppMenu from '@features/setting/AppMenu';
+import NotificationDialog from '@features/notification/NotificationDialog';
+import AppMenuDialog from '@features/setting/AppMenuDialog';
 import useAuth from '@common/hooks/useAuth';
-import nativeApp from '@common/utils/nativeApp';
+// import nativeApp from '@common/utils/nativeApp';
 
 const SearchButton = styled(Button)(({ theme }) => {
   return {
@@ -79,7 +79,10 @@ export default function MainAppBar({ elevation = 1 }) {
 
   const { data, remove } = useQuery(
     ['readNewNtfcPtNcnt'],
-    () => fetchNewNtfcPtNcnt({ ntfcDsptDt: dayjs().subtract(1, 'month').format('YYYYMMDD') }),
+    () =>
+      fetchNewNtfcPtNcnt({
+        // ntfcDsptDt: dayjs().subtract(1, 'month').format('YYYYMMDD')
+      }),
     {
       enabled: auth,
       suspense: false,
@@ -88,9 +91,9 @@ export default function MainAppBar({ elevation = 1 }) {
       refetchInterval: 3 * 60 * 1000,
       // onError: (err) => {},
       onSuccess: (data) => {
-        if (nativeApp.isIOS()) {
-          nativeApp.updatePushNtfcNcnt(data.data.pushNtfcNcnt);
-        }
+        // if (nativeApp.isIOS()) {
+        //   nativeApp.updatePushNtfcNcnt(data.data.pushNtfcNcnt);
+        // }
       },
     }
   );
@@ -170,9 +173,9 @@ export default function MainAppBar({ elevation = 1 }) {
           <MenuIcon />
         </IconButton>
       </Toolbar>
-      <TrcnDsblVhclSearch open={state.search} onClose={closeSearch} />
-      <Notification open={state.notification} onClose={closeNotification} />
-      <AppMenu open={state.menu} onClose={closeMenu} />
+      <TrcnDsblVhclSearchDialog open={state.search} onClose={closeSearch} />
+      <NotificationDialog open={state.notification} onClose={closeNotification} />
+      <AppMenuDialog open={state.menu} onClose={closeMenu} />
     </AppBar>
   );
 }

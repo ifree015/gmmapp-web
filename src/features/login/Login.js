@@ -44,7 +44,7 @@ export default function Loign() {
       // console.log('success:', data);
       setLocalItem('remember', formik.values.remember);
       if (nativeApp.isIOS()) {
-        data['rememeber'] = formik.values.remember;
+        data['remember'] = formik.values.remember;
         nativeApp.loggedIn(data);
       } else {
         dispatch(login(data));
@@ -82,17 +82,16 @@ export default function Loign() {
     useErrorBoundary: false,
     onError: (err) => {
       mutateReset();
-      nativeApp.showWebView();
     },
     onSuccess: ({ data }) => {
       setLocalItem('remember', true);
-      if (nativeApp.isNativeApp()) {
-        data['rememeber'] = formik.values.remember;
+      if (nativeApp.isIOS()) {
+        data['remember'] = formik.values.remember;
         nativeApp.loggedIn(data);
       } else {
         dispatch(login(data));
       }
-      mutateReset();
+      // mutateReset();
     },
   });
 
@@ -104,14 +103,6 @@ export default function Loign() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoLogin, appInfo]);
-
-  const remember = getLocalItem('remember');
-  useEffect(() => {
-    if (!auth && !remember) {
-      nativeApp.showWebView();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (auth && !nativeApp.isIOS()) {
     return <Navigate to={from} repalce />;

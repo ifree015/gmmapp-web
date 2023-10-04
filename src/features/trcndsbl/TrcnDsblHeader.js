@@ -16,6 +16,7 @@ import { useInView } from 'react-intersection-observer';
 import useSmUp from '@common/hooks/useSmUp';
 import TrcnDsblSearchCondition from './TrcnDsblSearchCondition';
 import useUser from '@common/hooks/useUser';
+import nativeApp from '@common/utils/nativeApp';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(0, -2, 0, -2),
@@ -35,7 +36,7 @@ const StickyStack = styled(Stack)(({ theme }) => ({
 
 const initialState = {
   searchCondition: false,
-  sticky: undefined,
+  sticky: false,
 };
 
 function reducer(state, action) {
@@ -56,13 +57,13 @@ function reducer(state, action) {
 export default function TrcnDsblHeader() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
-  const appBarHidden = searchParams.get('appBarHidden') === 'Y';
   const isSmUp = useSmUp();
   const [ref, inView] = useInView({
     threshold: 1,
+    initialInView: true,
     rootMargin: isSmUp
-      ? `-${appBarHidden ? 1 : 49}px 0px 0px 0px`
-      : `-${appBarHidden ? 1 : 49}px 0px 0px 0px`,
+      ? `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`
+      : `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
   });
   const user = useUser();
 
@@ -259,7 +260,7 @@ export default function TrcnDsblHeader() {
         // spacing={{ xs: 0.5, sm: 1 }}
         sx={{
           bgcolor: state.sticky ? 'background.paper' : 'inherit',
-          top: { xs: `${appBarHidden ? 0 : 48}px`, sm: `${appBarHidden ? 0 : 48}px` },
+          top: { xs: `${nativeApp.isIOS() ? 0 : 48}px`, sm: `${nativeApp.isIOS() ? 0 : 48}px` },
         }}
         component="header"
         ref={ref}

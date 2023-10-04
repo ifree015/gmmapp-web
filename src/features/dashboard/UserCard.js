@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+// import { Link as RouterLink } from 'react-router-dom';
+import HybridLink from '@app//HybridLink';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Avatar from '@mui/material/Avatar';
@@ -14,6 +16,7 @@ import dayjs from 'dayjs';
 import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
 
 const UserCard = () => {
+  const location = useLocation();
   const user = useUser();
   const userRole = useRole();
   const queryParams = {
@@ -67,8 +70,12 @@ const UserCard = () => {
           aria-label="center"
           variant="contained"
           sx={{ mx: 'auto' }}
-          component={RouterLink}
+          component={HybridLink}
           to={'/centtrcndsbl?' + new URLSearchParams(queryParams).toString()}
+          state={{
+            from: location.pathname,
+            title: '센터 단말기장애',
+          }}
         >
           {userRole === USER_ROLE.SELECTOR ? '전체센터' : user.dprtNm}
         </Button>

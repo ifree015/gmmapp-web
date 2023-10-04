@@ -39,7 +39,7 @@ export default function TrcnDsblDetail() {
         <Suspense fallback={<PartLoadingSpinner />}>
           <TrcnDsblDetailContent />
         </Suspense>
-        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) / 1 + 8px)' }} />
+        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) + 8px)' }} />
         {/* <BackToTop /> */}
       </Container>
     </Box>

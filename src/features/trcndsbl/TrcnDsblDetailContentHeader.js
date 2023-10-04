@@ -19,7 +19,8 @@ import { USER_ROLE } from '@common/constants/appConstants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMutation } from '@common/queries/query';
 import { cancelTrcnDsbl } from '@features/trcndsbl/trcnDsblAPI';
-import TrcnDsblSignature from './TrcnDsblSignature';
+import TrcnDsblSignatureDialog from './TrcnDsblSignatureDialog';
+import nativeApp from '@common/utils/nativeApp';
 
 const StickyStack = styled(Stack)(({ theme }) => ({
   margin: theme.spacing(0, -2, 0, -2),
@@ -55,6 +56,7 @@ export default function TrcnDsblDetailContentHeader({
   const queryClient = useQueryClient();
   const [ref, inView] = useInView({
     threshold: 1,
+    initialInView: true,
     rootMargin: '-1px 0px 0px 0px',
   });
 
@@ -130,6 +132,20 @@ export default function TrcnDsblDetailContentHeader({
     }
   };
 
+  const handleSignature = () => {
+    if (nativeApp.isIOS()) {
+      nativeApp.modalView(
+        `/trcndsbl/trcndsblsignature/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}`,
+        {
+          title: '서명',
+          presentationStyle: 'overFull',
+        }
+      );
+    } else {
+      setSignature(true);
+    }
+  };
+
   const closeSignature = useCallback(() => {
     setSignature(false);
   }, []);
@@ -193,12 +209,12 @@ export default function TrcnDsblDetailContentHeader({
           color="primary"
           size="small"
           startIcon={<EditIcon />}
-          onClick={() => setSignature(true)}
+          onClick={handleSignature}
         >
           서명
         </Button>
       </StickyStack>
-      <TrcnDsblSignature open={signature} onClose={closeSignature} trcnDsbl={trcnDsbl} />
+      <TrcnDsblSignatureDialog open={signature} onClose={closeSignature} trcnDsbl={trcnDsbl} />
     </React.Fragment>
   );
 }

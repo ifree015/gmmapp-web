@@ -10,8 +10,8 @@ import Typography from '@mui/material/Typography';
 // import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
 import produce from 'immer';
-import TrcnDsblVhclSearch from '@features/search/TrcnDsblVhclSearch';
-import AppMenu from '@features/setting/AppMenu';
+import TrcnDsblVhclSearchDialog from '@features/search/TrcnDsblVhclSearchDialog';
+import AppMenuDialog from '@features/setting/AppMenuDialog';
 
 const initialState = {
   search: false,
@@ -124,8 +124,8 @@ const SubAppBar = ({ title, search = false, elevation = 1 }) => {
           <MenuIcon />
         </IconButton>
       </Toolbar>
-      <TrcnDsblVhclSearch open={state.search} onClose={closeSearch} />
-      <AppMenu open={state.menu} onClose={closeMenu} />
+      <TrcnDsblVhclSearchDialog open={state.search} onClose={closeSearch} />
+      <AppMenuDialog open={state.menu} onClose={closeMenu} />
     </AppBar>
   );
 };

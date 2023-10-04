@@ -130,8 +130,7 @@ export default function TrcnDsblboard() {
   const handleCard = (categoryId) => {
     queryParams.categoryId = categoryId;
     if (nativeApp.isIOS()) {
-      queryParams.backButton = 'Y';
-      queryParams.appBarHidden = 'Y';
+      // queryParams.backButton = 'Y';
       nativeApp.pushView('/centtrcndsbl?' + new URLSearchParams(queryParams).toString(), {
         title: '센터 단말기장애',
       });

@@ -27,6 +27,7 @@ import { Bar } from 'react-chartjs-2';
 import { useQuery } from '@common/queries/query';
 import { fetchTrcnDsblPrcgNcnt, fetchWeekTrcnDsblPrcgNcnt } from '@features/trcndsbl/trcnDsblAPI';
 import { USER_ROLE } from '@common/constants/appConstants';
+import nativeApp from '@common/utils/nativeApp';
 
 // ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Legend, Tooltip);
 
@@ -73,39 +74,37 @@ export default function MenuUserCard({ onParentClose }) {
         onParentClose();
       }
 
+      let trcndsblLocation = '';
       if (linkType === 'month') {
-        navigate(
-          `/trcndsbl?dsblAcptSttDt=${dayjs()
-            .subtract(1, 'month')
-            .subtract(3, 'day')
-            .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format(
-            'YYYYMMDD'
-          )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
-            .subtract(1, 'month')
-            .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
-            userRole === USER_ROLE.SELECTOR ? '' : user.userNm
-          }`,
-          {
-            replace: isTrcndsbl,
-            state: { from: isTrcndsbl ? location.state?.from : location.pathname },
-          }
-        );
+        trcndsblLocation = `/trcndsbl?dsblAcptSttDt=${dayjs()
+          .subtract(1, 'month')
+          .subtract(3, 'day')
+          .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format(
+          'YYYYMMDD'
+        )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
+          .subtract(1, 'month')
+          .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
+          userRole === USER_ROLE.SELECTOR ? '' : user.userNm
+        }`;
       } else {
-        navigate(
-          `/trcndsbl?dsblAcptSttDt=${dayjs()
-            .subtract(6 + 3, 'day')
-            .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format(
-            'YYYYMMDD'
-          )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
-            .subtract(6, 'day')
-            .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
-            userRole === USER_ROLE.SELECTOR ? '' : user.userNm
-          }`,
-          {
-            replace: isTrcndsbl,
-            state: { from: isTrcndsbl ? location.state?.from : location.pathname },
-          }
-        );
+        trcndsblLocation = `/trcndsbl?dsblAcptSttDt=${dayjs()
+          .subtract(6 + 3, 'day')
+          .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format(
+          'YYYYMMDD'
+        )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
+          .subtract(6, 'day')
+          .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
+          userRole === USER_ROLE.SELECTOR ? '' : user.userNm
+        }`;
+      }
+
+      if (nativeApp.isIOS()) {
+        nativeApp.pushView(trcndsblLocation, { title: '단말기 장애' });
+      } else {
+        navigate(trcndsblLocation, {
+          replace: isTrcndsbl,
+          state: { from: isTrcndsbl ? location.state?.from : location.pathname },
+        });
       }
     },
     [navigate, userRole, user.userNm, location, onParentClose]

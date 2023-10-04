@@ -104,7 +104,8 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
               //const trimmedCanvas = nameCanvasRef.current.getTrimmedCanvas();
               const trimmedCanvas = nameCanvasRef.current.getCanvas();
               formData.append('imgWide1', trimmedCanvas.width);
-              formData.append('imgHght1', trimmedCanvas.height);
+              //formData.append('imgHght1', trimmedCanvas.height);
+              formData.append('imgHght1', 120);
               // toBlob(trimmedCanvas.toDataURL('image/png'));
               trimmedCanvas.toBlob(resolve, 'image/png');
             });
@@ -120,7 +121,8 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
             //const trimmedCanvas = signCanvasRef.current.getTrimmedCanvas();
             const trimmedCanvas = signCanvasRef.current.getCanvas();
             formData.append('imgWide2', trimmedCanvas.width);
-            formData.append('imgHght2', trimmedCanvas.height);
+            // formData.append('imgHght2', trimmedCanvas.height);
+            formData.append('imgHght2', 120);
             trimmedCanvas.toBlob(resolve, 'image/png');
           });
           formData.append(

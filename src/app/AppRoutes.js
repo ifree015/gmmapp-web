@@ -3,14 +3,19 @@ import { useRoutes, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import useAuth from '@common/hooks/useAuth';
 import Login from '@features/login/Login';
 import Dashboard from '@features/dashboard/Dashboard';
+import TrcnDsblVhclSearch from '@features/search/TrcnDsblVhclSearch';
+import Notification from '@features/notification/Notification';
 import CentTrcnDsbl from '@features/trcndsbl/CentTrcnDsbl';
 import TrcnDsbl from '@features/trcndsbl/TrcnDsbl';
 import TrcnDsblDetail from '@features/trcndsbl/TrcnDsblDetail';
+import TrcnDsblSignature from '@features/trcndsbl/TrcnDsblSignature';
+import AppMenu from '@features/setting/AppMenu';
+import AppSetting from '@features/setting/AppSetting';
 import NotFound from '@features/notfound/NotFound';
-import { getLocalItem } from '@common/utils/storage';
+// import { getLocalItem } from '@common/utils/storage';
 import { ThemeModeContext } from '@app/ThemeMode';
 import nativeApp from '@common/utils/nativeApp';
-import usePushNotification from '@common/hooks/usePushNotification';
+// import usePushNotification from '@common/hooks/usePushNotification';
 
 export default function AppRoutes() {
   const location = useLocation();
@@ -65,7 +70,7 @@ export default function AppRoutes() {
     {
       path: '/',
       element: (
-        <RequireAuth autoLoginable={true}>
+        <RequireAuth>
           <Dashboard />
         </RequireAuth>
       ),
@@ -73,8 +78,40 @@ export default function AppRoutes() {
     {
       path: '/dashboard',
       element: (
-        <RequireAuth autoLoginable={true}>
+        <RequireAuth>
           <Dashboard />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsblvhclsearch',
+      element: (
+        <RequireAuth nativePath={true}>
+          <TrcnDsblVhclSearch />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/notification',
+      element: (
+        <RequireAuth nativePath={true}>
+          <Notification />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/setting/menu',
+      element: (
+        <RequireAuth nativePath={true}>
+          <AppMenu />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/setting/setting',
+      element: (
+        <RequireAuth>
+          <AppSetting />
         </RequireAuth>
       ),
     },
@@ -102,7 +139,14 @@ export default function AppRoutes() {
         </RequireAuth>
       ),
     },
-
+    {
+      path: '/trcndsbl/trcndsblsignature/:stlmAreaCd/:dsblAcptNo',
+      element: (
+        <RequireAuth>
+          <TrcnDsblSignature />
+        </RequireAuth>
+      ),
+    },
     {
       path: '/login',
       element: <Login />,
@@ -116,24 +160,28 @@ export default function AppRoutes() {
   return element;
 }
 
-function RequireAuth({ children, autoLoginable }) {
+function RequireAuth({ children, nativePath }) {
   const auth = useAuth();
   const location = useLocation();
-  usePushNotification();
+  // usePushNotification();
 
   if (!auth) {
-    if (autoLoginable && getLocalItem('remember')) {
-      return children;
-    } else {
-      if (nativeApp.isIOS()) {
-        nativeApp.loginView(location.pathname + (location.search ? `?${location.search}` : ''));
-        return null;
+    // if (autoLoginable && getLocalItem('remember')) {
+    //   return children;
+    // } else {
+    if (nativeApp.isIOS()) {
+      if (nativePath) {
+        nativeApp.loginView('/');
       } else {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-        // window.open('#/login', '_blank');
-        // return null;
+        nativeApp.loginView(location.pathname + (location.search ? `?${location.search}` : ''));
       }
+      return null;
+    } else {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+      // window.open('#/login', '_blank');
+      // return null;
     }
+    // }
   }
 
   return children;

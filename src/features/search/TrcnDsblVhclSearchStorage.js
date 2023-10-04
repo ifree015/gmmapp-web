@@ -18,7 +18,7 @@ import useLocalStorage from '@common/hooks/useLocalStorage';
 import { setLocalItem } from '@common/utils/storage';
 import nativeApp from '@common/utils/nativeApp';
 
-const TrcnDsblVhclSearchStorage = ({ onClose }) => {
+const TrcnDsblVhclSearchStorage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [storageSrchVhcls, setStorageSrchVhcls] = useLocalStorage('srchVhcls', []);
@@ -35,19 +35,14 @@ const TrcnDsblVhclSearchStorage = ({ onClose }) => {
         .subtract(3, 'month')
         .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
         srchVhcl.tropId
-      }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
-        srchVhcl.vhclNo
-      }&appBarHidden=${nativeApp.isIOS() ? 'Y' : ''}`;
+      }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${srchVhcl.vhclNo}`;
       if (nativeApp.isIOS()) {
         nativeApp.pushView(to, { title: '단말기장애' });
-        setTimeout(() => {
-          onClose();
-        }, 300);
       } else {
         navigate(to, { state: { from: location.pathname } });
       }
     },
-    [storageSrchVhcls, location, navigate, onClose]
+    [storageSrchVhcls, location, navigate]
   );
 
   const removeStorageListItem = useCallback(

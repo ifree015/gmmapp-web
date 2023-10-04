@@ -15,7 +15,7 @@ import dayjs from 'dayjs';
 import { getLocalItem, setLocalItem } from '@common/utils/storage';
 import nativeApp from '@common/utils/nativeApp';
 
-const TrcnDsblVhclSearchSuggestion = ({ onClose, data }) => {
+const TrcnDsblVhclSearchSuggestion = ({ data }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -33,19 +33,14 @@ const TrcnDsblVhclSearchSuggestion = ({ onClose, data }) => {
         .subtract(3, 'month')
         .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
         srchVhcl.tropId
-      }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${
-        srchVhcl.vhclNo
-      }&appBarHidden=${nativeApp.isIOS() ? 'Y' : ''}`;
+      }&tropNm=${srchVhcl.tropNm}&vhclId=${srchVhcl.vhclId}&vhclNo=${srchVhcl.vhclNo}`;
       if (nativeApp.isIOS()) {
         nativeApp.pushView(to, { title: '단말기장애' });
-        setTimeout(() => {
-          onClose();
-        }, 300);
       } else {
         navigate(to, { state: { from: location.pathname } });
       }
     },
-    [location, navigate, onClose]
+    [location, navigate]
   );
 
   const kwds = data?.srchKwd?.split(/\s+/);
@@ -72,6 +67,7 @@ const TrcnDsblVhclSearchSuggestion = ({ onClose, data }) => {
                           verticalAlign: 'middle',
                           color: 'text.primary',
                         }}
+                        component="span"
                         variant="body1"
                         noWrap={true}
                       >
