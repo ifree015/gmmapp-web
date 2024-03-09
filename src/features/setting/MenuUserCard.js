@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
+// import Card from '@mui/material/Card';
+import ShadowCard from '@components/ShadowCard';
+// import Paper from '@mui/material/Paper';
+import ShadowPaper from '@components/ShadowPaper';
 import CardHeader from '@mui/material/CardHeader';
 import Avatar from '@mui/material/Avatar';
 import CardContent from '@mui/material/CardContent';
@@ -10,26 +13,24 @@ import Typography from '@mui/material/Typography';
 import CardActions from '@mui/material/CardActions';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
 import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import dayjs from 'dayjs';
-// import {
-//   Chart as ChartJS,
-//   CategoryScale,
-//   LinearScale,
-//   BarElement,
-//   Tooltip,
-//   Legend,
-//   Title,
-// } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+  Title,
+} from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { useQuery } from '@common/queries/query';
 import { fetchTrcnDsblPrcgNcnt, fetchWeekTrcnDsblPrcgNcnt } from '@features/trcndsbl/trcnDsblAPI';
-import { USER_ROLE } from '@common/constants/appConstants';
 import nativeApp from '@common/utils/nativeApp';
 
-// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Legend, Tooltip);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Legend, Tooltip);
 
 const labels = Array.from({ length: 7 }, (v, index) =>
   dayjs()
@@ -47,17 +48,17 @@ export default function MenuUserCard({ onParentClose }) {
   const queryParams = {
     dsblAcptDt: dayjs().format('YYYYMMDD'),
     dsblPrcgDt: dayjs().format('YYYYMMDD'),
-    dsblPrsrName: userRole === USER_ROLE.SELECTOR ? '' : user.userNm,
+    dsblPrsrName: user.isCenterUser() ? user.userNm : '',
   };
   const { data: trcnDsblPrcgNcnt } = useQuery(
-    ['readTrcnDsblPrcgNcnt'],
+    ['fetchTrcnDsblPrcgNcnt'],
     () => fetchTrcnDsblPrcgNcnt(queryParams),
     {
       suspense: false,
     }
   );
   const { data: weekData } = useQuery(
-    ['readWeekTrcnDsblPrcgNcnt'],
+    ['fetchWeekTrcnDsblPrcgNcnt'],
     () => fetchWeekTrcnDsblPrcgNcnt(queryParams),
     {
       suspense: false,
@@ -84,7 +85,7 @@ export default function MenuUserCard({ onParentClose }) {
         )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
           .subtract(1, 'month')
           .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
-          userRole === USER_ROLE.SELECTOR ? '' : user.userNm
+          user.isCenterUser() ? user.userNm : ''
         }`;
       } else {
         trcndsblLocation = `/trcndsbl?dsblAcptSttDt=${dayjs()
@@ -94,7 +95,7 @@ export default function MenuUserCard({ onParentClose }) {
         )}&dsblPrcgFnYn=Y&dsblPrcgSttDt=${dayjs()
           .subtract(6, 'day')
           .format('YYYYMMDD')}&dsblPrcgEndDt=${dayjs().format('YYYYMMDD')}&dsblPrsrName=${
-          userRole === USER_ROLE.SELECTOR ? '' : user.userNm
+          user.isCenterUser() ? user.userNm : ''
         }`;
       }
 
@@ -107,7 +108,7 @@ export default function MenuUserCard({ onParentClose }) {
         });
       }
     },
-    [navigate, userRole, user.userNm, location, onParentClose]
+    [navigate, user, location, onParentClose]
   );
 
   const chartData = {
@@ -154,7 +155,7 @@ export default function MenuUserCard({ onParentClose }) {
 
   return (
     <Box sx={{ mt: 3 }}>
-      <Card>
+      <ShadowCard>
         <CardHeader
           sx={{ py: 1 }}
           avatar={
@@ -164,14 +165,14 @@ export default function MenuUserCard({ onParentClose }) {
               }}
               aria-label="employee"
             >
-              {userRole.substring(0, 1)}
+              {userRole.getFistRoleName().substring(0, 1)}
             </Avatar>
           }
           title={`${user.userId}(${user.userNm})`}
-          subheader={userRole}
+          subheader={userRole.getFistRoleName()}
           titleTypographyProps={{
             variant: 'sutitle1',
-            fontWeight: 600,
+            fontWeight: (theme) => theme.typography.fontWeightBold,
             color: 'primary',
           }}
         ></CardHeader>
@@ -236,16 +237,16 @@ export default function MenuUserCard({ onParentClose }) {
             &nbsp;건
           </Typography>
         </CardActions>
-      </Card>
-      <Paper
+      </ShadowCard>
+      <ShadowPaper
         sx={{
           mt: 1,
-          height: 160,
           p: 1,
+          height: 160,
         }}
       >
         <Bar options={options} data={chartData} />
-      </Paper>
+      </ShadowPaper>
       {/* <Typography
         variant="caption"
         color="text.secondary"

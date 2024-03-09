@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 // import { useTheme } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
+// import Paper from '@mui/material/Paper';
+import ShadowPaper from '@components/ShadowPaper';
 import Typography from '@mui/material/Typography';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -15,7 +16,7 @@ const SettingTheme = () => {
   const themeMode = useContext(ThemeModeContext);
   return (
     <React.Fragment>
-      <Paper elevation={0} sx={{ mt: 3, p: 2, pt: 1 }}>
+      <ShadowPaper sx={{ mt: 3, p: 2, pt: 1 }}>
         <Typography
           variant="subtitle1"
           sx={{
@@ -37,7 +38,7 @@ const SettingTheme = () => {
           }}
           exclusive
           size="small"
-          fullWidth={true}
+          fullWidth
         >
           <ToggleButton value="light">
             <LightModeOutlinedIcon />
@@ -52,7 +53,7 @@ const SettingTheme = () => {
             &nbsp;Dark
           </ToggleButton>
         </ToggleButtonGroup>
-      </Paper>
+      </ShadowPaper>
     </React.Fragment>
   );
 };

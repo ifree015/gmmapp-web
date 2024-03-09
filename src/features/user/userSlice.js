@@ -11,7 +11,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      const { accessToken, refresToken, ...user } = action.payload;
+      const { accessToken, refreshToken, ...user } = action.payload;
       state.user = user;
       state.auth = true;
     },

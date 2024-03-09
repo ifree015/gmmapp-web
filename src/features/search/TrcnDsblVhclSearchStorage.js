@@ -31,7 +31,7 @@ const TrcnDsblVhclSearchStorage = () => {
       storageSrchVhcls.unshift(srchVhcl);
       // setStorageSrchVhcls(srchVhcls);
       setLocalItem('srchVhcls', storageSrchVhcls);
-      const to = `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
+      const to = `/trcndsbl/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
         .subtract(3, 'month')
         .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
         srchVhcl.tropId
@@ -117,7 +117,7 @@ const TrcnDsblVhclSearchStorage = () => {
                         }}
                         component="span"
                         variant="body1"
-                        noWrap={true}
+                        noWrap
                       >
                         {`${storageSrchVhcl.vhclNo} - ${storageSrchVhcl.tropNm}`}
                       </Typography>
@@ -140,7 +140,11 @@ const TrcnDsblVhclSearchStorage = () => {
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ py: 6, textAlign: 'center', fontWeight: 600 }}
+            sx={{
+              py: 6,
+              textAlign: 'center',
+              fontWeight: (theme) => theme.typography.fontWeightBold,
+            }}
           >
             최근 검색어 내역이 없습니다.
           </Typography>

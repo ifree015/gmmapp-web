@@ -11,7 +11,6 @@ import Avatar from '@mui/material/Avatar';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import CircleNotificationsOutlinedIcon from '@mui/icons-material/CircleNotificationsOutlined';
-import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
@@ -19,6 +18,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { NTFC_CRTN_CT_VAL } from '@common/constants/appConstants';
 import 'dayjs/locale/ko';
+import ColorChip from '@components/ColorChip';
 import { useMutation } from '@common/queries/query';
 import { deleteNtfcPt } from '@features/notification/notificationAPI';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
@@ -73,7 +73,7 @@ const NotificationListItem = React.forwardRef(({ ntfcPt, refetchData, onParentCl
   return (
     <ListItem disablePadding ref={ref}>
       <ListItemButton onClick={() => handleClick(ntfcPt.cnctMoappScrnVal, ntfcPt.ntgtVal)}>
-        <ListItemAvatar>
+        <ListItemAvatar sx={{ alignSelf: 'flex-start' }}>
           <Badge
             color="warning"
             variant={ntfcPt.prcgYn === 'N' ? 'dot' : 'standard'}
@@ -93,16 +93,12 @@ const NotificationListItem = React.forwardRef(({ ntfcPt, refetchData, onParentCl
         <ListItemText
           primary={
             <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-              <Chip
+              <ColorChip
                 label={ntfcPt.ntfcTtlNm}
-                sx={{
-                  'height': 20,
-                  'fontSize': 12,
-                  'fontWeight': (theme) => theme.typography.fontWeightBold,
-                  '& .MuiChip-label': { px: 1 },
-                }}
-              ></Chip>
-              <Typography noWrap={true} variant="subtitle2" color="text.secondary">
+                color="default"
+                sx={{ fontWeight: (theme) => theme.typography.fontWeightBold }}
+              />
+              <Typography variant="subtitle2" color="text.secondary">
                 {dayjs(ntfcPt.ntfcDsptDtm, 'YYYYMMDDHHmmss').fromNow()}
               </Typography>
               <Box sx={{ flexGrow: 1, textAlign: 'right' }}>
@@ -110,7 +106,6 @@ const NotificationListItem = React.forwardRef(({ ntfcPt, refetchData, onParentCl
                   aria-label="delete"
                   size="small"
                   onClick={(event) => {
-                    event.preventDefault();
                     event.stopPropagation();
                     mutate({
                       userId: ntfcPt.userId,

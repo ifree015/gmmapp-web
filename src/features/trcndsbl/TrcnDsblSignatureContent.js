@@ -43,7 +43,7 @@ export default function TrcnDsblSignatureContent({ open = true, trcnDsbl }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { data, isError, error, reset, refetch } = useQuery(
-    ['readTrcnDsblSgnList'],
+    ['fetchTrcnDsblSgnList'],
     () =>
       fetchTrcnDsblSgnList({ stlmAreaCd: trcnDsbl.stlmAreaCd, dsblAcptNo: trcnDsbl.dsblAcptNo }),
     {
@@ -88,8 +88,16 @@ export default function TrcnDsblSignatureContent({ open = true, trcnDsbl }) {
             // indicatorColor="secondary"
             aria-label="signature tabs"
           >
-            <Tab label="서명" {...a11yProps('signature', 0)} sx={{ fontWeight: 600 }} />
-            <Tab label="이력" {...a11yProps('signature', 1)} sx={{ fontWeight: 600 }} />
+            <Tab
+              label="서명"
+              {...a11yProps('signature', 0)}
+              sx={{ fontWeight: (theme) => theme.typography.fontWeightBold }}
+            />
+            <Tab
+              label="이력"
+              {...a11yProps('signature', 1)}
+              sx={{ fontWeight: (theme) => theme.typography.fontWeightBold }}
+            />
           </Tabs>
         </Box>
         {/* <SwipeableView index={state.tabIndex} onChangeIndex={handleChangeIndex}> */}

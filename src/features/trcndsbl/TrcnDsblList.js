@@ -24,30 +24,32 @@ export default function TrcnDsblList() {
     searchParams.append('dsblAcptDtDvs', '3month');
     searchParams.append('dsblAcptSttDt', dayjs().subtract(3, 'month').format('YYYYMMDD'));
     searchParams.append('dsblAcptEndDt', dayjs().format('YYYYMMDD'));
-    searchParams.append('dprtId', user.trcnDsblCentYn === 'Y' ? user.dprtId : '');
-    searchParams.append('dprtNm', user.trcnDsblCentYn === 'Y' ? user.dprtNm : '');
+    searchParams.append('dprtId', user.isCenterUser() ? user.userInfo.dprtId : '');
+    searchParams.append('dprtNm', user.isCenterUser() ? user.userInfo.dprtNm : '');
   }
 
   const queryParams = {
+    srchKwd: searchParams.get('srchKwd') ?? '',
     dsblAcptSttDt: searchParams.get('dsblAcptSttDt'),
     dsblAcptEndDt: searchParams.get('dsblAcptEndDt'),
-    dsblAcptDvsCd: searchParams.get('dsblAcptDvsCd') ?? '',
     stlmAreaCd: searchParams.get('stlmAreaCd') ?? '',
     troaId: searchParams.get('troaId') ?? '',
+    dsblAcptDvsCd: searchParams.get('dsblAcptDvsCd') ?? '',
+    busTrcnErrTypCd: searchParams.get('busTrcnErrTypCd') ?? '',
     tropId: searchParams.get('tropId') ?? '',
+    busBsfcId: searchParams.get('busBsfcId') ?? '',
     vhclId: searchParams.get('vhclId') ?? '',
-    dprtId: searchParams.get('dprtId') ?? '',
+    dsblAcptNo: searchParams.get('dsblAcptNo') ?? '',
     asgtYn: searchParams.get('asgtYn') ?? '',
+    dprtId: searchParams.get('dprtId') ?? '',
+    dsblPrcgPicId: searchParams.get('dsblPrcgPicId') ?? '',
     dsblPrcgFnYn: searchParams.get('dsblPrcgFnYn') ?? '',
-    dsblPrsrName: searchParams.get('dsblPrsrName') ?? '',
-    srchKwd: searchParams.get('srchKwd') ?? '',
-    dsblPrcgSttDt: searchParams.get('dsblPrcgSttDt') ?? '',
-    dsblPrcgEndDt: searchParams.get('dsblPrcgEndDt') ?? '',
+    prsrId: searchParams.get('prsrId') ?? '',
   };
 
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isError, error, refetch } =
     useInfiniteQuery(
-      ['readTrcnDsblList'],
+      ['fetchTrcnDsblList'],
       ({ pageParam = 1 }) =>
         fetchTrcnDsblList({
           ...queryParams,
@@ -55,6 +57,7 @@ export default function TrcnDsblList() {
           page: pageParam,
         }),
       {
+        enabled: false,
         getNextPageParam: (lastPage) => {
           const nextPage = Number(lastPage.page) + 1;
           return nextPage <= Number(lastPage.total) ? nextPage : undefined;
@@ -81,12 +84,12 @@ export default function TrcnDsblList() {
         subheader={
           <ListSubheader>
             <Typography variant="subtitle2" align="right" pt={0.25}>
-              건수: {new Intl.NumberFormat().format(data.pages[0]?.records)}
+              건수: {data ? new Intl.NumberFormat().format(data.pages[0].records) : 0}
             </Typography>
           </ListSubheader>
         }
       >
-        {data.pages.map((page, pageIndex) => {
+        {data?.pages.map((page, pageIndex) => {
           return page.data.map((trcnDsbl, index) => (
             <React.Fragment key={`${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}`}>
               {pageIndex > 0 || index > 0 ? <Divider variant="inset" component="li" /> : null}
@@ -99,7 +102,7 @@ export default function TrcnDsblList() {
             </React.Fragment>
           ));
         })}
-        {data.pages[0]?.records === '0' ? (
+        {data?.pages[0].records === '0' ? (
           <ListItem>
             <Alert severity="info" sx={{ flexGrow: 1 }}>
               접수된 장애내역이 없습니다.

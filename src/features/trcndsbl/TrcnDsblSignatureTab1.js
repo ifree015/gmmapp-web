@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
@@ -55,7 +55,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
       openError(err, reset);
     },
     onSuccess: (data, variables) => {
-      // queryClient.invalidateQueries(['readTrcnDsblSgnList']);
+      // queryClient.invalidateQueries(['fetchTrcnDsblSgnList']);
       refetch();
       setStatus('idle');
       (async () => {
@@ -158,7 +158,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
           variant="outlined"
           align="right"
           size="small"
-          startIcon={<DeleteIcon />}
+          startIcon={<DeleteOutlinedIcon />}
           onClick={initCanvas}
         >
           지우기
@@ -171,7 +171,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
           disabled={trcnDsbl.dltYn === 'Y'}
           loading={status === 'loading'}
           loadingPosition="start"
-          startIcon={<SaveIcon />}
+          startIcon={<SaveOutlinedIcon />}
           onClick={handleAdd}
         >
           등록

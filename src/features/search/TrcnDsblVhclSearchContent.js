@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import InputAdornment from '@mui/material/InputAdornment';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
@@ -26,7 +26,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
   // const user = useUser();
 
   const { data, isError, error, reset, refetch, remove } = useQuery(
-    ['readSrchVhclList'],
+    ['fetchSrchVhclList'],
     () => fetchSrchVhclList({ srchKwd }),
     {
       suspense: false,
@@ -75,7 +75,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
     //   user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtId : ''
     // }&dprtNm=${
     //   user.trcnDsblCentYn === 'Y' && !srchKwd.trim() ? user.dprtNm : ''}
-    const to = `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
+    const to = `/trcndsbl/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
       .subtract(3, 'month')
       .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&srchKwd=${srchKwd.trim()}`;
     if (nativeApp.isIOS()) {
@@ -99,7 +99,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
           startAdornment={
             <InputAdornment position="start">
               <IconButton aria-label="back" onClick={handleClose}>
-                <ArrowBackIcon />
+                <ArrowBackOutlinedIcon />
               </IconButton>
             </InputAdornment>
           }
@@ -127,8 +127,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
           label="닫기"
           size="small"
           sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+            backgroundColor: (theme) => theme.palette.background.color,
             ml: 1,
             my: 0.5,
           }}

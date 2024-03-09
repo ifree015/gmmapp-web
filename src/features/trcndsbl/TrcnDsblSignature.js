@@ -11,7 +11,7 @@ export default function TrcnDsblSignature() {
   const { stlmAreaCd, dsblAcptNo } = useParams();
 
   useQuery(
-    ['readTrcnDsbl', stlmAreaCd, dsblAcptNo],
+    ['fetchTrcnDsbl', stlmAreaCd, dsblAcptNo],
     () => fetchTrcnDsbl({ stlmAreaCd, dsblAcptNo }),
     {
       enabled: trcnDsbl ? false : true,

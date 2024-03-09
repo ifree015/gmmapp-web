@@ -1,6 +1,5 @@
-import React, { Suspense } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import SubAppBar from '@features/common/SubAppBar';
 import TrcnDsblHeader from './TrcnDsblHeader';
@@ -9,56 +8,50 @@ import { useQueryErrorResetBoundary } from '@tanstack/react-query';
 import BackToTop from '@components/BackToTop';
 import ErrorDialog from '@components/ErrorDialog';
 import { ErrorBoundary } from 'react-error-boundary';
-import ElevationScroll from '@components/ElevationScroll';
 import PartLoadingSpinner from '@components/PartLoadingSpinner';
 import Copyright from '@features/common/Copyright';
-import BottomNavBar from '@features/common/BottomNavBar';
-import nativeApp from '@common/utils/nativeApp';
+import BottomToolbar from '@features/common/BottomToolbar';
+import IconButton from '@mui/material/IconButton';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import TrcnDsblRgtDialog from './TrcnDsblRgtDialog';
 
 export default function TrcnDsbl() {
   const { reset } = useQueryErrorResetBoundary();
+  const [trcnDsblRgtOpen, setTrcnDsblRgtOpen] = useState(false);
+
+  const closeTrcnDsblRgt = useCallback(() => {
+    setTrcnDsblRgtOpen(false);
+  }, [setTrcnDsblRgtOpen]);
 
   return (
     <Box
       sx={{
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+        backgroundColor: (theme) => theme.palette.background.color,
+        minHeight: '100vh',
       }}
     >
-      {!nativeApp.isIOS() ? (
-        <ElevationScroll>
-          <SubAppBar title="단말기 장애"></SubAppBar>
-        </ElevationScroll>
-      ) : null}
-      <Container
-        component="main"
-        maxWidth="sm"
-        sx={{
-          minHeight: '100vh',
-        }}
-      >
-        {!nativeApp.isIOS() ? (
-          <Toolbar id="back-to-top-anchor" variant="dense" />
-        ) : (
-          <Toolbar id="back-to-top-anchor" sx={{ minHeight: 0, height: 0 }} />
-        )}
+      <SubAppBar title="단말기 장애"></SubAppBar>
+      <Container component="main" maxWidth="sm">
         <ErrorBoundary
           onReset={reset}
           fallbackRender={({ error, resetErrorBoundary }) => (
-            <ErrorDialog open={true} error={error} resetError={resetErrorBoundary} />
+            <ErrorDialog open error={error} resetError={resetErrorBoundary} />
           )}
         >
           <Suspense fallback={<PartLoadingSpinner />}>
-            <TrcnDsblHeader id={nativeApp.isIOS() ? 'back-to-top-anchor' : ''} />
+            <TrcnDsblHeader />
             <TrcnDsblList />
           </Suspense>
         </ErrorBoundary>
-        <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) + 8px)' }} />
-        <BackToTop
-          bottom={nativeApp.isIOS() ? 'calc(env(safe-area-inset-bottom) + 16px)' : '72px'}
-        />
+        <Copyright sx={{ pt: 5 }} />
+        <BackToTop bottomToolBar />
       </Container>
-      <BottomNavBar currentNav="/trcndsbl" />
+      <BottomToolbar>
+        <IconButton onClick={() => setTrcnDsblRgtOpen(true)}>
+          <EditOutlinedIcon />
+        </IconButton>
+      </BottomToolbar>
+      <TrcnDsblRgtDialog open={trcnDsblRgtOpen} onClose={closeTrcnDsblRgt} />
     </Box>
   );
 }

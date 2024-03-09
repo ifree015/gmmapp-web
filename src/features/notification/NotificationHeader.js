@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import StickyStack from '@components/StickyStack';
 import { useInView } from 'react-intersection-observer';
 import { useQueryClient } from '@tanstack/react-query';
 import { useQuery, useMutation } from '@common/queries/query';
 import { fetchNtfcPtNcnt, deleteAllNtfcPt } from '@features/notification/notificationAPI';
 import useUser from '@common/hooks/useUser';
 import { NOTIFICATION_CATEGORY } from '@common/constants/appConstants';
-import useSmUp from '@common/hooks/useSmUp';
 // import useAlert from '@common/hooks/useAlert';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useConfirm from '@common/hooks/useConfirm';
@@ -19,26 +17,10 @@ import useError from '@common/hooks/useError';
 import LoadingSpinner from '@components/LoadingSpinner';
 import nativeApp from '@common/utils/nativeApp';
 
-const StickyStack = styled(Stack)(({ theme }) => ({
-  margin: theme.spacing(0, -2, 0, -2),
-  padding: theme.spacing(1, 2),
-  position: 'sticky',
-  top: 48,
-  // justifyContent: 'center',
-  [theme.breakpoints.up('sm')]: {
-    margin: theme.spacing(0, -3, 0, -3),
-    padding: theme.spacing(1, 3),
-    top: 48,
-    // justifyContent: 'flex-start',
-  },
-  zIndex: theme.zIndex.appBar + 1,
-}));
-
 export default function NotificationHeader({ queryParams, changeCategoryId }) {
   const [sticky, setSticky] = useState(false);
   const queryClient = useQueryClient();
   const user = useUser();
-  const isSmUp = useSmUp();
   // const openAlert = useAlert();
   const openAlertSnackbar = useAlertSnackbar();
   const openConfirm = useConfirm();
@@ -46,14 +28,12 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
   const [ref, inView] = useInView({
     threshold: 1,
     initialInView: nativeApp.isIOS() ? false : true,
-    rootMargin: isSmUp
-      ? `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`
-      : `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
+    rootMargin: `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
   });
   const delayInView = useRef(false);
 
   const { data, refetch } = useQuery(
-    ['readNtfcPtNcnt', queryParams.categoryId],
+    ['fetchNtfcPtNcnt', queryParams.categoryId],
     () => fetchNtfcPtNcnt(queryParams),
     {
       suspense: false,
@@ -70,7 +50,7 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
       (async () => {
         // await openAlert(data.message);
         refetch();
-        queryClient.invalidateQueries(['readNtfcPtList', queryParams.categoryId]);
+        queryClient.invalidateQueries(['fetchNtfcPtList', queryParams.categoryId]);
         await openAlertSnackbar('info', data.message, true);
       })();
     },
@@ -124,7 +104,7 @@ export default function NotificationHeader({ queryParams, changeCategoryId }) {
         spacing={{ xs: 0.5, sm: 1 }}
         sx={{
           bgcolor: sticky ? 'background.paper' : 'inherit',
-          top: { xs: `${nativeApp.isIOS() ? 0 : 48}px`, sm: `${nativeApp.isIOS() ? 0 : 48}px` },
+          top: `${nativeApp.isIOS() ? 0 : 48}px`,
         }}
         component="header"
         ref={ref}

@@ -18,7 +18,7 @@ export default function ConfirmDialog({ open, title, message, onClose }) {
     >
       <DialogTitle
         id="confirm-dialog-title"
-        sx={{ display: 'flex', alignItems: 'center', bgcolor: 'secondary.main' }}
+        sx={{ display: 'flex', alignItems: 'center', bgcolor: 'secondary.main', py: 1 }}
         color={(theme) => theme.palette.common.white}
       >
         <HelpOutlineIcon sx={{ mr: 1 }} />

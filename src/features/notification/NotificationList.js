@@ -20,13 +20,13 @@ export default function NotificationList({ queryParams, onParentClose }) {
       reset();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['readNewNtfcPtNcnt']);
+      queryClient.invalidateQueries(['fetchNewNtfcPtNcnt']);
     },
   });
 
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isError, error, refetch } =
     useInfiniteQuery(
-      ['readNtfcPtList', queryParams.categoryId],
+      ['fetchNtfcPtList', queryParams.categoryId],
       ({ pageParam = 1 }) =>
         fetchNtfcPtList({
           ...queryParams,
@@ -60,15 +60,15 @@ export default function NotificationList({ queryParams, onParentClose }) {
   }, [hasNextPage, inView, fetchNextPage]);
 
   const refetchData = useCallback(() => {
-    queryClient.invalidateQueries(['readNtfcPtNcnt', queryParams.categoryId]);
+    queryClient.invalidateQueries(['fetchNtfcPtNcnt', queryParams.categoryId]);
     refetch();
   }, [queryClient, queryParams.categoryId, refetch]);
 
   return (
     <React.Fragment>
       <ErrorDialog open={isError && !isFetchingNextPage} error={error} />
-      <List sx={{ bgcolor: 'background.paper', mt: 1.5 }}>
-        {data.pages.map((page, pageIndex) => {
+      <List sx={{ bgcolor: 'background.paper', mt: 1 }}>
+        {data?.pages.map((page, pageIndex) => {
           return page.data.map((ntfcPt, index) => (
             <React.Fragment key={`${ntfcPt.userId}-${ntfcPt.ntfcDsptDtm}-${ntfcPt.ntfcSno}`}>
               {pageIndex > 0 || index > 0 ? <Divider variant="inset" component="li" /> : null}
@@ -83,7 +83,7 @@ export default function NotificationList({ queryParams, onParentClose }) {
             </React.Fragment>
           ));
         })}
-        {data.pages[0]?.records === '0' ? (
+        {data?.pages[0].records === '0' ? (
           <ListItem>
             <Alert severity="info" sx={{ flexGrow: 1 }}>
               알림내역이 없습니다.

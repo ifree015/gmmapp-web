@@ -3,17 +3,17 @@ import { useLocation } from 'react-router-dom';
 import HybridLink from '@app//HybridLink';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
-import Chip from '@mui/material/Chip';
 import Avatar from '@mui/material/Avatar';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 import DirectionsWalkOutlinedIcon from '@mui/icons-material/DirectionsWalkOutlined';
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined';
 import Typography from '@mui/material/Typography';
+import PatchTooltip from '@components/PatchTooltip';
+import ColorChip from '@components/ColorChip';
 import dayjs from 'dayjs';
 import { DSBL_ACPT_DVS_CD } from '@common/constants/appConstants';
 
@@ -23,7 +23,7 @@ const TrcnDsblListItem = React.forwardRef(({ trcnDsbl }, ref) => {
     <ListItem disablePadding ref={ref}>
       <ListItemButton
         component={HybridLink}
-        to={`/trcndsbl/trcndsbldetail/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}`}
+        to={`/trcndsbl/trcndsbl/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}`}
         state={{
           from: location.pathname,
           barSwipable: false,
@@ -31,89 +31,87 @@ const TrcnDsblListItem = React.forwardRef(({ trcnDsbl }, ref) => {
           subTitle: `${trcnDsbl.vhclNo} - ${trcnDsbl.tropNm}`,
         }}
       >
-        <ListItemAvatar>
+        <ListItemAvatar sx={{ alignSelf: 'flex-start' }}>
           <Avatar
             sx={{
               bgcolor: trcnDsbl.dsblPrcgFnDtm ? 'success.light' : 'warning.light',
             }}
           >
-            {DSBL_ACPT_DVS_CD.TEL === trcnDsbl.dsblAcptDvsCd ? (
+            {DSBL_ACPT_DVS_CD.TEL.code === trcnDsbl.dsblAcptDvsCd ? (
               <CallOutlinedIcon />
-            ) : DSBL_ACPT_DVS_CD.TEL === trcnDsbl.dsblAcptDvsCd ? (
-              <DirectionsWalkOutlinedIcon />
-            ) : (
+            ) : DSBL_ACPT_DVS_CD.SYSTEM.code === trcnDsbl.dsblAcptDvsCd ? (
               <DvrOutlinedIcon />
+            ) : (
+              <DirectionsWalkOutlinedIcon />
             )}
           </Avatar>
         </ListItemAvatar>
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: 'calc(100% - 56px)' }}>
           <Stack direction="row" spacing={0.5}>
-            <Tooltip title={trcnDsbl.dprtNm ?? '오배정'}>
-              <Chip
-                label={trcnDsbl.dprtNm?.substring(0, 2) ?? '오배'}
-                color={trcnDsbl.dprtNm ? 'secondary' : 'error'}
-                sx={{
-                  'height': 20,
-                  'fontSize': 12,
-                  '& .MuiChip-label': { px: 1 },
-                }}
-              ></Chip>
-            </Tooltip>
-            <Chip
-              label={trcnDsbl.dsblAcptDvsNm}
-              color="secondary"
-              sx={{
-                'height': 20,
-                'fontSize': 12,
-                '& .MuiChip-label': { px: 1 },
-              }}
-            ></Chip>
+            <PatchTooltip title={trcnDsbl.dprtNm ?? '미배정'}>
+              <ColorChip
+                label={trcnDsbl.dprtNm ? trcnDsbl.dprtNm.substring(0, 2) : '미배정'}
+                color={trcnDsbl.dprtNm ? 'secondary' : 'warning'}
+              />
+            </PatchTooltip>
+            <ColorChip label={trcnDsbl.dsblAcptDvsNm} />
+            <ColorChip
+              color="warning"
+              label={
+                trcnDsbl.areaCd === '11'
+                  ? trcnDsbl.busAreaNm.substring(0, 2)
+                  : trcnDsbl.stlmAreaNm.substring(0, 2)
+              }
+            />
           </Stack>
           <ListItemText
             primary={
               <React.Fragment>
+                {trcnDsbl.vhclNo}
                 <Typography
                   sx={{
-                    display: 'inline-block',
-                    width: '50%',
-                    fontWeight: 600,
-                    verticalAlign: 'middle',
+                    pl: 2,
+                    fontWeight: (theme) => theme.typography.fontWeightBold,
                   }}
                   component="span"
-                  variant="body1"
-                  noWrap={true}
-                  color="primary"
                 >
-                  {trcnDsbl.tropNm}
+                  {trcnDsbl.bsfcNm}
                 </Typography>
-                {trcnDsbl.vhclNo}
               </React.Fragment>
             }
             primaryTypographyProps={{
-              color: 'primary',
-              fontWeight: 600,
+              color: 'info.main',
+              fontWeight: (theme) => theme.typography.fontWeightBold,
+              noWrap: true,
             }}
+            secondary={`${trcnDsbl.rotNo ? `${trcnDsbl.rotNo} 노선, ` : ''} ${dayjs(
+              trcnDsbl.dsblAcptDtm,
+              'YYYYMMDDHHmmss'
+            ).format('YYYY.MM.DD HH:mm')}`}
           />
           <ListItemText
-            primary={trcnDsbl.busTrcnErrTypNm ?? '유형없음'}
-            primaryTypographyProps={{ fontSize: 14, color: 'text.secondary', fontWeight: 600 }}
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{
-                    display: 'inline-block',
-                    width: '50%',
-                  }}
-                  variant="body2"
-                  component="span"
-                >
-                  {dayjs(trcnDsbl.dsblAcptDtm, 'YYYYMMDDHHmmss').format('YYYY.MM.DD HH:mm')}
-                </Typography>
-                {trcnDsbl.dsblPrcgFnDtm
-                  ? dayjs(trcnDsbl.dsblPrcgFnDtm, 'YYYYMMDDHHmmss').format('YYYY.MM.DD HH:mm')
-                  : ''}
-              </React.Fragment>
-            }
+            primary={`${trcnDsbl.busTrcnErrTypNm ?? '유형없음'}, ${trcnDsbl.trcnDvsNm}`}
+            primaryTypographyProps={{
+              fontSize: 14,
+              color: 'text.secondary',
+              fontWeight: (theme) => theme.typography.fontWeightBold,
+            }}
+            secondary={trcnDsbl.dsblPrcgPicNm}
+          />
+          <ListItemText
+            primary={trcnDsbl.trcnErrPrcgTypNm}
+            primaryTypographyProps={{
+              fontSize: 14,
+              color: 'text.secondary',
+              fontWeight: (theme) => theme.typography.fontWeightBold,
+            }}
+            secondary={`${
+              trcnDsbl.dsblPrcgFnDtm
+                ? `${dayjs(trcnDsbl.dsblPrcgFnDtm, 'YYYYMMDDHHmmss').format('YYYY.MM.DD HH:mm')}, ${
+                    trcnDsbl.prsrNm
+                  }`
+                : ''
+            }`}
           />
         </Box>
       </ListItemButton>

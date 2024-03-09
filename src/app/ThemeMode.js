@@ -39,7 +39,8 @@ export default function ThemeMode({ children }) {
         palette: {
           mode: mode,
           background: {
-            paper: mode === 'light' ? '#fff' : '#2a2a2a', //gray[900]: #212121
+            color: mode === 'light' ? '#f5f5f5' : '#212121', // gray[100]: #f5f5f5 , gray[900]: #212121
+            paper: mode === 'light' ? '#fff' : '#2a2a2a',
             paper2: mode === 'light' ? '#fff' : '#121212',
           },
           text: {

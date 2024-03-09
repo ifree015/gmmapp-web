@@ -17,7 +17,7 @@ export default function TrcnDsblVhclSearch() {
     >
       {/* <Box sx={{ pt: 0.125 }} /> */}
       <Container
-        disableGutters={true}
+        disableGutters
         maxWidth="sm"
         sx={{
           minHeight: '100vh',

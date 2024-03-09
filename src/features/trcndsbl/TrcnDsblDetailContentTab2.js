@@ -1,85 +1,72 @@
 import React, { useEffect, useReducer, forwardRef } from 'react';
 import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import LabelValueListItem from '@components/LabelValueListItem';
+import HandymanIcon from '@mui/icons-material/Handyman';
 import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
 import FormControl from '@mui/material/FormControl';
-// import InputLabel from '@mui/material/InputLabel';
-// import FormHelperText from '@mui/material/FormHelperText';
+import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 import LoadingButton from '@mui/lab/LoadingButton';
 import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import produce from 'immer';
 import dayjs from 'dayjs';
-import { useQueryClient } from '@tanstack/react-query';
+// import { useQueryClient } from '@tanstack/react-query';
 import { useQuery, useMutation } from '@common/queries/query';
 import useAsyncCmmCode from '@common/hooks/useAsyncCmmCode';
 import { fetchTrcnRplcInf, processTrcnDsbl } from '@features/trcndsbl/trcnDsblAPI';
+import useUser from '@common/hooks/useUser';
+import useRole from '@common/hooks/useRole';
 import useAlert from '@common/hooks/useAlert';
 import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
-import useSmUp from '@common/hooks/useSmUp';
-import Stack from '@mui/material/Stack';
 import BuildCircleOutlinedIcon from '@mui/icons-material/BuildCircleOutlined';
-
-function LabelTableCell({ children }) {
-  return (
-    <TableCell component="th" scope="row" sx={{ whiteSpace: 'nowrap', pr: { xs: 0, sm: 2 } }}>
-      {children}
-    </TableCell>
-  );
-}
 
 const NSMT_DVS_CD_CNT = 6;
 const initialState = {
-  dsblPrcgDelyRsnCdOpen: false,
-  trcnErrPrcgTypCdOpen: false,
-  atlDsblTypValOpen: false,
-  nsmtDvsCdsOpen: Array.from({ length: NSMT_DVS_CD_CNT }, () => false),
+  dsblPrcgDelyRsnCd: false,
+  trcnErrPrcgTypCd: false,
+  atlDsblTypVal: false,
+  collapse: true,
+  nsmtDvsCds: Array.from({ length: NSMT_DVS_CD_CNT }, () => false),
   trcnRplcInfStatus: 'idle',
 };
 
 function reducer(state, action) {
   return produce(state, (draft) => {
     switch (action.type) {
-      case 'DSBL_PRCG_DELY_RSN_CD_OPEN':
-        draft.dsblPrcgDelyRsnCdOpen = true;
+      case 'DSBL_PRCG_DELY_RSN_CD':
+        draft.dsblPrcgDelyRsnCd = action.payload;
         break;
-      case 'DSBL_PRCG_DELY_RSN_CD_CLOSE':
-        draft.dsblPrcgDelyRsnCdOpen = false;
+      case 'TRCN_ERR_PRCG_TYP_CD':
+        draft.trcnErrPrcgTypCd = action.payload;
         break;
-      case 'TRCN_ERR_PRCG_TYP_CD_OPEN':
-        draft.trcnErrPrcgTypCdOpen = true;
+      case 'ATL_DSBL_TYP_VAL':
+        draft.atlDsblTypVal = action.payload;
         break;
-      case 'TRCN_ERR_PRCG_TYP_CD_CLOSE':
-        draft.trcnErrPrcgTypCdOpen = false;
-        break;
-      case 'ATL_DSBL_TYP_VAL_OPEN':
-        draft.atlDsblTypValOpen = true;
-        break;
-      case 'ATL_DSBL_TYP_VAL_CLOSE':
-        draft.atlDsblTypValOpen = false;
+      case 'COLLAPSE':
+        draft.collapse = action.payload;
         break;
       case 'NSMT_DVS_CD_OPEN':
-        draft.nsmtDvsCdsOpen[action.payload] = true;
+        draft.nsmtDvsCds[action.payload] = true;
         break;
       case 'NSMT_DVS_CD_CLOSE':
-        draft.nsmtDvsCdsOpen[action.payload] = false;
+        draft.nsmtDvsCds[action.payload] = false;
         break;
       case 'TRCN_RPLC_INF':
         draft.trcnRplcInfStatus = action.payload;
@@ -90,24 +77,24 @@ function reducer(state, action) {
   });
 }
 
-const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeStatus }, ref) => {
+const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const queryClient = useQueryClient();
+  const user = useUser();
+  const userRole = useRole();
+  // const queryClient = useQueryClient();
   const openAlert = useAlert();
   const openConfirm = useConfirm();
   const openAlertSnackbar = useAlertSnackbar();
   const openError = useError();
-  const isSmUp = useSmUp();
 
   const [dsblPrcgDelyRsnCds, fetchDsblPrcgDelyRsnCds] = useAsyncCmmCode(
-    '275',
-    {},
+    'DSBL_ACPT_DVS_CD',
+    { cdId: '275' },
     trcnDsbl.dsblPrcgDelyRsnCd
       ? [{ code: trcnDsbl.dsblPrcgDelyRsnCd, name: trcnDsbl.dsblPrcgDelyRsnNm }]
       : []
   );
-  const dsblPrcgDelyRsnCdLoadingable =
-    state.dsblPrcgDelyRsnCdOpen && dsblPrcgDelyRsnCds.length <= 1;
+  const dsblPrcgDelyRsnCdLoadingable = state.dsblPrcgDelyRsnCd && dsblPrcgDelyRsnCds.length <= 1;
   const [trcnErrPrcgTypCds, fetchTrcnErrPrcgTypCds] = useAsyncCmmCode(
     'TRCN_ERR_PRCG_TYP_CD' + (trcnDsbl.trcnDvsCd ? '-' + trcnDsbl.trcnDvsCd : ''),
     {
@@ -117,7 +104,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
       ? [{ code: trcnDsbl.trcnErrPrcgTypCd, name: trcnDsbl.trcnErrPrcgTypNm }]
       : []
   );
-  const trcnErrPrcgTypCdLoadingable = state.trcnErrPrcgTypCdOpen && trcnErrPrcgTypCds.length <= 1;
+  const trcnErrPrcgTypCdLoadingable = state.trcnErrPrcgTypCd && trcnErrPrcgTypCds.length <= 1;
   const [atlDsblTypVals, fetchAtlDsblTypVals] = useAsyncCmmCode(
     'BUS_TRCN_ERR_TYP_CD' + (trcnDsbl.trcnDvsCd ? '-' + trcnDsbl.trcnDvsCd : ''),
     {
@@ -125,7 +112,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
     },
     trcnDsbl.atlDsblTypVal ? [{ code: trcnDsbl.atlDsblTypVal, name: trcnDsbl.atlDsblTypValNm }] : []
   );
-  const atlDsblTypValLoadingable = state.atlDsblTypValOpen && atlDsblTypVals.length <= 1;
+  const atlDsblTypValLoadingable = state.atlDsblTypVal && atlDsblTypVals.length <= 1;
   const [nsmtDvsCds, fetchNsmtDvsCds] = useAsyncCmmCode(
     'CSM_TYP_CD' + (trcnDsbl.trcnDvsCd ? '-' + trcnDsbl.trcnDvsCd : ''),
     {
@@ -145,7 +132,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
   );
   const nsmtDvsCdsLoadingable = Array.from(
     Array(NSMT_DVS_CD_CNT),
-    (v, i) => state.nsmtDvsCdsOpen[i] && nsmtDvsCds.length <= NSMT_DVS_CD_CNT
+    (v, i) => state.nsmtDvsCds[i] && nsmtDvsCds.length <= NSMT_DVS_CD_CNT
   );
   const nsmtDvsCdLoadingable = nsmtDvsCdsLoadingable.some((value) => value);
 
@@ -170,8 +157,25 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
     }
   }, [nsmtDvsCdLoadingable, fetchNsmtDvsCds]);
 
+  const { mutate, reset } = useMutation(processTrcnDsbl, {
+    useErrorBoundary: false,
+    onMutate: () => {
+      onChangeStatus('loading');
+    },
+    onError: (err) => {
+      onChangeStatus('idle');
+      openError(err, reset);
+    },
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries(['fetchTrcnDsbl']);
+      onChangeStatus('idle');
+      openAlert(data.message);
+      // openAlertSnackbar('info', data.message, true);
+    },
+  });
+
   const { refetch } = useQuery(
-    ['readTrcnRplcInf'],
+    ['fetchTrcnRplcInf'],
     () =>
       fetchTrcnRplcInf({
         stlmAreaCd: trcnDsbl.stlmAreaCd,
@@ -215,59 +219,27 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
     refetch();
   };
 
-  const { mutate, reset } = useMutation(processTrcnDsbl, {
-    useErrorBoundary: false,
-    onMutate: () => {
-      onChangeStatus('loading');
-    },
-    onError: (err) => {
-      onChangeStatus('idle');
-      openError(err, reset);
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['readTrcnDsbl']);
-      onChangeStatus('idle');
-      openAlert(data.message);
-      // openAlertSnackbar('info', data.message, true);
-    },
-  });
-
   return (
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize={true}
+        enableReinitialize
         initialValues={{
           vstAdjsDtm: trcnDsbl.vstAdjsDtm ?? '',
           vstArvlDtm: trcnDsbl.vstArvlDtm ?? '',
           dsblPrcgSttDtm: trcnDsbl.dsblPrcgSttDtm ?? '',
           dsblPrcgFnDtm: trcnDsbl.dsblPrcgFnDtm ?? '',
           dsblPrcgDelyRsnCd: trcnDsbl.dsblPrcgDelyRsnCd ?? '',
-          trcnErrPrcgTypCd: otherCached
-            ? null
-            : trcnErrPrcgTypCds.find((cmdCode) => cmdCode.code === trcnDsbl.trcnErrPrcgTypCd) ??
-              null,
-          atlDsblTypVal: otherCached
-            ? null
-            : atlDsblTypVals.find((cmdCode) => cmdCode.code === trcnDsbl.atlDsblTypVal) ?? null,
-          nsmtDvsCd1: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd1) ?? null,
-          nsmtDvsCd2: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd2) ?? null,
-          nsmtDvsCd3: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd3) ?? null,
-          nsmtDvsCd4: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd4) ?? null,
-          nsmtDvsCd5: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd5) ?? null,
-          nsmtDvsCd6: otherCached
-            ? null
-            : nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd6) ?? null,
+          trcnErrPrcgTypCd:
+            trcnErrPrcgTypCds.find((cmdCode) => cmdCode.code === trcnDsbl.trcnErrPrcgTypCd) ?? null,
+          atlDsblTypVal:
+            atlDsblTypVals.find((cmdCode) => cmdCode.code === trcnDsbl.atlDsblTypVal) ?? null,
+          nsmtDvsCd1: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd1) ?? null,
+          nsmtDvsCd2: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd2) ?? null,
+          nsmtDvsCd3: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd3) ?? null,
+          nsmtDvsCd4: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd4) ?? null,
+          nsmtDvsCd5: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd5) ?? null,
+          nsmtDvsCd6: nsmtDvsCds.find((cmdCode) => cmdCode.code === trcnDsbl.nsmtDvsCd6) ?? null,
           dsblPrcgDtlCtt: trcnDsbl.dsblPrcgDtlCtt ?? '',
           dsblEtcErrCtt: trcnDsbl.dsblEtcErrCtt ?? '',
         }}
@@ -299,21 +271,31 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
               }
               return schema;
             }),
-          trcnErrPrcgTypCd: yup.object().nullable().required('처리유형을 선택해주세요.'),
+          trcnErrPrcgTypCd: yup.object().nullable().required('현장처리유형을 선택해주세요.'),
           dsblPrcgDtlCtt: yup.string().required('처리내용을 입력해주세요.'),
         })}
         onSubmit={(values) => {
           (async () => {
+            if (user.intgAstsBzDvsCd !== trcnDsbl.intgAstsBzDvsCd) {
+              openAlertSnackbar(
+                'warning',
+                `같은 지역(${trcnDsbl.intgAstsBzDvsNm}) 직원이 아닙니다.`
+              );
+            } else if (user.dprtId !== trcnDsbl.dprtId) {
+              openAlertSnackbar('warning', '같은 부서가 아닙니다.');
+            } else if (!trcnDsbl.dsblPrcgFnDtm && user.userId !== trcnDsbl.dsblPrcgPicId) {
+              openAlertSnackbar('warning', '배정 사원과 처리 사원이 다릅니다.');
+            }
             const confirmed = await openConfirm('단말기 장애', '처리하시겠습니다?');
             if (confirmed) {
               mutate({
                 stlmAreaCd: trcnDsbl.stlmAreaCd,
                 dsblAcptNo: trcnDsbl.dsblAcptNo,
+                dsblPrcgDelyRsnCd: values.dsblPrcgDelyRsnCd,
                 vstAdjsDtm: values.vstAdjsDtm,
                 vstArvlDtm: values.vstArvlDtm,
                 dsblPrcgSttDtm: values.dsblPrcgSttDtm,
                 dsblPrcgFnDtm: values.dsblPrcgFnDtm,
-                dsblPrcgDelyRsnCd: values.dsblPrcgDelyRsnCd,
                 trcnErrPrcgTypCd: values.trcnErrPrcgTypCd.code,
                 atlDsblTypVal: values.atlDsblTypVal?.code ?? '',
                 nsmtDvsCd1: values.nsmtDvsCd1?.code ?? '',
@@ -332,492 +314,361 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, otherCached, onChangeS
         {/* {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => ( */}
         {(formik) => (
           <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-            <TableContainer>
-              <Table>
-                <colgroup>
-                  <col style={{ width: isSmUp ? 112 : 104 }} />
-                  <col />
-                </colgroup>
-                <TableBody>
-                  <TableRow>
-                    <LabelTableCell>장애처리자</LabelTableCell>
-                    <TableCell>{trcnDsbl.dsblPrcgFnDtm ? trcnDsbl.dsblPrsrName : ''}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>방문조정일시</LabelTableCell>
-                    <TableCell>
-                      <DesktopDateTimePicker
-                        inputFormat="YYYY-MM-DD HH:mm"
-                        id="vstAdjsDtm"
-                        value={formik.values.vstAdjsDtm}
-                        onChange={(newValue) => {
-                          formik.setFieldTouched('vstAdjsDtm');
-                          formik.setFieldValue(
-                            'vstAdjsDtm',
-                            newValue?.format('YYYYMMDDHHmmss') ?? ''
-                          );
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            size="small"
+            <List aria-label="처리 정보">
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <HandymanIcon color="info" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="처리 정보"
+                    primaryTypographyProps={{ variant: 'subtitle2' }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              <LabelValueListItem label="장애처리자" value={trcnDsbl.prsrNm} />
+              <ListItem>
+                <FormControl variant="standard" size="small" fullWidth>
+                  <InputLabel id="dsblPrcgDelyRsnCd-label">지연사유</InputLabel>
+                  <Select
+                    open={state.dsblPrcgDelyRsnCd}
+                    onOpen={() => {
+                      dispatch({ type: 'DSBL_PRCG_DELY_RSN_CD', payload: true });
+                    }}
+                    onClose={() => {
+                      dispatch({ type: 'DSBL_PRCG_DELY_RSN_CD', payload: false });
+                    }}
+                    labelId="dsblPrcgDelyRsnCd-label"
+                    id="dsblPrcgDelyRsnCd"
+                    value={formik.values.dsblPrcgDelyRsnCd}
+                    onChange={(event) => {
+                      formik.setFieldValue('dsblPrcgDelyRsnCd', event.target.value);
+                    }}
+                  >
+                    <MenuItem value="">선택해주세요</MenuItem>
+                    {dsblPrcgDelyRsnCds.map((dsblPrcgDelyRsnCd) => (
+                      <MenuItem value={dsblPrcgDelyRsnCd.code} key={dsblPrcgDelyRsnCd.code}>
+                        {dsblPrcgDelyRsnCd.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </ListItem>
+              <ListItem>
+                <DesktopDateTimePicker
+                  label="방문조정일시"
+                  inputFormat="YYYY-MM-DD HH:mm"
+                  id="vstAdjsDtm"
+                  value={formik.values.vstAdjsDtm}
+                  onChange={(newValue) => {
+                    formik.setFieldTouched('vstAdjsDtm');
+                    formik.setFieldValue('vstAdjsDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      fullWidth
+                      variant="standard"
+                      error={formik.touched.vstAdjsDtm && Boolean(formik.errors.vstAdjsDtm)}
+                      helperText={formik.touched.vstAdjsDtm && formik.errors.vstAdjsDtm}
+                    />
+                  )}
+                />
+              </ListItem>
+              <ListItem>
+                <DesktopDateTimePicker
+                  label="방문도착일시"
+                  inputFormat="YYYY-MM-DD HH:mm"
+                  id="vstArvlDtm"
+                  value={formik.values.vstArvlDtm}
+                  onChange={(newValue) => {
+                    formik.setFieldTouched('vstArvlDtm');
+                    formik.setFieldValue('vstArvlDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      fullWidth
+                      variant="standard"
+                      error={formik.touched.vstArvlDtm && Boolean(formik.errors.vstArvlDtm)}
+                      helperText={formik.touched.vstArvlDtm && formik.errors.vstArvlDtm}
+                    />
+                  )}
+                />
+              </ListItem>
+              <ListItem>
+                <DesktopDateTimePicker
+                  label="처리시작일시"
+                  inputFormat="YYYY-MM-DD HH:mm"
+                  id="dsblPrcgSttDtm"
+                  value={formik.values.dsblPrcgSttDtm}
+                  onChange={(newValue) => {
+                    formik.setFieldTouched('dsblPrcgSttDtm');
+                    formik.setFieldValue(
+                      'dsblPrcgSttDtm',
+                      newValue?.format('YYYYMMDDHHmmss') ?? ''
+                    );
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      fullWidth
+                      variant="standard"
+                      required
+                      error={formik.touched.dsblPrcgSttDtm && Boolean(formik.errors.dsblPrcgSttDtm)}
+                      helperText={formik.touched.dsblPrcgSttDtm && formik.errors.dsblPrcgSttDtm}
+                    />
+                  )}
+                />
+              </ListItem>
+              <ListItem>
+                <DesktopDateTimePicker
+                  label="처리완료일시"
+                  inputFormat="YYYY-MM-DD HH:mm"
+                  id="dsblPrcgFnDtm"
+                  value={formik.values.dsblPrcgFnDtm}
+                  onChange={(newValue) => {
+                    formik.setFieldTouched('dsblPrcgFnDtm');
+                    formik.setFieldValue('dsblPrcgFnDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      fullWidth
+                      variant="standard"
+                      required
+                      error={formik.touched.dsblPrcgFnDtm && Boolean(formik.errors.dsblPrcgFnDtm)}
+                      helperText={formik.touched.dsblPrcgFnDtm && formik.errors.dsblPrcgFnDtm}
+                    />
+                  )}
+                />
+              </ListItem>
+
+              <ListItem>
+                <Autocomplete
+                  disablePortal
+                  size="small"
+                  fullWidth
+                  selectOnFocus={false}
+                  open={state.trcnErrPrcgTypCd}
+                  onOpen={() => {
+                    dispatch({ type: 'TRCN_ERR_PRCG_TYP_CD', payload: true });
+                  }}
+                  onClose={() => {
+                    dispatch({ type: 'TRCN_ERR_PRCG_TYP_CD', payload: false });
+                  }}
+                  loading={trcnErrPrcgTypCdLoadingable}
+                  isOptionEqualToValue={(option, value) => option.code === value.code}
+                  getOptionLabel={(option) => option.name}
+                  options={trcnErrPrcgTypCds}
+                  id="trcnErrPrcgTypCd"
+                  value={formik.values.trcnErrPrcgTypCd}
+                  onChange={(event, newValue) => {
+                    formik.setFieldTouched('trcnErrPrcgTypCd');
+                    formik.setFieldValue('trcnErrPrcgTypCd', newValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="선택해주세요"
+                      variant="standard"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {trcnErrPrcgTypCdLoadingable ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                      required
+                      label="현장처리유형"
+                      error={
+                        formik.touched.trcnErrPrcgTypCd && Boolean(formik.errors.trcnErrPrcgTypCd)
+                      }
+                      helperText={formik.touched.trcnErrPrcgTypCd && formik.errors.trcnErrPrcgTypCd}
+                    />
+                  )}
+                />
+              </ListItem>
+              <ListItem>
+                <Autocomplete
+                  disablePortal
+                  size="small"
+                  fullWidth
+                  selectOnFocus={false}
+                  open={state.atlDsblTypVal}
+                  onOpen={() => {
+                    dispatch({ type: 'ATL_DSBL_TYP_VAL', payload: true });
+                  }}
+                  onClose={() => {
+                    dispatch({ type: 'ATL_DSBL_TYP_VAL', payload: false });
+                  }}
+                  loading={atlDsblTypValLoadingable}
+                  isOptionEqualToValue={(option, value) => option.code === value.code}
+                  getOptionLabel={(option) => option.name}
+                  options={atlDsblTypVals}
+                  id="atlDsblTypVal"
+                  value={formik.values.atlDsblTypVal}
+                  onChange={(event, newValue) => {
+                    formik.setFieldValue('atlDsblTypVal', newValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="선택해주세요"
+                      variant="standard"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {atlDsblTypValLoadingable ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                      label="현장확인장애"
+                      error={formik.touched.atlDsblTypVal && Boolean(formik.errors.atlDsblTypVal)}
+                      helperText={formik.touched.atlDsblTypVal && formik.errors.atlDsblTypVal}
+                    />
+                  )}
+                />
+              </ListItem>
+              <ListItem
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    onClick={(event) => {
+                      dispatch({ type: 'COLLAPSE', payload: !state.collapse });
+                    }}
+                  >
+                    {state.collapse ? <ExpandMoreOutlinedIcon /> : <ExpandLessOutlinedIcon />}
+                  </IconButton>
+                }
+              >
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <BuildCircleOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="소모품"
+                  primaryTypographyProps={{ color: 'text.secondary' }}
+                />
+              </ListItem>
+              <ListItem disablePadding>
+                <Collapse in={!state.collapse} timeout="auto" unmountOnExit sx={{ width: '100%' }}>
+                  <List aria-label="소모품" sx={{ py: 0 }}>
+                    {Array.from({ length: NSMT_DVS_CD_CNT }, (v, i) => i + 1).map(
+                      (number, index) => (
+                        <ListItem key={number}>
+                          <Autocomplete
+                            disablePortal
                             fullWidth
-                            sx={{
-                              maxWidth: 300,
-                            }}
-                            error={formik.touched.vstAdjsDtm && Boolean(formik.errors.vstAdjsDtm)}
-                            helperText={formik.touched.vstAdjsDtm && formik.errors.vstAdjsDtm}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>방문도착일시</LabelTableCell>
-                    <TableCell>
-                      <DesktopDateTimePicker
-                        inputFormat="YYYY-MM-DD HH:mm"
-                        id="vstArvlDtm"
-                        value={formik.values.vstArvlDtm}
-                        onChange={(newValue) => {
-                          formik.setFieldTouched('vstArvlDtm');
-                          formik.setFieldValue(
-                            'vstArvlDtm',
-                            newValue?.format('YYYYMMDDHHmmss') ?? ''
-                          );
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
                             size="small"
-                            fullWidth
-                            sx={{
-                              maxWidth: 300,
+                            selectOnFocus={false}
+                            open={state.nsmtDvsCds[index]}
+                            onOpen={() => {
+                              dispatch({
+                                type: 'NSMT_DVS_CD_OPEN',
+                                payload: index,
+                              });
                             }}
-                            error={formik.touched.vstArvlDtm && Boolean(formik.errors.vstArvlDtm)}
-                            helperText={formik.touched.vstArvlDtm && formik.errors.vstArvlDtm}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>처리시작일시*</LabelTableCell>
-                    <TableCell>
-                      <DesktopDateTimePicker
-                        inputFormat="YYYY-MM-DD HH:mm"
-                        id="dsblPrcgSttDtm"
-                        value={formik.values.dsblPrcgSttDtm}
-                        onChange={(newValue) => {
-                          formik.setFieldTouched('dsblPrcgSttDtm');
-                          formik.setFieldValue(
-                            'dsblPrcgSttDtm',
-                            newValue?.format('YYYYMMDDHHmmss') ?? ''
-                          );
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            size="small"
-                            fullWidth
-                            required
-                            sx={{
-                              maxWidth: 300,
+                            onClose={() => {
+                              dispatch({
+                                type: 'NSMT_DVS_CD_CLOSE',
+                                payload: index,
+                              });
                             }}
-                            error={
-                              formik.touched.dsblPrcgSttDtm && Boolean(formik.errors.dsblPrcgSttDtm)
-                            }
-                            helperText={
-                              formik.touched.dsblPrcgSttDtm && formik.errors.dsblPrcgSttDtm
-                            }
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>처리완료일시*</LabelTableCell>
-                    <TableCell>
-                      <DesktopDateTimePicker
-                        inputFormat="YYYY-MM-DD HH:mm"
-                        id="dsblPrcgFnDtm"
-                        value={formik.values.dsblPrcgFnDtm}
-                        onChange={(newValue) => {
-                          formik.setFieldTouched('dsblPrcgFnDtm');
-                          formik.setFieldValue(
-                            'dsblPrcgFnDtm',
-                            newValue?.format('YYYYMMDDHHmmss') ?? ''
-                          );
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            size="small"
-                            fullWidth
-                            required
-                            sx={{
-                              maxWidth: 300,
+                            loading={nsmtDvsCdsLoadingable[index]}
+                            isOptionEqualToValue={(option, value) => option.code === value.code}
+                            getOptionLabel={(option) => option.name}
+                            options={nsmtDvsCds}
+                            id={`nsmtDvsCd${number}`}
+                            value={formik.values['nsmtDvsCd' + number]}
+                            onChange={(event, newValue) => {
+                              formik.setFieldValue(`nsmtDvsCd${number}`, newValue);
                             }}
-                            error={
-                              formik.touched.dsblPrcgFnDtm && Boolean(formik.errors.dsblPrcgFnDtm)
-                            }
-                            helperText={formik.touched.dsblPrcgFnDtm && formik.errors.dsblPrcgFnDtm}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>지연사유</LabelTableCell>
-                    <TableCell>
-                      <FormControl
-                        variant="standard"
-                        size="small"
-                        fullWidth
-                        sx={{ maxWidth: { xs: 'calc(100vw - 170.5px)', sm: 300 } }}
-                        // error={
-                        //   formik.touched.dsblPrcgDelyRsnCd &&
-                        //   Boolean(formik.errors.dsblPrcgDelyRsnCd)
-                        // }
-                      >
-                        {/* <InputLabel id="dsblPrcgDelyRsnCd-label">지연사유</InputLabel> */}
-                        <Select
-                          // labelId="dsblPrcgDelyRsnCd-label"
-                          // displayEmpty
-                          open={state.dsblPrcgDelyRsnCdOpen}
-                          onOpen={() => {
-                            dispatch({ type: 'DSBL_PRCG_DELY_RSN_CD_OPEN' });
-                          }}
-                          onClose={() => {
-                            dispatch({ type: 'DSBL_PRCG_DELY_RSN_CD_CLOSE' });
-                          }}
-                          id="dsblPrcgDelyRsnCd"
-                          value={formik.values.dsblPrcgDelyRsnCd}
-                          onChange={(event) => {
-                            formik.setFieldValue('dsblPrcgDelyRsnCd', event.target.value);
-                          }}
-                        >
-                          <MenuItem value="">선택해주세요</MenuItem>
-                          {dsblPrcgDelyRsnCds.map((dsblPrcgDelyRsnCd) => (
-                            <MenuItem value={dsblPrcgDelyRsnCd.code} key={dsblPrcgDelyRsnCd.code}>
-                              {dsblPrcgDelyRsnCd.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {/* {formik.touched.dsblPrcgDelyRsnCd &&
-                        Boolean(formik.errors.dsblPrcgDelyRsnCd) ? (
-                          <FormHelperText>
-                            {formik.touched.dsblPrcgDelyRsnCd && formik.errors.dsblPrcgDelyRsnCd}
-                          </FormHelperText>
-                        ) : null} */}
-                      </FormControl>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>처리유형*</LabelTableCell>
-                    <TableCell>
-                      <Autocomplete
-                        disablePortal
-                        size="small"
-                        selectOnFocus={false}
-                        open={state.busTrcnErrTypCdOpen}
-                        onOpen={() => {
-                          dispatch({ type: 'TRCN_ERR_PRCG_TYP_CD_OPEN' });
-                        }}
-                        onClose={() => {
-                          dispatch({ type: 'TRCN_ERR_PRCG_TYP_CD_CLOSE' });
-                        }}
-                        loading={trcnErrPrcgTypCdLoadingable}
-                        isOptionEqualToValue={(option, value) => option.code === value.code}
-                        getOptionLabel={(option) => option.name}
-                        options={trcnErrPrcgTypCds}
-                        id="trcnErrPrcgTypCd"
-                        value={formik.values.trcnErrPrcgTypCd}
-                        onChange={(event, newValue) => {
-                          formik.setFieldTouched('trcnErrPrcgTypCd');
-                          formik.setFieldValue('trcnErrPrcgTypCd', newValue);
-                        }}
-                        sx={{
-                          maxWidth: 300,
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            placeholder="선택해주세요"
-                            variant="standard"
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <React.Fragment>
-                                  {trcnErrPrcgTypCdLoadingable ? (
-                                    <CircularProgress color="inherit" size={20} />
-                                  ) : null}
-                                  {params.InputProps.endAdornment}
-                                </React.Fragment>
-                              ),
-                            }}
-                            required
-                            error={
-                              formik.touched.trcnErrPrcgTypCd &&
-                              Boolean(formik.errors.trcnErrPrcgTypCd)
-                            }
-                            helperText={
-                              formik.touched.trcnErrPrcgTypCd && formik.errors.trcnErrPrcgTypCd
-                            }
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <LabelTableCell>실제장애유형</LabelTableCell>
-                    <TableCell>
-                      <Autocomplete
-                        disablePortal
-                        size="small"
-                        selectOnFocus={false}
-                        open={state.empOpen}
-                        onOpen={() => {
-                          dispatch({ type: 'ATL_DSBL_TYP_VAL_OPEN' });
-                        }}
-                        onClose={() => {
-                          dispatch({ type: 'ATL_DSBL_TYP_VAL_CLOSE' });
-                        }}
-                        loading={atlDsblTypValLoadingable}
-                        isOptionEqualToValue={(option, value) => option.code === value.code}
-                        getOptionLabel={(option) => option.name}
-                        options={atlDsblTypVals}
-                        id="atlDsblTypVal"
-                        value={formik.values.atlDsblTypVal}
-                        onChange={(event, newValue) => {
-                          formik.setFieldValue('atlDsblTypVal', newValue);
-                        }}
-                        sx={{
-                          maxWidth: 300,
-                          // '& .MuiAutocomplete-input': {
-                          //   fontSize: (theme) => theme.typography.fontSize,
-                          // },
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            // placeholder="선택해주세요"
-                            variant="standard"
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <React.Fragment>
-                                  {atlDsblTypValLoadingable ? (
-                                    <CircularProgress color="inherit" size={20} />
-                                  ) : null}
-                                  {params.InputProps.endAdornment}
-                                </React.Fragment>
-                              ),
-                            }}
-                            error={
-                              formik.touched.atlDsblTypVal && Boolean(formik.errors.atlDsblTypVal)
-                            }
-                            helperText={formik.touched.atlDsblTypVal && formik.errors.atlDsblTypVal}
-                          />
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={2}>
-                      <Autocomplete
-                        disablePortal
-                        size="small"
-                        selectOnFocus={false}
-                        open={state.nsmtDvsCdsOpen[0]}
-                        onOpen={() => {
-                          dispatch({
-                            type: 'NSMT_DVS_CD_OPEN',
-                            payload: 0,
-                          });
-                        }}
-                        onClose={() => {
-                          dispatch({
-                            type: 'NSMT_DVS_CD_CLOSE',
-                            payload: 0,
-                          });
-                        }}
-                        loading={nsmtDvsCdsLoadingable[0]}
-                        isOptionEqualToValue={(option, value) => option.code === value.code}
-                        getOptionLabel={(option) => option.name}
-                        options={nsmtDvsCds}
-                        id="nsmtDvsCd1"
-                        value={formik.values.nsmtDvsCd1}
-                        onChange={(event, newValue) => {
-                          formik.setFieldValue('nsmtDvsCd1', newValue);
-                        }}
-                        sx={
-                          {
-                            // maxWidth: 300,
-                            // '& .MuiAutocomplete-input': {
-                            //   fontSize: (theme) => theme.typography.fontSize,
-                            // },
-                          }
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            // placeholder="선택해주세요"
-                            label="소모품1"
-                            variant="standard"
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <React.Fragment>
-                                  {nsmtDvsCdsLoadingable[0] ? (
-                                    <CircularProgress color="inherit" size={20} />
-                                  ) : null}
-                                  {params.InputProps.endAdornment}
-                                </React.Fragment>
-                              ),
-                            }}
-                            error={formik.touched.nsmtDvsCd1 && Boolean(formik.errors.nsmtDvsCd1)}
-                            helperText={formik.touched.nsmtDvsCd1 && formik.errors.nsmtDvsCd1}
-                          />
-                        )}
-                      />
-                      <Accordion elevation={0} square sx={{ pt: 1 }}>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="csm-content"
-                          sx={{
-                            px: 0,
-                          }}
-                        >
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <BuildCircleOutlinedIcon color="primary" />
-                            <Typography variant="body2">
-                              소모품{`(2~${NSMT_DVS_CD_CNT})`}
-                            </Typography>
-                          </Stack>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ pt: 0 }}>
-                          <Stack direction="column" spacing={1}>
-                            {Array.from({ length: NSMT_DVS_CD_CNT - 1 }, (v, i) => i + 2).map(
-                              (number, index) => (
-                                <Autocomplete
-                                  key={number}
-                                  disablePortal
-                                  size="small"
-                                  selectOnFocus={false}
-                                  open={state.nsmtDvsCdsOpen[index + 1]}
-                                  onOpen={() => {
-                                    dispatch({
-                                      type: 'NSMT_DVS_CD_OPEN',
-                                      payload: index + 1,
-                                    });
-                                  }}
-                                  onClose={() => {
-                                    dispatch({
-                                      type: 'NSMT_DVS_CD_CLOSE',
-                                      payload: index + 1,
-                                    });
-                                  }}
-                                  loading={nsmtDvsCdsLoadingable[index + 1]}
-                                  isOptionEqualToValue={(option, value) =>
-                                    option.code === value.code
-                                  }
-                                  getOptionLabel={(option) => option.name}
-                                  options={nsmtDvsCds}
-                                  id={`nsmtDvsCd${number}`}
-                                  value={formik.values['nsmtDvsCd' + number]}
-                                  onChange={(event, newValue) => {
-                                    formik.setFieldValue(`nsmtDvsCd${number}`, newValue);
-                                  }}
-                                  // sx={{
-                                  //   maxWidth: 350,
-                                  //   // '& .MuiAutocomplete-input': {
-                                  //   //   fontSize: (theme) => theme.typography.fontSize,
-                                  //   // },
-                                  // }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      // placeholder="선택해주세요"
-                                      label={`소모품${number}`}
-                                      variant="standard"
-                                      InputProps={{
-                                        ...params.InputProps,
-                                        endAdornment: (
-                                          <React.Fragment>
-                                            {nsmtDvsCdsLoadingable[index + 1] ? (
-                                              <CircularProgress color="inherit" size={20} />
-                                            ) : null}
-                                            {params.InputProps.endAdornment}
-                                          </React.Fragment>
-                                        ),
-                                      }}
-                                      error={
-                                        formik.touched['nsmtDvsCd' + number] &&
-                                        Boolean(formik.errors['nsmtDvsCd' + number])
-                                      }
-                                      helperText={
-                                        formik.touched['nsmtDvsCd' + number] &&
-                                        formik.errors['nsmtDvsCd' + number]
-                                      }
-                                    />
-                                  )}
-                                />
-                              )
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                // placeholder="선택해주세요"
+                                label={`소모품${number}`}
+                                variant="standard"
+                                InputProps={{
+                                  ...params.InputProps,
+                                  endAdornment: (
+                                    <React.Fragment>
+                                      {nsmtDvsCdsLoadingable[index + 1] ? (
+                                        <CircularProgress color="inherit" size={20} />
+                                      ) : null}
+                                      {params.InputProps.endAdornment}
+                                    </React.Fragment>
+                                  ),
+                                }}
+                                error={
+                                  formik.touched['nsmtDvsCd' + number] &&
+                                  Boolean(formik.errors['nsmtDvsCd' + number])
+                                }
+                                helperText={
+                                  formik.touched['nsmtDvsCd' + number] &&
+                                  formik.errors['nsmtDvsCd' + number]
+                                }
+                              />
                             )}
-                          </Stack>
-                        </AccordionDetails>
-                      </Accordion>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={2} sx={{ textAlign: 'right' }}>
-                      <LoadingButton
-                        variant="outlined"
-                        color="warning"
-                        size="small"
-                        loading={state.trcnRplcInfStatus === 'loading'}
-                        loadingPosition="start"
-                        startIcon={<PostAddOutlinedIcon />}
-                        onClick={addTrcnRplcInf}
-                        sx={{ mb: 0.5 }}
-                      >
-                        교체이력 반영
-                      </LoadingButton>
-                      <TextField
-                        label="처리내용"
-                        multiline
-                        size="small"
-                        rows={4}
-                        fullWidth
-                        required
-                        id="dsblPrcgDtlCtt"
-                        value={formik.values.dsblPrcgDtlCtt}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.dsblPrcgDtlCtt && Boolean(formik.errors.dsblPrcgDtlCtt)
-                        }
-                        helperText={formik.touched.dsblPrcgDtlCtt && formik.errors.dsblPrcgDtlCtt}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow sx={{ '& td, & th': { border: 0 } }}>
-                    <TableCell colSpan={2}>
-                      <TextField
-                        label="기타오류내용"
-                        multiline
-                        size="small"
-                        rows={4}
-                        fullWidth
-                        id="dsblEtcErrCtt"
-                        value={formik.values.dsblEtcErrCtt}
-                        onChange={formik.handleChange}
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          />
+                        </ListItem>
+                      )
+                    )}
+                  </List>
+                </Collapse>
+              </ListItem>
+              <ListItem sx={{ flexDirection: 'column' }}>
+                <LoadingButton
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  loading={state.trcnRplcInfStatus === 'loading'}
+                  loadingPosition="start"
+                  startIcon={<PostAddOutlinedIcon />}
+                  onClick={addTrcnRplcInf}
+                  sx={{ mb: 0.5, alignSelf: 'flex-end' }}
+                >
+                  교체이력 반영
+                </LoadingButton>
+                <TextField
+                  label="처리내용"
+                  multiline
+                  size="small"
+                  rows={5}
+                  fullWidth
+                  required
+                  id="dsblPrcgDtlCtt"
+                  value={formik.values.dsblPrcgDtlCtt}
+                  onChange={formik.handleChange}
+                  error={formik.touched.dsblPrcgDtlCtt && Boolean(formik.errors.dsblPrcgDtlCtt)}
+                  helperText={formik.touched.dsblPrcgDtlCtt && formik.errors.dsblPrcgDtlCtt}
+                />
+              </ListItem>
+              <ListItem>
+                <TextField
+                  label="기타오류내용"
+                  multiline
+                  size="small"
+                  rows={5}
+                  fullWidth
+                  id="dsblEtcErrCtt"
+                  value={formik.values.dsblEtcErrCtt}
+                  onChange={formik.handleChange}
+                />
+              </ListItem>
+            </List>
           </Box>
         )}
       </Formik>

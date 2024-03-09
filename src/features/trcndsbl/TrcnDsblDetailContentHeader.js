@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { styled } from '@mui/material/styles';
-import Stack from '@mui/material/Stack';
+import StickyStack from '@components/StickyStack';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
-import CancelIcon from '@mui/icons-material/Cancel';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+// import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import HandymanIcon from '@mui/icons-material/Handyman';
 import { useInView } from 'react-intersection-observer';
 import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
@@ -14,28 +14,13 @@ import useAlert from '@common/hooks/useAlert';
 import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
-import { USER_ROLE } from '@common/constants/appConstants';
+// import { USER_ROLE } from '@common/constants/appConstants';
 // import ErrorDialog from '@components/ErrorDialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMutation } from '@common/queries/query';
 import { cancelTrcnDsbl } from '@features/trcndsbl/trcnDsblAPI';
 import TrcnDsblSignatureDialog from './TrcnDsblSignatureDialog';
 import nativeApp from '@common/utils/nativeApp';
-
-const StickyStack = styled(Stack)(({ theme }) => ({
-  margin: theme.spacing(0, -2, 0, -2),
-  padding: theme.spacing(1, 2),
-  position: 'sticky',
-  top: 0,
-  // justifyContent: 'center',
-  [theme.breakpoints.up('sm')]: {
-    margin: theme.spacing(0, -3, 0, -3),
-    padding: theme.spacing(1, 3),
-    top: 0,
-    // justifyContent: 'flex-start',
-  },
-  zIndex: theme.zIndex.appBar + 1,
-}));
 
 export default function TrcnDsblDetailContentHeader({
   trcnDsbl,
@@ -74,23 +59,23 @@ export default function TrcnDsblDetailContentHeader({
       openError(err, reset);
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['readTrcnDsbl']);
+      queryClient.invalidateQueries(['fetchTrcnDsbl']);
       openAlert(data.message);
       // openAlertSnackbar('info', data.message, true);
     },
   });
 
   const handleCancel = () => {
-    if (trcnDsbl.dltYn === 'Y') {
+    if (userRole.isSelector()) {
+      openAlertSnackbar('warning', '조회권한자는 취소가 불가능합니다.');
+    } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
     } else if (trcnDsbl.dsblPrcgFnDtm) {
       openAlertSnackbar('warning', '처리된 건은 취소가 불가능합니다.');
-    } else if (
-      user.dprtId !== trcnDsbl.dprtId ||
-      (userRole !== USER_ROLE.MANAGER && user.userId !== trcnDsbl.dsblPrcgPicId)
-    ) {
-      openAlertSnackbar('warning', '같은 부서 센터장 또는 배정 사원만 취소가 가능합니다.');
     } else {
+      if (user.dprtId !== trcnDsbl.dprtId) {
+        openAlertSnackbar('warning', '같은 부서가 아닙니다.');
+      }
       (async () => {
         const confirmed = await openConfirm('단말기 장애', '취소하시겠습니다?');
         if (confirmed) {
@@ -101,32 +86,34 @@ export default function TrcnDsblDetailContentHeader({
   };
 
   const handleAccept = () => {
-    if (trcnDsbl.dltYn === 'Y') {
+    if (userRole.isSelector()) {
+      openAlertSnackbar('warning', '조회권한자는 접수가 불가능합니다.');
+    } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
     } else if (trcnDsbl.dsblPrcgFnDtm) {
       openAlertSnackbar('warning', '처리된 건은 접수가 불가능합니다.');
-    } else if (
-      !trcnDsbl.dprtId &&
-      (userRole !== USER_ROLE.MANAGER || user.intgAstsBzDvsCd !== trcnDsbl.intgAstsBzDvsCd)
-    ) {
-      openAlertSnackbar('warning', '오배정 건은 같은 지역 센터장만 접수가 가능합니다.');
-    } else if (trcnDsbl.dprtId && user.dprtId !== trcnDsbl.dprtId) {
-      openAlertSnackbar('warning', '같은 부서 센터장 또는 사원만 접수가 가능합니다.');
+      // } else if (user.intgAstsBzDvsCd !== trcnDsbl.intgAstsBzDvsCd) {
+      //   openAlertSnackbar(
+      //     'warning',
+      //     `같은 지역(${trcnDsbl.intgAstsBzDvsNm}) 직원만 접수가 가능합니다.`
+      //   );
     } else {
       onAccept();
     }
   };
 
   const handleProcess = () => {
-    if (trcnDsbl.dltYn === 'Y') {
+    if (userRole.isSelector()) {
+      openAlertSnackbar('warning', '조회권한자는 처리가 불가능합니다.');
+    } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
     } else if (!trcnDsbl.busTrcnErrTypCd || !trcnDsbl.dsblPrcgPicId) {
-      openAlertSnackbar(
-        'warning',
-        '미접수/배정 건은 처리가 불가능합니다. 먼저 접수/배정 해주세요.'
-      );
-    } else if (user.dprtId !== trcnDsbl.dprtId) {
-      openAlertSnackbar('warning', '같은 부서 센터장 또는 사원만 처리가 가능합니다.');
+      openAlertSnackbar('warning', '미접수 건은 처리가 불가능합니다. 먼저 접수 해주세요.');
+      // } else if (user.intgAstsBzDvsCd !== trcnDsbl.intgAstsBzDvsCd) {
+      //   openAlertSnackbar(
+      //     'warning',
+      //     `같은 지역(${trcnDsbl.intgAstsBzDvsNm}) 직원만 처리가 가능합니다.`
+      //   );
     } else {
       onProcess();
     }
@@ -135,7 +122,7 @@ export default function TrcnDsblDetailContentHeader({
   const handleSignature = () => {
     if (nativeApp.isIOS()) {
       nativeApp.modalView(
-        `/trcndsbl/trcndsblsignature/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}`,
+        `/trcndsbl/trcndsbl/${trcnDsbl.stlmAreaCd}/${trcnDsbl.dsblAcptNo}/trcndsblsgn`,
         {
           title: '서명',
           presentationStyle: 'overFull',
@@ -158,10 +145,9 @@ export default function TrcnDsblDetailContentHeader({
         justifyContent="flex-end"
         alignItems="center"
         spacing={0.5}
-        mt={3}
         sx={{
           bgcolor: sticky ? 'background.paper' : 'inherit',
-          // boxShadow: sticky ? 1 : 0,
+          top: 0,
         }}
         ref={ref}
       >
@@ -173,7 +159,7 @@ export default function TrcnDsblDetailContentHeader({
           disabled={trcnDsbl.dltYn === 'Y'}
           loading={isLoading}
           loadingPosition="start"
-          startIcon={<CancelIcon />}
+          startIcon={<CancelOutlinedIcon />}
           onClick={handleCancel}
         >
           취소
@@ -182,24 +168,22 @@ export default function TrcnDsblDetailContentHeader({
           variant="contained"
           color="secondary"
           size="small"
-          // disabled={userRole === USER_ROLE.SELECTOR || trcnDsbl.dltYn === 'Y' || tabIndex !== 0}
           disabled={trcnDsbl.dltYn === 'Y' || tabIndex !== 0}
           loading={acceptStatus === 'loading'}
           loadingPosition="start"
-          startIcon={<AssignmentIndIcon />}
+          startIcon={<AssignmentOutlinedIcon />}
           onClick={handleAccept}
         >
-          접수/배정
+          접수
         </LoadingButton>
         <LoadingButton
           variant="contained"
           color="secondary"
           size="small"
-          // disabled={userRole === USER_ROLE.SELECTOR || trcnDsbl.dltYn === 'Y' || tabIndex !== 1}
           disabled={trcnDsbl.dltYn === 'Y' || tabIndex !== 1}
           loading={processStatus === 'loading'}
           loadingPosition="start"
-          startIcon={<SaveIcon />}
+          startIcon={<HandymanIcon />}
           onClick={handleProcess}
         >
           처리
@@ -208,7 +192,7 @@ export default function TrcnDsblDetailContentHeader({
           variant="contained"
           color="primary"
           size="small"
-          startIcon={<EditIcon />}
+          startIcon={<EditOutlinedIcon />}
           onClick={handleSignature}
         >
           서명

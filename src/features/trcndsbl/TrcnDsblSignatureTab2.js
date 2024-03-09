@@ -16,7 +16,6 @@ import useError from '@common/hooks/useError';
 import useUser from '@common/hooks/useUser';
 import useRole from '@common/hooks/useRole';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { USER_ROLE } from '@common/constants/appConstants';
 import { useMutation } from '@common/queries/query';
 import { deleteTrcnDsblSgn } from '@features/trcndsbl/trcnDsblAPI';
 import { API_ROOT_URL } from '@common/constants/appEnv';
@@ -39,7 +38,7 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
       openError(err, deleteErrorReset);
     },
     onSuccess: (data, variables) => {
-      // queryClient.invalidateQueries(['readTrcnDsblSgnList']);
+      // queryClient.invalidateQueries(['fetchTrcnDsblSgnList']);
       (async () => {
         // await openAlert(data.message);
         refetch();
@@ -54,7 +53,7 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
         openAlertSnackbar('error', '이미 취소된 건입니다!');
       } else if (
         user.dprtId !== trcnDsbl.dprtId ||
-        (userRole !== USER_ROLE.MANAGER && user.userId !== trcnDsblSgn.rgsrId)
+        (!userRole.isCenterLeader() && user.userId !== trcnDsblSgn.rgsrId)
       ) {
         openAlertSnackbar('warning', '같은 부서 센터장 또는 등록 사원만 삭제가 가능합니다.');
       } else {

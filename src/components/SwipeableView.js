@@ -11,7 +11,7 @@ const SwipeableViewContainer = styled('div', {
     transition: sliding
       ? 'none'
       : theme.transitions.create(['transform'], {
-          easing: theme.transitions.easing.easeInOUt,
+          easing: theme.transitions.easing.easeInOut,
           duration: theme.transitions.duration.standard,
         }),
     transform: !sliding

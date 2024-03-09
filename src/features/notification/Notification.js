@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import NotificationContent from './NotificationContent';
 // import nativeApp from '@common/utils/nativeApp';
@@ -12,17 +13,18 @@ export default function Notification() {
   return (
     <Box
       sx={{
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+        backgroundColor: (theme) => theme.palette.background.color,
+        minHeight: '100vh',
       }}
     >
-      <Box sx={{ pt: 0.125 }} />
-      <Container
-        maxWidth="sm"
+      <Toolbar
         sx={{
-          minHeight: '100vh',
+          minHeight: 2,
+          height: 2,
+          backgroundColor: (theme) => theme.palette.background.color,
         }}
-      >
+      />
+      <Container component="main" maxWidth="sm">
         <NotificationContent onClose={onClose} />
       </Container>
     </Box>

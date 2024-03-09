@@ -29,14 +29,14 @@ export default function NotificationContent({ onClose }) {
       <ErrorBoundary
         onReset={reset}
         fallbackRender={({ error, resetErrorBoundary }) => (
-          <ErrorDialog open={true} error={error} resetError={resetErrorBoundary} />
+          <ErrorDialog open error={error} resetError={resetErrorBoundary} />
         )}
       >
         <Suspense fallback={<PartLoadingSpinner />}>
           <NotificationList queryParams={queryParams} onParentClose={onClose} />
         </Suspense>
       </ErrorBoundary>
-      <Copyright sx={{ pt: 3, pb: 'calc(env(safe-area-inset-bottom) + 8px)' }} />
+      <Copyright />
     </React.Fragment>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import List from '@mui/material/List';
 import ListSubheader from '@mui/material/ListSubheader';
@@ -17,38 +17,31 @@ import { useInfiniteQuery } from '@common/queries/query';
 import { useInView } from 'react-intersection-observer';
 import { fetchCentTrcnDsblList } from '@features/trcndsbl/trcnDsblAPI';
 import useUser from '@common/hooks/useUser';
-import useRole from '@common/hooks/useRole';
 import useCmmCode from '@common/hooks/useCmnCode';
-import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
+import { CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
 import PartLoadingSpinner from '@components/PartLoadingSpinner';
 import ErrorDialog from '@components/ErrorDialog';
 import CentTrcnDsblListItem from './CentTrcnDsblListItem';
 import dayjs from 'dayjs';
 
 export default function CentTrcnDsblList() {
-  const user = useUser();
-  const userRole = useRole();
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
 
   const queryParams = {
-    categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
+    categoryId: searchParams.get('categoryId') ?? CENT_TRCN_DSBL_CATEGORY.CENT_UPRO.id,
     dsblAcptDt: searchParams.get('dsblAcptDt') ?? dayjs().format('YYYYMMDD'),
-    dprtId: searchParams.get('dprtId')
-      ? searchParams.get('dprtId')
-      : userRole === USER_ROLE.SELECTOR
-      ? ''
-      : user.dprtId,
+    dprtId:
+      searchParams.get('dprtId') ??
+      (!searchParams.get('categoryId') && user.isCenterUser() ? user.dprtId : ''),
     dsblPrcgPicId: searchParams.get('dsblPrcgPicId') ?? user.userId,
-    dsblPrsrName: searchParams.get('dsblPrsrName') ?? user.userNm,
-    dsblPrcgDt: searchParams.get('dsblPrcgDt') ?? dayjs().format('YYYYMMDD'),
-    backButton: searchParams.get('backButton') ?? '',
   };
+
   const [ref, inView] = useInView();
   const centCds = useCmmCode('CENT');
-  // const queryClient = useQueryClient();
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isError, error, refetch } =
     useInfiniteQuery(
-      ['readCentTrcnDsblList', searchParams.get('categoryId')],
+      ['fetchCentTrcnDsblList', queryParams.categoryId],
       ({ pageParam = 1 }) =>
         fetchCentTrcnDsblList({
           ...queryParams,
@@ -56,6 +49,7 @@ export default function CentTrcnDsblList() {
           page: pageParam,
         }),
       {
+        enabled: false,
         getNextPageParam: (lastPage) => {
           const nextPage = Number(lastPage.page) + 1;
           return nextPage <= Number(lastPage.total) ? nextPage : undefined;
@@ -64,16 +58,15 @@ export default function CentTrcnDsblList() {
       }
     );
 
-  const defaultCentValue = useMemo(
-    () => centCds && centCds.find((cmdCode) => cmdCode.code === user.dprtId),
-    [centCds, user]
-  );
-
   useEffect(() => {
     if (hasNextPage && inView) {
       fetchNextPage();
     }
   }, [hasNextPage, inView, fetchNextPage]);
+
+  useEffect(() => {
+    refetch();
+  }, [searchParams, refetch]);
 
   return (
     <React.Fragment>
@@ -82,7 +75,12 @@ export default function CentTrcnDsblList() {
         sx={{ bgcolor: 'background.paper', mt: 2 }}
         subheader={
           <ListSubheader
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              pt: 0.5,
+            }}
           >
             {/* <Autocomplete
               disablePortal
@@ -95,7 +93,7 @@ export default function CentTrcnDsblList() {
                 queryParams.dprtId = newValue?.code ?? '';
                 setSearchParams(new URLSearchParams(queryParams), { replace: true });
                 //navigate('/centtrcndsbl?' + new URLSearchParams(queryParams).toString());
-                //queryClient.invalidateQueries(['readCentTrcnDsblList']);
+                //queryClient.invalidateQueries(['fetchCentTrcnDsblList']);
                 refetch();
               }}
               sx={{
@@ -107,22 +105,24 @@ export default function CentTrcnDsblList() {
               renderInput={(params) => <TextField {...params} variant="standard" label="센터" />}
             /> */}
             <FormControl variant="standard" sx={{ minWidth: 160 }} size="small">
-              <InputLabel id="select-cent-id-label">센터</InputLabel>
+              <InputLabel id="dprtId-label">센터</InputLabel>
               <Select
-                disabled={userRole !== USER_ROLE.SELECTOR}
-                labelId="select-cent-id-label"
-                defaultValue={defaultCentValue?.code ?? ''}
+                // disabled={!user.isCenterUser()}
+                labelId="dprtId-label"
+                id="dprtId"
+                defaultValue={queryParams.dprtId}
+                key={queryParams.dprtId}
                 onChange={(event) => {
                   queryParams.dprtId = event.target.value;
                   setSearchParams(new URLSearchParams(queryParams), { replace: true });
                   //navigate('/centtrcndsbl?' + new URLSearchParams(queryParams).toString());
-                  //queryClient.invalidateQueries(['readCentTrcnDsblList']);
-                  refetch();
+                  //queryClient.invalidateQueries(['fetchCentTrcnDsblList']);
+                  // refetch();
                 }}
                 label="센터"
               >
                 <MenuItem value="">전체</MenuItem>
-                {centCds.map((centCd) => (
+                {centCds?.map((centCd) => (
                   <MenuItem value={centCd.code} key={centCd.code}>
                     {centCd.name}
                   </MenuItem>
@@ -130,12 +130,12 @@ export default function CentTrcnDsblList() {
               </Select>
             </FormControl>
             <Typography variant="subtitle2">
-              건수: {new Intl.NumberFormat().format(data.pages[0]?.records)}
+              건수: {data ? new Intl.NumberFormat().format(data.pages[0].records) : 0}
             </Typography>
           </ListSubheader>
         }
       >
-        {data.pages.map((page, pageIndex) => {
+        {data?.pages.map((page, pageIndex) => {
           return page.data.map((trcnDsbl, index) => (
             <React.Fragment key={`${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}`}>
               {pageIndex > 0 || index > 0 ? <Divider variant="inset" component="li" /> : null}
@@ -148,7 +148,7 @@ export default function CentTrcnDsblList() {
             </React.Fragment>
           ));
         })}
-        {data.pages[0]?.records === '0' ? (
+        {data?.pages[0].records === '0' ? (
           <ListItem>
             <Alert severity="info" sx={{ flexGrow: 1 }}>
               접수된 장애내역이 없습니다.

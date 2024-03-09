@@ -31,7 +31,7 @@ const CloseFab = styled(Fab)({
 
 export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsblAcptNo }) {
   const { data, isError, error, reset, refetch } = useQuery(
-    ['readTrcnRplcHstList'],
+    ['fetchTrcnRplcHstList'],
     () => fetchTrcnRplcHstList({ stlmAreaCd, dsblAcptNo }),
     {
       suspense: false,
@@ -55,8 +55,7 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
         <React.Fragment>
           <DialogTitle
             sx={{
-              bgcolor: (theme) =>
-                theme.palette.mode === 'light' ? 'warning.main' : 'warning.dark',
+              bgcolor: 'warning.main',
               py: 1,
             }}
             color={(theme) => theme.palette.common.white}
@@ -84,7 +83,7 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
                             ? 'secondary'
                             : index === 0
                             ? 'primary'
-                            : 'success'
+                            : 'grey'
                         }
                       >
                         {/* {trcnRplcHst.dvcDvsNm?.substr(0, 1)} */}
@@ -92,7 +91,13 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
                       <TimelineConnector />
                     </TimelineSeparator>
                     <TimelineContent sx={{ m: 'auto 0' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: (theme) => theme.typography.fontWeightBold,
+                          color: 'text.secondary',
+                        }}
+                      >
                         {trcnRplcHst.dvcDvsNm}
                       </Typography>
                       <Typography variant="body2">{trcnRplcHst.trcnId}</Typography>

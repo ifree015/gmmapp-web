@@ -12,13 +12,10 @@ export default function AppVerCheck() {
   const [open, setOpen] = useState(true);
   const appInfo = useApp();
 
-  const { data, refetch } = useQuery(['readLstAppVer'], () => fetchLstAppVer(appInfo), {
+  const { data, refetch } = useQuery(['fetchLstAppVer'], () => fetchLstAppVer(appInfo), {
     enabled: false,
     suspense: false,
     useErrorBoundary: false,
-    // onError: (err) => {
-    //   console.log(err);
-    // },
   });
 
   useEffect(() => {

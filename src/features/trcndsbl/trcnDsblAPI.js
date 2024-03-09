@@ -4,12 +4,20 @@ export const fetchTrcnDsblNcnt = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadTrcnDsblNcnt.ajax', queryParams);
 };
 
-export const fetchCentTrcnDsblNcnt = (queryParams) => {
-  return fetchByFormUrlencoded('trcndsbl/ReadCentTrcnDsblNcnt.ajax', queryParams);
+export const fetchCentByTrcnDsblNcnt = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadCentByTrcnDsblNcnt.ajax', queryParams);
+};
+
+export const fetchDplcTrcnDsblPrcn = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadDplcTrcnDsblPrcn.ajax', queryParams);
 };
 
 export const fetchCentTrcnDsblList = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadCentTrcnDsblList.ajax', queryParams);
+};
+
+export const fetchTrcnDsblList = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadTrcnDsblList.ajax', queryParams);
 };
 
 export const fetchTrcnDsbl = (queryParams) => {
@@ -20,12 +28,16 @@ export const cancelTrcnDsbl = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/CancelTrcnDsbl.ajax', queryParams);
 };
 
-export const acceptTrcnDsbl = (queryParams) => {
-  return fetchByFormUrlencoded('trcndsbl/AcceptTrcnDsbl.ajax', queryParams);
-};
-
 export const fetchAsgtEmpHstList = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadAsgtEmpHstList.ajax', queryParams);
+};
+
+export const assignTrcnDsbl = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/AssignTrcnDsbl.ajax', queryParams);
+};
+
+export const acceptTrcnDsbl = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/AcceptTrcnDsbl.ajax', queryParams);
 };
 
 export const fetchTrcnRplcInf = (queryParams) => {
@@ -48,20 +60,24 @@ export const fetchTrcnRplcHstList = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadTrcnRplcHstList.ajax', queryParams);
 };
 
-export const addTrcnDsblSgn = (queryParams) => {
-  return fetchByFormData('trcndsbl/AddTrcnDsblSgn.ajax', queryParams);
-};
-
 export const fetchTrcnDsblSgnList = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadTrcnDsblSgnList.ajax', queryParams);
+};
+
+export const addTrcnDsblSgn = (queryParams) => {
+  return fetchByFormData('trcndsbl/AddTrcnDsblSgn.ajax', queryParams);
 };
 
 export const deleteTrcnDsblSgn = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/DeleteTrcnDsblSgn.ajax', queryParams);
 };
 
-export const fetchTrcnDsblList = (queryParams) => {
-  return fetchByFormUrlencoded('trcndsbl/ReadTrcnDsblList.ajax', queryParams);
+export const fetchDplcTrcnDsblList = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadDplcTrcnDsblList.ajax', queryParams);
+};
+
+export const fetchDplcTrcnDsblHst = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadDplcTrcnDsblHst.ajax', queryParams);
 };
 
 export const fetchTrcnDsblPrcgNcnt = (queryParams) => {

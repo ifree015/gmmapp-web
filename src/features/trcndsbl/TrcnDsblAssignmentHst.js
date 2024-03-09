@@ -11,8 +11,8 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import Typography from '@mui/material/Typography';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
+import QuestionMarkOutlinedIcon from '@mui/icons-material/QuestionMarkOutlined';
 import Fab from '@mui/material/Fab';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import dayjs from 'dayjs';
@@ -31,7 +31,7 @@ const CloseFab = styled(Fab)({
 
 export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblAcptNo }) {
   const { data, isError, error, reset, refetch } = useQuery(
-    ['readAsgtEmpHstList'],
+    ['fetchAsgtEmpHstList'],
     () => fetchAsgtEmpHstList({ stlmAreaCd, dsblAcptNo }),
     {
       suspense: false,
@@ -55,8 +55,7 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
         <React.Fragment>
           <DialogTitle
             sx={{
-              bgcolor: (theme) =>
-                theme.palette.mode === 'light' ? 'warning.main' : 'warning.dark',
+              bgcolor: 'warning.main',
               py: 1,
             }}
             color={(theme) => theme.palette.common.white}
@@ -67,8 +66,8 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
             <Timeline position="alternate">
               {data.data.map((asgtEmpHst, index) => (
                 <TimelineItem key={index}>
-                  <TimelineOppositeContent sx={{ m: 'auto 0' }} color="text.secondary">
-                    <Typography variant="body2">
+                  <TimelineOppositeContent color="text.secondary" sx={{ m: 'auto 0' }}>
+                    <Typography variant="subtitle2">
                       {asgtEmpHst.updrName ?? asgtEmpHst.updrId}
                     </Typography>
                     <Typography variant="caption">
@@ -79,23 +78,32 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
                     <TimelineDot
                       sx={{
                         backgroundColor:
-                          index === data.data.length - 1
+                          index === 0
                             ? 'secondary.main'
-                            : index === 0
+                            : index === data.data.length - 1
                             ? 'primary.main'
-                            : asgtEmpHst.dsblPrcgPicId !== asgtEmpHst.dsblPrcgPicIdPrev
+                            : asgtEmpHst.dsblPrcgPicId &&
+                              asgtEmpHst.dsblPrcgPicId !== asgtEmpHst.dsblPrcgPicIdPrev
                             ? 'success.main'
                             : '',
                       }}
                     >
-                      {asgtEmpHst.dsblPrcgPicId ? <AssignmentIndIcon /> : <QuestionMarkIcon />}
+                      {asgtEmpHst.dsblPrcgPicId ? (
+                        <AssignmentIndOutlinedIcon />
+                      ) : (
+                        <QuestionMarkOutlinedIcon />
+                      )}
                     </TimelineDot>
-                    <TimelineConnector />
+                    {index === data.data.length - 1 ? null : <TimelineConnector />}
                   </TimelineSeparator>
                   <TimelineContent sx={{ m: 'auto 0' }}>
                     <Typography
-                      variant="body1"
-                      sx={{ whiteSpace: 'noWrap', fontWeight: 600, color: 'text.secondary' }}
+                      variant="subtitle1"
+                      noWrap
+                      sx={{
+                        fontWeight: (theme) => theme.typography.fontWeightBold,
+                        color: 'text.secondary',
+                      }}
                     >
                       {asgtEmpHst.dsblPrcgPicId &&
                       asgtEmpHst.dsblPrcgPicId !== asgtEmpHst.dsblPrcgPicIdPrev

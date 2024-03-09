@@ -34,7 +34,7 @@ export default function GErrorDialog() {
       maxWidth="xs"
     >
       <DialogTitle
-        sx={{ display: 'flex', alignItems: 'center', bgcolor: 'error.main' }}
+        sx={{ display: 'flex', alignItems: 'center', bgcolor: 'error.main', py: 1 }}
         color={(theme) => theme.palette.common.white}
       >
         <ErrorOutlineIcon sx={{ fontSize: 22 }} />
@@ -47,7 +47,7 @@ export default function GErrorDialog() {
         </Typography>
       </DialogContent>
 
-      <DialogActions sx={{ justifyContent: 'center', my: 1 }}>
+      <DialogActions sx={{ my: 1 }}>
         <Button variant="contained" color="error" autoFocus onClick={handleClose}>
           확인
         </Button>

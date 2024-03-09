@@ -4,11 +4,11 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import produce from 'immer';
 // import dayjs from 'dayjs';
 import TrcnDsblVhclSearchDialog from '@features/search/TrcnDsblVhclSearchDialog';
@@ -17,7 +17,8 @@ import { fetchNewNtfcPtNcnt } from '@features/notification/notificationAPI';
 import NotificationDialog from '@features/notification/NotificationDialog';
 import AppMenuDialog from '@features/setting/AppMenuDialog';
 import useAuth from '@common/hooks/useAuth';
-// import nativeApp from '@common/utils/nativeApp';
+import ElevationScroll from '@components/ElevationScroll';
+import nativeApp from '@common/utils/nativeApp';
 
 const SearchButton = styled(Button)(({ theme }) => {
   return {
@@ -73,12 +74,41 @@ function reducer(state, action) {
   });
 }
 
-export default function MainAppBar({ elevation = 1 }) {
+export default function SubAppBarWrapper({
+  elevationScroll = true,
+  backToTop = false,
+  elevation = 1,
+  spaceHeight = 0,
+}) {
+  return !nativeApp.isIOS() ? (
+    <React.Fragment>
+      {elevationScroll ? (
+        <ElevationScroll>
+          <MainAppBar elevation={elevation} />
+        </ElevationScroll>
+      ) : (
+        <MainAppBar elevation={elevation} />
+      )}
+      <Toolbar id={backToTop ? 'back-to-top-anchor' : ''} variant="dense" />
+    </React.Fragment>
+  ) : (
+    <Toolbar
+      id={backToTop ? 'back-to-top-anchor' : ''}
+      sx={{
+        minHeight: spaceHeight,
+        height: spaceHeight,
+        backgroundColor: (theme) => theme.palette.background.color,
+      }}
+    />
+  );
+}
+
+function MainAppBar({ elevation }) {
   const auth = useAuth();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { data, remove } = useQuery(
-    ['readNewNtfcPtNcnt'],
+    ['fetchNewNtfcPtNcnt'],
     () =>
       fetchNewNtfcPtNcnt({
         // ntfcDsptDt: dayjs().subtract(1, 'month').format('YYYYMMDD')
@@ -89,12 +119,6 @@ export default function MainAppBar({ elevation = 1 }) {
       useErrorBoundary: false,
       refetchOnWindowFocus: true,
       refetchInterval: 3 * 60 * 1000,
-      // onError: (err) => {},
-      onSuccess: (data) => {
-        // if (nativeApp.isIOS()) {
-        //   nativeApp.updatePushNtfcNcnt(data.data.pushNtfcNcnt);
-        // }
-      },
     }
   );
 
@@ -170,7 +194,7 @@ export default function MainAppBar({ elevation = 1 }) {
             })
           }
         >
-          <MenuIcon />
+          <MenuOutlinedIcon />
         </IconButton>
       </Toolbar>
       <TrcnDsblVhclSearchDialog open={state.search} onClose={closeSearch} />

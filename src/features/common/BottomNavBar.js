@@ -6,14 +6,14 @@ import Paper from '@mui/material/Paper';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 // import Box from '@mui/material/Box';
-import HomeIcon from '@mui/icons-material/Home';
-import PeopleIcon from '@mui/icons-material/People';
-import BusAlertIcon from '@mui/icons-material/BusAlert';
+import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
 import nativeApp from '@common/utils/nativeApp';
-import dayjs from 'dayjs';
-import useUser from '@common/hooks/useUser';
-import useRole from '@common/hooks/useRole';
-import { USER_ROLE, CENT_TRCN_DSBL_CATEGORY } from '@common/constants/appConstants';
+// import dayjs from 'dayjs';
+// import useUser from '@common/hooks/useUser';
 
 const NavigationAction = styled(BottomNavigationAction)(({ theme }) => ({
   '&.Mui-selected': { color: theme.palette.secondary.main },
@@ -25,36 +25,25 @@ const NavigationAction = styled(BottomNavigationAction)(({ theme }) => ({
 export default function BottomNavBar({ currentNav }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useUser();
-  const userRole = useRole();
+  // const user = useUser();
 
   const handleClick = (navValue) => {
     if (location.pathname === navValue) return;
 
     let queryParams = null;
-    switch (navValue) {
-      case '/centtrcndsbl':
-        queryParams = {
-          categoryId: CENT_TRCN_DSBL_CATEGORY.CENT_ALL.id,
-          dsblAcptDt: dayjs().format('YYYYMMDD'),
-          dprtId: userRole === USER_ROLE.SELECTOR ? '' : user.dprtId,
-          dsblPrcgPicId: user.userId,
-          dsblPrsrName: user.userNm,
-          dsblPrcgDt: dayjs().format('YYYYMMDD'),
-        };
-        break;
-      case '/trcndsbl':
-        queryParams = {
-          dsblAcptDtDvs: '3month',
-          dsblAcptSttDt: dayjs().subtract(3, 'month').format('YYYYMMDD'),
-          dsblAcptEndDt: dayjs().format('YYYYMMDD'),
-          dprtId: user.trcnDsblCentYn === 'Y' ? user.dprtId : '',
-          dprtNm: user.trcnDsblCentYn === 'Y' ? user.dprtNm : '',
-        };
-        break;
-      default:
-        queryParams = null;
-    }
+    // switch (navValue) {
+    //   case '/trcndsbl/trcndsbl':
+    //     queryParams = {
+    //       dsblAcptDtDvs: '3month',
+    //       dsblAcptSttDt: dayjs().subtract(3, 'month').format('YYYYMMDD'),
+    //       dsblAcptEndDt: dayjs().format('YYYYMMDD'),
+    //       dprtId: user.isCenterUser() ? user.dprtId : '',
+    //       dprtNm: user.isCenterUser() ? user.dprtNm : '',
+    //     };
+    //     break;
+    //   default:
+    //     queryParams = null;
+    // }
 
     navigate(navValue + (queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ''), {
       state: { from: location.pathname },
@@ -83,12 +72,31 @@ export default function BottomNavBar({ currentNav }) {
               }}
             >
               <NavigationAction
-                label="센터"
-                value="/centtrcndsbl"
-                icon={<PeopleIcon color="inherit" />}
+                label="차량"
+                value="/baseinf/vhcl"
+                icon={<DirectionsBusFilledOutlinedIcon color="inherit" />}
               />
-              <NavigationAction label="Home" value="/" color="secondary" icon={<HomeIcon />} />
-              <NavigationAction label="장애" value="/trcndsbl" icon={<BusAlertIcon />} />
+              <NavigationAction
+                label="단말기"
+                value="/trcnprcn/trcnloc"
+                icon={<DashboardOutlinedIcon color="inherit" />}
+              />
+              <NavigationAction
+                label="Home"
+                value="/"
+                color="secondary"
+                icon={<HomeOutlinedIcon />}
+              />
+              <NavigationAction
+                label="센터"
+                value="/trcndsbl/centtrcndsbl"
+                icon={<PeopleOutlinedIcon />}
+              />
+              <NavigationAction
+                label="승인"
+                value="/wrkflw/trcndsblaprv"
+                icon={<FactCheckOutlinedIcon color="inherit" />}
+              />
             </BottomNavigation>
           </Paper>
         </React.Fragment>

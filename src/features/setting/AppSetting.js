@@ -14,7 +14,7 @@ export default function AppSetting() {
       <Box sx={{ pt: 0.125 }} />
       <Container
         maxWidth="sm"
-        disableGutters={true}
+        disableGutters
         sx={{
           minHeight: '100vh',
           // overflowY: 'auto',

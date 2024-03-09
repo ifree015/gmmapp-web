@@ -25,7 +25,14 @@ const SettingPush = () => {
 
   return (
     <List
-      sx={{ mt: 3, bgcolor: 'background.paper' }}
+      sx={{
+        mt: 3,
+        bgcolor: 'background.paper',
+        boxShadow: (theme) =>
+          theme.palette.mode === 'light'
+            ? 'rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px'
+            : 'rgba(0, 0, 0, 0.2) 0px 0px 2px 0px, rgba(0, 0, 0, 0.12) 0px 12px 24px -4px',
+      }}
       subheader={
         <ListSubheader>
           <Typography
@@ -45,7 +52,7 @@ const SettingPush = () => {
         secondaryAction={
           <Switch
             color="warning"
-            checked={user.pushRcvYn === 'Y'}
+            checked={user.ushRcvYn === 'Y'}
             onChange={(event) => {
               dispatch(setPushRcvYn(event.target.checked ? 'Y' : 'N'));
               mutate({ pushRcvYn: event.target.checked ? 'Y' : 'N' });

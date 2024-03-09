@@ -1,6 +1,5 @@
 import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
@@ -8,31 +7,14 @@ import InputAdornment from '@mui/material/InputAdornment';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
+import StickyStack from '@components/StickyStack';
 import Chip from '@mui/material/Chip';
 import dayjs from 'dayjs';
 import produce from 'immer';
 import { useInView } from 'react-intersection-observer';
-import useSmUp from '@common/hooks/useSmUp';
 import TrcnDsblSearchCondition from './TrcnDsblSearchCondition';
 import useUser from '@common/hooks/useUser';
 import nativeApp from '@common/utils/nativeApp';
-
-const StickyStack = styled(Stack)(({ theme }) => ({
-  margin: theme.spacing(0, -2, 0, -2),
-  padding: theme.spacing(1, 2),
-  position: 'sticky',
-  top: 48,
-  // justifyContent: 'center',
-  [theme.breakpoints.up('sm')]: {
-    margin: theme.spacing(0, -3, 0, -3),
-    padding: theme.spacing(1, 3),
-    top: 48,
-    // justifyContent: 'flex-start',
-  },
-  flexWrap: 'wrap',
-  zIndex: theme.zIndex.appBar + 1,
-}));
 
 const initialState = {
   searchCondition: false,
@@ -57,22 +39,19 @@ function reducer(state, action) {
 export default function TrcnDsblHeader() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
-  const isSmUp = useSmUp();
   const [ref, inView] = useInView({
     threshold: 1,
     initialInView: true,
-    rootMargin: isSmUp
-      ? `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`
-      : `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
+    rootMargin: `-${nativeApp.isIOS() ? 1 : 49}px 0px 0px 0px`,
   });
   const user = useUser();
 
-  if (!searchParams.get('dsblAcptDtDvs') && !searchParams.get('dsblAcptSttDt')) {
-    searchParams.append('dsblAcptDtDvs', '3month');
+  if (!searchParams.get('dsblAcptSttDt')) {
+    searchParams.append('dsblAcptDtDvsCd', '3month');
     searchParams.append('dsblAcptSttDt', dayjs().subtract(3, 'month').format('YYYYMMDD'));
     searchParams.append('dsblAcptEndDt', dayjs().format('YYYYMMDD'));
-    searchParams.append('dprtId', user.trcnDsblCentYn === 'Y' ? user.dprtId : '');
-    searchParams.append('dprtNm', user.trcnDsblCentYn === 'Y' ? user.dprtNm : '');
+    searchParams.append('dprtId', user.isCenterUser() ? user.dprtId : '');
+    searchParams.append('dprtNm', user.isCenterUser() ? user.dprtNm : '');
   }
 
   const conditions = useMemo(() => {
@@ -88,23 +67,6 @@ export default function TrcnDsblHeader() {
             visible: true,
           });
           break;
-        case 'dsblAcptDtDvs':
-          conditions.push({
-            keys: [key],
-            name:
-              value === '1month'
-                ? '1개월'
-                : value === '3month'
-                ? '3개월'
-                : value === '6month'
-                ? '6개월'
-                : value === '1year'
-                ? '1년'
-                : '',
-            deletable: true,
-            visible: false,
-          });
-          break;
         case 'dsblAcptSttDt':
           conditions.push({
             keys: ['dsblAcptSttDt', 'dsblAcptEndDt'],
@@ -116,22 +78,25 @@ export default function TrcnDsblHeader() {
             visible: true,
           });
           break;
-        case 'dsblPrsrName':
+        case 'stlmAreaCd':
+        case 'troaId':
+        case 'dsblAcptDvsCd':
+        case 'busTrcnErrTypCd':
+        case 'tropId':
+        case 'dprtId':
+        case 'dsblPrcgPicId':
+        case 'prsrId':
           conditions.push({
-            keys: [key],
-            name: value,
+            keys: [key, key.substring(0, key.length - 2) + 'Nm'],
+            name: searchParams.get(key.substring(0, key.length - 2) + 'Nm'),
             deletable: true,
             visible: true,
           });
           break;
-        case 'stlmAreaCd':
-        case 'troaId':
-        case 'tropId':
-        case 'dsblAcptDvsCd':
-        case 'dprtId':
+        case 'busBsfcId':
           conditions.push({
-            keys: [key, key.substring(0, key.length - 2) + 'Nm'],
-            name: searchParams.get(key.substring(0, key.length - 2) + 'Nm'),
+            keys: [key, 'bsfcNm'],
+            name: searchParams.get('bsfcNm'),
             deletable: true,
             visible: true,
           });
@@ -144,10 +109,18 @@ export default function TrcnDsblHeader() {
             visible: true,
           });
           break;
+        case 'dsblAcptNo':
+          conditions.push({
+            keys: [key, key],
+            name: searchParams.get('dsblAcptNo'),
+            deletable: true,
+            visible: true,
+          });
+          break;
         case 'asgtYn':
           conditions.push({
             keys: [key],
-            name: value === 'Y' ? '배정' : '오배정',
+            name: value === 'Y' ? '배정' : '미배정',
             deletable: true,
             visible: true,
           });
@@ -160,17 +133,6 @@ export default function TrcnDsblHeader() {
             visible: true,
           });
           break;
-        case 'dsblPrcgSttDt':
-          conditions.push({
-            keys: ['dsblPrcgSttDt', 'dsblPrcgEndDt'],
-            name:
-              dayjs(searchParams.get('dsblPrcgSttDt'), 'YYYYMMDD').format('YYYY.MM.DD') +
-              '~' +
-              dayjs(searchParams.get('dsblPrcgEndDt'), 'YYYYMMDD').format('YYYY.MM.DD'),
-            deletable: true,
-            visible: true,
-          });
-          break;
         default:
           break;
       }
@@ -179,18 +141,10 @@ export default function TrcnDsblHeader() {
   }, [searchParams]);
 
   useEffect(() => {
-    // if (state.sticky === undefined) {
-    //   dispatch({
-    //     type: 'STICKY',
-    //     payload: false,
-    //   });
-    // } else {
     dispatch({
       type: 'STICKY',
       payload: !inView,
     });
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView]);
 
   const handleDelete = (keys) => {
@@ -223,6 +177,7 @@ export default function TrcnDsblHeader() {
         <InputBase
           fullWidth
           placeholder="차량번호 또는 운수사 차량번호."
+          id="searchCondition"
           inputProps={{ readOnly: true }}
           sx={{ p: 1 }}
           onClick={() =>
@@ -257,10 +212,10 @@ export default function TrcnDsblHeader() {
       </Paper>
       <StickyStack
         direction="row"
-        // spacing={{ xs: 0.5, sm: 1 }}
         sx={{
           bgcolor: state.sticky ? 'background.paper' : 'inherit',
-          top: { xs: `${nativeApp.isIOS() ? 0 : 48}px`, sm: `${nativeApp.isIOS() ? 0 : 48}px` },
+          top: `${nativeApp.isIOS() ? 0 : 48}px`,
+          flexWrap: 'wrap',
         }}
         component="header"
         ref={ref}
@@ -277,7 +232,11 @@ export default function TrcnDsblHeader() {
             ></Chip>
           ))}
       </StickyStack>
-      <TrcnDsblSearchCondition open={state.searchCondition} onClose={closeSearchCondition} />
+      <TrcnDsblSearchCondition
+        open={state.searchCondition}
+        onClose={closeSearchCondition}
+        searchParams={searchParams}
+      />
     </React.Fragment>
   );
 }

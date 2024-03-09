@@ -4,19 +4,63 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 // import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Typography from '@mui/material/Typography';
 // import Badge from '@mui/material/Badge';
 // import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 // import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 
-const DetailAppBar = ({ title, elevation = 1 }) => {
+import HideOnScroll from '@components/HideOnScroll';
+import ElevationScroll from '@components/ElevationScroll';
+import nativeApp from '@common/utils/nativeApp';
+
+const DetailAppBarWrapper = ({
+  hideOnScroll = false,
+  threshold = 40,
+  elevationScroll = true,
+  backToTop = false,
+  title,
+  position = 'relative',
+  spaceHeight = 2,
+  elevation = 1,
+}) => {
+  return !nativeApp.isIOS() ? (
+    <React.Fragment>
+      {hideOnScroll ? (
+        <HideOnScroll threshold={threshold}>
+          <DetailAppBar title={title} elevation={elevation} position={position} />
+        </HideOnScroll>
+      ) : elevationScroll ? (
+        <ElevationScroll>
+          <DetailAppBar title={title} elevation={elevation} position={position} />
+        </ElevationScroll>
+      ) : (
+        <DetailAppBar title={title} elevation={elevation} position={position} />
+      )}
+      {position === 'fixed' ? (
+        <Toolbar id={backToTop ? 'back-to-top-anchor' : ''} variant="dense" />
+      ) : null}
+    </React.Fragment>
+  ) : (
+    <Toolbar
+      id={backToTop ? 'back-to-top-anchor' : ''}
+      // TODO('여백을 안 주면 stick header가 바로 적용')
+      sx={{
+        minHeight: spaceHeight,
+        height: spaceHeight,
+        backgroundColor: (theme) => theme.palette.background.color,
+      }}
+    />
+  );
+};
+
+function DetailAppBar({ title, elevation, position }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   return (
     <AppBar
-      position="relative"
+      position={position}
       color="secondary"
       sx={{
         backgroundColor: (theme) =>
@@ -37,7 +81,7 @@ const DetailAppBar = ({ title, elevation = 1 }) => {
           }}
           edge="start"
         >
-          <ArrowBackIcon />
+          <ArrowBackOutlinedIcon />
         </IconButton>
         <Typography
           component="h1"
@@ -63,6 +107,6 @@ const DetailAppBar = ({ title, elevation = 1 }) => {
       </Toolbar>
     </AppBar>
   );
-};
+}
 
-export default React.memo(DetailAppBar);
+export default React.memo(DetailAppBarWrapper);

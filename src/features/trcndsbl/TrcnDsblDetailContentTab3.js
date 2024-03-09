@@ -12,7 +12,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
-import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
+import PublishedWithChangesOutlinedIcon from '@mui/icons-material/PublishedWithChangesOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import Alert from '@mui/material/Alert';
 import produce from 'immer';
@@ -94,13 +94,13 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
 
   const {
     data: { data: vhclTrcnList },
-  } = useQuery(['readDsblVhclTrcnList'], () =>
+  } = useQuery(['fetchDsblVhclTrcnList'], () =>
     fetchDsblVhclTrcnList({ stlmAreaCd: stlmAreaCd, dsblAcptNo: dsblAcptNo })
   );
   const [state, dispatch] = useReducer(reducer, getInitialState(6)); // 기본 6대 단말기
 
   const { refetch: fetchTrcns } = useQuery(
-    ['readChcStpPsbTrcnList'],
+    ['fetchChcStpPsbTrcnList'],
     () =>
       fetchChcStpPsbTrcnList({
         eqpmDvsCd: vhclTrcnList[state.trcnOpen.index].eqpmDvsCd,
@@ -149,7 +149,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
       openError(err, reset);
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(['readDsblVhclTrcnList']);
+      queryClient.invalidateQueries(['fetchDsblVhclTrcnList']);
       dispatch({ type: 'REPLACE_SUCCESS', payload: { status: 'idle', index: variables.index } });
       openAlert(data.message);
       // openAlertSnackbar('info', data.message, true);
@@ -199,7 +199,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
         <List sx={{ pt: 0 }}>
           {vhclTrcnList.map((vhclTrcn, index) => (
             <React.Fragment key={vhclTrcn.trcnId}>
-              <ListItem button sx={{ flexWrap: 'wrap' }}>
+              <ListItem sx={{ flexWrap: 'wrap' }}>
                 <ListItemAvatar>
                   <Avatar
                     sx={{
@@ -213,7 +213,10 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                 </ListItemAvatar>
                 <ListItemText
                   sx={{ flexGrow: 1 }}
-                  primaryTypographyProps={{ fontWeight: 600, color: 'primary' }}
+                  primaryTypographyProps={{
+                    fontWeight: (theme) => theme.typography.fontWeightBold,
+                    color: 'info.main',
+                  }}
                   primary={vhclTrcn.dvcDvsNm}
                   secondary={
                     <React.Fragment>
@@ -221,7 +224,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                         component="span"
                         variant="subtitle2"
                         sx={{
-                          fontWeight: 600,
+                          fontWeight: (theme) => theme.typography.fontWeightBold,
                           pr: 1,
                         }}
                       >
@@ -306,7 +309,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                     size="small"
                     loading={state.trcnOpen.index === index && state.replaceStatus === 'loading'}
                     loadingPosition="start"
-                    startIcon={<PublishedWithChangesIcon />}
+                    startIcon={<PublishedWithChangesOutlinedIcon />}
                     sx={{ ml: 1, whiteSpace: 'nowrap' }}
                     onClick={() => {
                       handleReplace(index);

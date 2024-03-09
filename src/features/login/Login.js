@@ -180,7 +180,7 @@ export default function Loign() {
               로그인
             </Button>
           </Box>
-          <Copyright sx={{ mt: 4, mb: 4 }} />
+          <Copyright />
         </Box>
       </Container>
     </>

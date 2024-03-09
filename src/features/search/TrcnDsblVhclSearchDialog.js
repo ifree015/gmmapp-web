@@ -19,7 +19,7 @@ export default function TrcnDsblVhclSearchDialog({ open, onClose }) {
       scroll="paper"
     >
       <Container
-        disableGutters={true}
+        disableGutters
         maxWidth="sm"
         sx={{
           backgroundColor: (theme) =>

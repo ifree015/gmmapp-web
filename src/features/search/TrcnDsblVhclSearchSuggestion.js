@@ -29,7 +29,7 @@ const TrcnDsblVhclSearchSuggestion = ({ data }) => {
       storageSrchVhcls.unshift(srchVhcl);
       if (storageSrchVhcls.length > 10) storageSrchVhcls.pop();
       setLocalItem('srchVhcls', storageSrchVhcls);
-      const to = `/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
+      const to = `/trcndsbl/trcndsbl?dsblAcptDtDvs=3month&dsblAcptSttDt=${dayjs()
         .subtract(3, 'month')
         .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&tropId=${
         srchVhcl.tropId
@@ -69,7 +69,7 @@ const TrcnDsblVhclSearchSuggestion = ({ data }) => {
                         }}
                         component="span"
                         variant="body1"
-                        noWrap={true}
+                        noWrap
                       >
                         <span
                           dangerouslySetInnerHTML={{

@@ -2,8 +2,9 @@
 import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import Fab from '@mui/material/Fab';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
+import nativeApp from '@common/utils/nativeApp';
 
 export function ScrollTop({ children, bottom }) {
   // const [visible, setVisible] = useState(false);
@@ -17,11 +18,15 @@ export function ScrollTop({ children, bottom }) {
   });
 
   const handleClick = (event) => {
-    console.log('event' + event);
     const anchor = (event.ownerDocument || document).querySelector('#back-to-top-anchor');
     if (anchor) {
       anchor.scrollIntoView({
         block: 'center',
+      });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
       });
     }
   };
@@ -59,11 +64,23 @@ export function ScrollTop({ children, bottom }) {
   );
 }
 
-export default function BackToTop({ bottom = '16px' }) {
+export default function BackToTop({ bottomNavBar = false, bottomToolBar = false, bottom }) {
+  if (!bottom) {
+    if (bottomNavBar) {
+      bottom = nativeApp.isIOS() ? 'calc(env(safe-area-inset-bottom) + 16px)' : 'calc(56px + 16px)';
+    } else if (bottomToolBar) {
+      bottom = nativeApp.isIOS()
+        ? 'calc(env(safe-area-inset-bottom) + 56px + 16px)'
+        : 'calc(56px + 16px)';
+    } else {
+      bottom = 'calc(env(safe-area-inset-bottom) + 16px)';
+    }
+  }
+
   return (
     <ScrollTop bottom={bottom}>
       <Fab size="small" aria-label="scroll back to top" color="info">
-        <KeyboardArrowUpIcon />
+        <KeyboardArrowUpOutlinedIcon />
       </Fab>
     </ScrollTop>
   );

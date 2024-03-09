@@ -15,7 +15,7 @@ export default function AppMenuContent({ onClose }) {
       <ErrorBoundary
         onReset={reset}
         fallbackRender={({ error, resetErrorBoundary }) => (
-          <ErrorDialog open={true} error={error} resetError={resetErrorBoundary} />
+          <ErrorDialog open error={error} resetError={resetErrorBoundary} />
         )}
       >
         <MenuUserCard onParentClose={onClose} />

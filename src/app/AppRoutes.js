@@ -1,17 +1,32 @@
 import { useEffect, useCallback, useContext } from 'react';
 import { useRoutes, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import useAuth from '@common/hooks/useAuth';
-import Login from '@features/login/Login';
-import Dashboard from '@features/dashboard/Dashboard';
-import TrcnDsblVhclSearch from '@features/search/TrcnDsblVhclSearch';
+import Trop from '@features/baseinf/Trop';
+import TropDetail from '@features/baseinf/TropDetail';
+import BusBsfc from '@features/baseinf/BusBsfc';
+import BusBsfcDetail from '@features/baseinf/BusBsfcDetail';
+import Vhcl from '@features/baseinf/Vhcl';
+import VhclDetail from '@features/baseinf/VhclDetail';
+import TrcnLoc from '@features/trcnprcn/TrcnLoc';
+import TrcnLocDetail from '@features/trcnprcn/TrcnLocDetail';
+import Trcn from '@features/trcnprcn/Trcn';
+import TrcnDetail from '@features/trcnprcn/TrcnDetail';
+import TrcnSearch from '@features/search/TrcnSearch';
+import TrcnDsblDsh from '@features/trcndsbl/TrcnDsblDsh';
 import Notification from '@features/notification/Notification';
-import CentTrcnDsbl from '@features/trcndsbl/CentTrcnDsbl';
-import TrcnDsbl from '@features/trcndsbl/TrcnDsbl';
-import TrcnDsblDetail from '@features/trcndsbl/TrcnDsblDetail';
-import TrcnDsblSignature from '@features/trcndsbl/TrcnDsblSignature';
+import TrcnDsblVhclSearch from '@features/search/TrcnDsblVhclSearch';
 import AppMenu from '@features/setting/AppMenu';
 import AppSetting from '@features/setting/AppSetting';
-import NotFound from '@features/notfound/NotFound';
+import CentTrcnDsbl from '@features/trcndsbl/CentTrcnDsbl';
+import TrcnDsbl from '@features/trcndsbl/TrcnDsbl';
+import TrcnDsblRgt from '@features/trcndsbl/TrcnDsblRgt';
+import TrcnDsblDetail from '@features/trcndsbl/TrcnDsblDetail';
+import TrcnDsblSignature from '@features/trcndsbl/TrcnDsblSignature';
+import DplcTrcnDsbl from '@features/trcndsbl/DplcTrcnDsbl';
+import TchmOpgtOcrn from '@features/trcnmntg/TchmOpgtOcrn';
+import TchmOpgtOcrnDetail from '@features/trcnmntg/TchmOpgtOcrnDetail';
+import Login from '@features/login/Login';
+import NotFound from '@features/error/NotFound';
 // import { getLocalItem } from '@common/utils/storage';
 import { ThemeModeContext } from '@app/ThemeMode';
 import nativeApp from '@common/utils/nativeApp';
@@ -68,33 +83,169 @@ export default function AppRoutes() {
 
   const element = useRoutes([
     {
+      path: '/baseinf/trop',
+      element: (
+        <RequireAuth>
+          <Trop />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/baseinf/trop/:tropId',
+      element: (
+        <RequireAuth>
+          <TropDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/baseinf/busbsfc',
+      element: (
+        <RequireAuth>
+          <BusBsfc />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/baseinf/busbsfc/:tropId/:busBsfcId',
+      element: (
+        <RequireAuth>
+          <BusBsfcDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/baseinf/vhcl',
+      element: (
+        <RequireAuth>
+          <Vhcl />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/baseinf/vhcl/:tropId/:vhclId',
+      element: (
+        <RequireAuth>
+          <VhclDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcnprcn/trcnloc',
+      element: (
+        <RequireAuth>
+          <TrcnLoc />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcnprcn/trcnloc/:prsLocId',
+      element: (
+        <RequireAuth>
+          <TrcnLocDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcnprcn/trcn',
+      element: (
+        <RequireAuth>
+          <Trcn />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcnprcn/trcn/:trcnId',
+      element: (
+        <RequireAuth>
+          <TrcnDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/search/trcnsearch',
+      element: (
+        <RequireAuth nativePath>
+          <TrcnSearch />
+        </RequireAuth>
+      ),
+    },
+    {
       path: '/',
       element: (
         <RequireAuth>
-          <Dashboard />
+          <TrcnDsblDsh />
         </RequireAuth>
       ),
     },
     {
-      path: '/dashboard',
+      path: '/trcndsbl/trcndsbldsh',
       element: (
         <RequireAuth>
-          <Dashboard />
+          <TrcnDsblDsh />
         </RequireAuth>
       ),
     },
     {
-      path: '/trcndsblvhclsearch',
+      path: '/trcndsbl/centtrcndsbl',
       element: (
-        <RequireAuth nativePath={true}>
+        <RequireAuth>
+          <CentTrcnDsbl />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsbl/trcndsbl',
+      element: (
+        <RequireAuth>
+          <TrcnDsbl />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsbl/trcndsbl/trcndsblrgt',
+      element: (
+        <RequireAuth>
+          <TrcnDsblRgt />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsbl/trcndsbl/:stlmAreaCd/:dsblAcptNo',
+      element: (
+        <RequireAuth>
+          <TrcnDsblDetail />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsbl/trcndsbl/:stlmAreaCd/:dsblAcptNo/trcndsblsgn',
+      element: (
+        <RequireAuth>
+          <TrcnDsblSignature />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/trcndsbl/dplctrcndsbl',
+      element: (
+        <RequireAuth>
+          <DplcTrcnDsbl />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: '/search/trcndsblvhclsearch',
+      element: (
+        <RequireAuth nativePath>
           <TrcnDsblVhclSearch />
         </RequireAuth>
       ),
     },
     {
-      path: '/notification',
+      path: '/notification/notification',
       element: (
-        <RequireAuth nativePath={true}>
+        <RequireAuth nativePath>
           <Notification />
         </RequireAuth>
       ),
@@ -102,7 +253,7 @@ export default function AppRoutes() {
     {
       path: '/setting/menu',
       element: (
-        <RequireAuth nativePath={true}>
+        <RequireAuth nativePath>
           <AppMenu />
         </RequireAuth>
       ),
@@ -116,34 +267,18 @@ export default function AppRoutes() {
       ),
     },
     {
-      path: '/centtrcndsbl',
+      path: '/trcnmntg/tchmopgtocrn',
       element: (
         <RequireAuth>
-          <CentTrcnDsbl />
+          <TchmOpgtOcrn />
         </RequireAuth>
       ),
     },
     {
-      path: '/trcndsbl',
+      path: '/trcnmntg/tchmopgtocrn/:tropId/:vhclId/:drvrDrcsId/:oprnDeprDtm',
       element: (
         <RequireAuth>
-          <TrcnDsbl />
-        </RequireAuth>
-      ),
-    },
-    {
-      path: '/trcndsbl/trcndsbldetail/:stlmAreaCd/:dsblAcptNo',
-      element: (
-        <RequireAuth>
-          <TrcnDsblDetail />
-        </RequireAuth>
-      ),
-    },
-    {
-      path: '/trcndsbl/trcndsblsignature/:stlmAreaCd/:dsblAcptNo',
-      element: (
-        <RequireAuth>
-          <TrcnDsblSignature />
+          <TchmOpgtOcrnDetail />
         </RequireAuth>
       ),
     },

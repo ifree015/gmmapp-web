@@ -17,7 +17,7 @@ export default function AppSettingDrawer({ open, onClose }) {
       sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}
     >
       <Container
-        disableGutters={true}
+        disableGutters
         maxWidth="sm"
         sx={{
           backgroundColor: (theme) =>
