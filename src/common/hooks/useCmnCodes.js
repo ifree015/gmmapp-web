@@ -42,9 +42,9 @@ export default function useCmnCodes(cmnCdParams) {
   const isFetching = results.some((result) => result.isFetching);
   const isError = results.some((result) => result.isError);
   return [
+    cmnCdParams.map((cmnCdParam) => cmnCds[cmnCdParam.cmnCdId]),
     isFetching,
     isError,
     isError ? results.find((result) => result.isError).error : null,
-    cmnCdParams.map((cmnCdParam) => cmnCds[cmnCdParam.cmnCdId]),
   ];
 }

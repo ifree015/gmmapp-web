@@ -171,11 +171,7 @@ export default function TrcnDsblDetailContent() {
             />
           </TabPanel>
           <TabPanel name="trcndsbl" value={state.tabIndex} index={2} swipeable>
-            <TrcnDsblDetailContentTab3
-              trcnDsbl={trcnDsbl}
-              stlmAreaCd={stlmAreaCd}
-              dsblAcptNo={dsblAcptNo}
-            />
+            <TrcnDsblDetailContentTab3 trcnDsbl={trcnDsbl} />
           </TabPanel>
         </SwipeableView>
       </Paper>

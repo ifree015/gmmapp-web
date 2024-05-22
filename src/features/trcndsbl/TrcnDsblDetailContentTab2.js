@@ -30,7 +30,6 @@ import { useQuery, useMutation } from '@common/queries/query';
 import useAsyncCmmCode from '@common/hooks/useAsyncCmmCode';
 import { fetchTrcnRplcInf, processTrcnDsbl } from '@features/trcndsbl/trcnDsblAPI';
 import useUser from '@common/hooks/useUser';
-import useRole from '@common/hooks/useRole';
 import useAlert from '@common/hooks/useAlert';
 import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
@@ -44,7 +43,7 @@ const initialState = {
   atlDsblTypVal: false,
   collapse: true,
   nsmtDvsCds: Array.from({ length: NSMT_DVS_CD_CNT }, () => false),
-  trcnRplcInfStatus: 'idle',
+  trcnRplcInf: 'idle',
 };
 
 function reducer(state, action) {
@@ -69,7 +68,7 @@ function reducer(state, action) {
         draft.nsmtDvsCds[action.payload] = false;
         break;
       case 'TRCN_RPLC_INF':
-        draft.trcnRplcInfStatus = action.payload;
+        draft.trcnRplcInf = action.payload;
         break;
       default:
         return draft;
@@ -80,7 +79,6 @@ function reducer(state, action) {
 const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const user = useUser();
-  const userRole = useRole();
   // const queryClient = useQueryClient();
   const openAlert = useAlert();
   const openConfirm = useConfirm();
@@ -88,7 +86,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
   const openError = useError();
 
   const [dsblPrcgDelyRsnCds, fetchDsblPrcgDelyRsnCds] = useAsyncCmmCode(
-    'DSBL_ACPT_DVS_CD',
+    'DSBL_PRCG_DELY_RSN_CD',
     { cdId: '275' },
     trcnDsbl.dsblPrcgDelyRsnCd
       ? [{ code: trcnDsbl.dsblPrcgDelyRsnCd, name: trcnDsbl.dsblPrcgDelyRsnNm }]
@@ -157,25 +155,15 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
     }
   }, [nsmtDvsCdLoadingable, fetchNsmtDvsCds]);
 
-  const { mutate, reset } = useMutation(processTrcnDsbl, {
-    useErrorBoundary: false,
-    onMutate: () => {
-      onChangeStatus('loading');
-    },
-    onError: (err) => {
-      onChangeStatus('idle');
-      openError(err, reset);
-    },
-    onSuccess: (data) => {
-      // queryClient.invalidateQueries(['fetchTrcnDsbl']);
-      onChangeStatus('idle');
-      openAlert(data.message);
-      // openAlertSnackbar('info', data.message, true);
-    },
-  });
+  useEffect(() => {
+    if (state.collapse && trcnDsbl.nsmtDvsCd1) {
+      dispatch({ type: 'COLLAPSE', payload: !state.collapse });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trcnDsbl]);
 
   const { refetch } = useQuery(
-    ['fetchTrcnRplcInf'],
+    ['fetchTrcnRplcInf', trcnDsbl.stlmAreaCd, trcnDsbl.dsblAcptNo],
     () =>
       fetchTrcnRplcInf({
         stlmAreaCd: trcnDsbl.stlmAreaCd,
@@ -219,17 +207,34 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
     refetch();
   };
 
+  const { mutate, reset } = useMutation(processTrcnDsbl, {
+    useErrorBoundary: false,
+    onMutate: () => {
+      onChangeStatus('loading');
+    },
+    onError: (err) => {
+      onChangeStatus('idle');
+      openError(err, reset);
+    },
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries(['fetchTrcnDsbl']);
+      onChangeStatus('idle');
+      openAlert(data.message);
+      // openAlertSnackbar('info', data.message, true);
+    },
+  });
+
   return (
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize
+        //enableReinitialize
         initialValues={{
+          dsblPrcgDelyRsnCd: trcnDsbl.dsblPrcgDelyRsnCd ?? '',
           vstAdjsDtm: trcnDsbl.vstAdjsDtm ?? '',
           vstArvlDtm: trcnDsbl.vstArvlDtm ?? '',
           dsblPrcgSttDtm: trcnDsbl.dsblPrcgSttDtm ?? '',
           dsblPrcgFnDtm: trcnDsbl.dsblPrcgFnDtm ?? '',
-          dsblPrcgDelyRsnCd: trcnDsbl.dsblPrcgDelyRsnCd ?? '',
           trcnErrPrcgTypCd:
             trcnErrPrcgTypCds.find((cmdCode) => cmdCode.code === trcnDsbl.trcnErrPrcgTypCd) ?? null,
           atlDsblTypVal:
@@ -315,17 +320,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
         {(formik) => (
           <Box component="form" onSubmit={formik.handleSubmit} noValidate>
             <List aria-label="처리 정보">
-              <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <HandymanIcon color="info" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="처리 정보"
-                    primaryTypographyProps={{ variant: 'subtitle2' }}
-                  />
-                </ListItemButton>
-              </ListItem>
               <LabelValueListItem label="장애처리자" value={trcnDsbl.prsrNm} />
               <ListItem>
                 <FormControl variant="standard" size="small" fullWidth>
@@ -361,7 +355,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="vstAdjsDtm"
                   value={formik.values.vstAdjsDtm}
                   onChange={(newValue) => {
-                    formik.setFieldTouched('vstAdjsDtm');
                     formik.setFieldValue('vstAdjsDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
                   }}
                   renderInput={(params) => (
@@ -383,7 +376,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="vstArvlDtm"
                   value={formik.values.vstArvlDtm}
                   onChange={(newValue) => {
-                    formik.setFieldTouched('vstArvlDtm');
                     formik.setFieldValue('vstArvlDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
                   }}
                   renderInput={(params) => (
@@ -398,6 +390,17 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   )}
                 />
               </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <HandymanIcon color="info" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="처리 정보"
+                    primaryTypographyProps={{ variant: 'subtitle2' }}
+                  />
+                </ListItemButton>
+              </ListItem>
               <ListItem>
                 <DesktopDateTimePicker
                   label="처리시작일시"
@@ -405,7 +408,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="dsblPrcgSttDtm"
                   value={formik.values.dsblPrcgSttDtm}
                   onChange={(newValue) => {
-                    formik.setFieldTouched('dsblPrcgSttDtm');
                     formik.setFieldValue(
                       'dsblPrcgSttDtm',
                       newValue?.format('YYYYMMDDHHmmss') ?? ''
@@ -431,7 +433,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="dsblPrcgFnDtm"
                   value={formik.values.dsblPrcgFnDtm}
                   onChange={(newValue) => {
-                    formik.setFieldTouched('dsblPrcgFnDtm');
                     formik.setFieldValue('dsblPrcgFnDtm', newValue?.format('YYYYMMDDHHmmss') ?? '');
                   }}
                   renderInput={(params) => (
@@ -447,7 +448,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   )}
                 />
               </ListItem>
-
               <ListItem>
                 <Autocomplete
                   disablePortal
@@ -468,7 +468,6 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="trcnErrPrcgTypCd"
                   value={formik.values.trcnErrPrcgTypCd}
                   onChange={(event, newValue) => {
-                    formik.setFieldTouched('trcnErrPrcgTypCd');
                     formik.setFieldValue('trcnErrPrcgTypCd', newValue);
                   }}
                   renderInput={(params) => (
@@ -543,6 +542,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                 />
               </ListItem>
               <ListItem
+                disablePadding
                 secondaryAction={
                   <IconButton
                     edge="end"
@@ -554,13 +554,19 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   </IconButton>
                 }
               >
-                <ListItemIcon sx={{ minWidth: 32 }}>
-                  <BuildCircleOutlinedIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="소모품"
-                  primaryTypographyProps={{ color: 'text.secondary' }}
-                />
+                <ListItemButton
+                  onClick={(event) => {
+                    dispatch({ type: 'COLLAPSE', payload: !state.collapse });
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <BuildCircleOutlinedIcon color="info" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="소모품"
+                    primaryTypographyProps={{ color: 'text.secondary' }}
+                  />
+                </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
                 <Collapse in={!state.collapse} timeout="auto" unmountOnExit sx={{ width: '100%' }}>
@@ -634,7 +640,7 @@ const TrcnDsblDetailContentTab2 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   variant="outlined"
                   color="warning"
                   size="small"
-                  loading={state.trcnRplcInfStatus === 'loading'}
+                  loading={state.trcnRplcInf === 'loading'}
                   loadingPosition="start"
                   startIcon={<PostAddOutlinedIcon />}
                   onClick={addTrcnRplcInf}

@@ -21,7 +21,7 @@ function a11yProps(name, index) {
 
 const initialState = {
   tabIndex: 0,
-  canvasStatus: 'idle',
+  canvasStatus: 'idle', // init -> idle
 };
 
 function reducer(state, action) {
@@ -42,7 +42,12 @@ function reducer(state, action) {
 export default function TrcnDsblSignatureContent({ open = true, trcnDsbl }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { data, isError, error, reset, refetch } = useQuery(
+  const {
+    data: sgns,
+    isError,
+    error,
+    refetch,
+  } = useQuery(
     ['fetchTrcnDsblSgnList'],
     () =>
       fetchTrcnDsblSgnList({ stlmAreaCd: trcnDsbl.stlmAreaCd, dsblAcptNo: trcnDsbl.dsblAcptNo }),
@@ -77,7 +82,7 @@ export default function TrcnDsblSignatureContent({ open = true, trcnDsbl }) {
 
   return (
     <React.Fragment>
-      <ErrorDialog open={isError} error={error} resetError={reset} />
+      <ErrorDialog open={isError} error={error} resetError={['fetchTrcnDsblSgnList']} />
       <Paper elevation={0} sx={{ mt: 3 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs
@@ -101,15 +106,16 @@ export default function TrcnDsblSignatureContent({ open = true, trcnDsbl }) {
           </Tabs>
         </Box>
         {/* <SwipeableView index={state.tabIndex} onChangeIndex={handleChangeIndex}> */}
-        <TabPanel name="signature" value={state.tabIndex} index={0} swipeable={false}>
+        <TabPanel name="signature" value={state.tabIndex} index={0}>
           <TrcnDsblSignatureTab1
             trcnDsbl={trcnDsbl}
+            sgns={sgns}
             canvasStatus={state.canvasStatus}
             refetch={refetch}
           />
         </TabPanel>
-        <TabPanel name="signature" value={state.tabIndex} index={1} swipeable={false}>
-          <TrcnDsblSignatureTab2 trcnDsbl={trcnDsbl} data={data} refetch={refetch} />
+        <TabPanel name="signature" value={state.tabIndex} index={1}>
+          <TrcnDsblSignatureTab2 trcnDsbl={trcnDsbl} sgns={sgns} refetch={refetch} />
         </TabPanel>
         {/* </SwipeableView> */}
       </Paper>

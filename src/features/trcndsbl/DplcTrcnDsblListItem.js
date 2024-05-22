@@ -145,7 +145,7 @@ const DplcTrcnDsblListItem = React.forwardRef(
         </ListItemButton>
         <Collapse in={!collapse} timeout="auto" unmountOnExit sx={{ width: '100%' }}>
           <React.Fragment>
-            {isFetching ? <PartLoadingSpinner /> : null}
+            {isFetching && <PartLoadingSpinner />}
             <Timeline
               sx={{
                 [`& .${timelineItemClasses.root}:before`]: {

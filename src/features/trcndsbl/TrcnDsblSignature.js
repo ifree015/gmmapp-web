@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@common/queries/query';
@@ -26,18 +27,18 @@ export default function TrcnDsblSignature() {
   return (
     <Box
       sx={{
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+        backgroundColor: (theme) => theme.palette.background.color,
+        minHeight: '100vh',
       }}
     >
-      <Box sx={{ pt: 0.125 }} /> {/* todo */}
-      <Container
-        component="main"
-        maxWidth="sm"
+      <Toolbar
         sx={{
-          minHeight: '100vh',
+          minHeight: 2,
+          height: 2,
+          backgroundColor: (theme) => theme.palette.background.color,
         }}
-      >
+      />
+      <Container component="main" maxWidth="sm">
         <TrcnDsblSignatureContent trcnDsbl={trcnDsbl ?? { stlmAreaCd, dsblAcptNo, dltYn: 'Y' }} />
       </Container>
     </Box>

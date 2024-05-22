@@ -20,7 +20,7 @@ import { useMutation } from '@common/queries/query';
 import { deleteTrcnDsblSgn } from '@features/trcndsbl/trcnDsblAPI';
 import { API_ROOT_URL } from '@common/constants/appEnv';
 
-export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
+export default function TrcnDsblSignatureTab2({ trcnDsbl, sgns, refetch }) {
   const theme = useTheme();
   // const openAlert = useAlert();
   const openConfirm = useConfirm();
@@ -49,14 +49,22 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
 
   const handleDelete = useCallback(
     (trcnDsblSgn) => {
-      if (trcnDsbl.dltYn === 'Y') {
+      if (userRole.isSelector()) {
+        openAlertSnackbar('warning', '조회권한자는 서명 삭제가 불가능합니다.');
+      } else if (trcnDsbl.dltYn === 'Y') {
         openAlertSnackbar('error', '이미 취소된 건입니다!');
       } else if (
-        user.dprtId !== trcnDsbl.dprtId ||
-        (!userRole.isCenterLeader() && user.userId !== trcnDsblSgn.rgsrId)
+        user.userId !== trcnDsblSgn.aproId &&
+        !userRole.isCenterLeader() &&
+        !userRole.isManager()
       ) {
-        openAlertSnackbar('warning', '같은 부서 센터장 또는 등록 사원만 삭제가 가능합니다.');
+        openAlertSnackbar('warning', '서명 사원이거나 센터장 또는 팀장만 삭제가 가능합니다.');
+      } else if (trcnDsblSgn.imgSno < trcnDsblSgn.lstImgSno) {
+        openAlertSnackbar('warning', '현재 서명 이후 등록된 결재 서명이 존재합니다.');
       } else {
+        if (user.dprtId !== trcnDsbl.dprtId) {
+          openAlertSnackbar('warning', '같은 부서가 아닙니다.');
+        }
         (async () => {
           const confirmed = await openConfirm('서명', '삭제하시겠습니다?');
           if (confirmed) {
@@ -76,8 +84,8 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
     <React.Fragment>
       <LoadingSpinner open={isLoading} />
       <ImageList cols={1} gap={16} sx={{ width: 'calc(100% - 32px)', m: 2 }}>
-        {data?.data?.length > 0 ? (
-          data.data.map((trcnDsblSgn) => {
+        {sgns?.data.length > 0 ? (
+          sgns.data.map((trcnDsblSgn) => {
             const queryParams = new URLSearchParams({
               stlmAreaCd: trcnDsblSgn.stlmAreaCd,
               dsblAcptNo: trcnDsblSgn.dsblAcptNo,
@@ -87,7 +95,6 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
               <ImageListItem
                 key={trcnDsblSgn.crtnDtm}
                 sx={{
-                  'width': '100%',
                   '&.MuiImageListItem-root:last-child': { mb: 2 },
                   '& .MuiImageListItem-img': {
                     objectFit: 'scale-down',
@@ -100,7 +107,9 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
               >
                 {trcnDsblSgn.imgCnt > 1 ? (
                   <img
-                    src={`${API_ROOT_URL}/trcndsbl/LoadTrcnDsblSgn.ajax?${queryParams.toString()}&imgSno=1`}
+                    src={`${API_ROOT_URL}/trcndsbl/LoadTrcnDsblSgn.ajax?${queryParams.toString()}&imgSno=${
+                      trcnDsblSgn.imgSno - 1
+                    }`}
                     alt={trcnDsblSgn.crtnDtm + '-name'}
                     // loading="lazy"
                     style={{
@@ -111,7 +120,9 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
                   />
                 ) : null}
                 <img
-                  src={`${API_ROOT_URL}/trcndsbl/LoadTrcnDsblSgn.ajax?${queryParams.toString()}&imgSno=2`}
+                  src={`${API_ROOT_URL}/trcndsbl/LoadTrcnDsblSgn.ajax?${queryParams.toString()}&imgSno=${
+                    trcnDsblSgn.imgSno
+                  }`}
                   alt={trcnDsblSgn.crtnDtm + '-sign'}
                   // loading="lazy"
                   style={{
@@ -121,11 +132,7 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
                 />
                 <ImageListItemBar
                   actionIcon={
-                    <IconButton
-                      color="primary"
-                      sx={{ mt: 0.5, mr: 0.5 }}
-                      onClick={() => handleDelete(trcnDsblSgn)}
-                    >
+                    <IconButton onClick={() => handleDelete(trcnDsblSgn)}>
                       <ClearOutlinedIcon />
                     </IconButton>
                   }
@@ -139,14 +146,17 @@ export default function TrcnDsblSignatureTab2({ trcnDsbl, data, refetch }) {
                     </IconButton>
                   }
                   actionPosition="left"
-                  title={dayjs(trcnDsblSgn.crtnDtm, 'YYYYMMDDHHmmss').format('YYYY.MM.DD HH:mm')}
-                  subtitle={<span>by: {trcnDsblSgn.rgsrName}</span>}
+                  title={`${dayjs(trcnDsblSgn.crtnDtm, 'YYYYMMDDHHmmss').format(
+                    'YYYY.MM.DD HH:mm'
+                  )}, ${trcnDsblSgn.aproName}`}
+                  subtitle={trcnDsblSgn.picOpnCtt}
                   position="below"
                   sx={{
-                    //background: 'linear-gradient(to left, #81d4fa, #03a9f4)', //info.light(#03a9f4)
-                    backgroundColor: (theme) =>
+                    // 'background': 'linear-gradient(to left, #81d4fa, #03a9f4)', //info.light(#03a9f4)
+                    'backgroundColor': (theme) =>
                       theme.palette.mode === 'light' ? 'info.light' : 'info.dark',
-                    color: (theme) => theme.palette.text.secondary2,
+                    'color': (theme) => theme.palette.text.secondary2,
+                    '& .MuiImageListItemBar-subtitle': { whiteSpace: 'wrap', pr: 1 },
                   }}
                 />
               </ImageListItem>

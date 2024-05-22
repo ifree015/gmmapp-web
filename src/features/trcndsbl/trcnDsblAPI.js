@@ -24,6 +24,14 @@ export const fetchTrcnDsbl = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/ReadTrcnDsbl.ajax', queryParams);
 };
 
+export const fetchCpTrcnDsbl = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/ReadCpTrcnDsbl.ajax', queryParams);
+};
+
+export const registerTrcnDsbl = (queryParams) => {
+  return fetchByFormUrlencoded('trcndsbl/RegisterTrcnDsbl.ajax', queryParams);
+};
+
 export const cancelTrcnDsbl = (queryParams) => {
   return fetchByFormUrlencoded('trcndsbl/CancelTrcnDsbl.ajax', queryParams);
 };

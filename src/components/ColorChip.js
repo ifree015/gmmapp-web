@@ -1,6 +1,6 @@
 import Chip from '@mui/material/Chip';
 
-export default function ColorChip({ color = 'secondary', label, ...props }) {
+export default function ColorChip({ color = 'secondary', label, ...others }) {
   return (
     <Chip
       label={label}
@@ -9,7 +9,7 @@ export default function ColorChip({ color = 'secondary', label, ...props }) {
         'height': 20,
         'fontSize': 'caption.fontSize',
         '& .MuiChip-label': { px: 1 },
-        ...props.sx,
+        ...others.sx,
       }}
     ></Chip>
   );

@@ -34,7 +34,7 @@ const VhclDetailContentTab1 = forwardRef(({ vhcl, onChangeStatus }, ref) => {
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize
+        //enableReinitialize
         initialValues={{
           unslMttr: vhcl.unslMttr ?? '',
         }}

@@ -11,11 +11,9 @@ export default function TrcnDsblVhclSearch() {
   return (
     <Box
       sx={{
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+        backgroundColor: (theme) => theme.palette.background.color,
       }}
     >
-      {/* <Box sx={{ pt: 0.125 }} /> */}
       <Container
         disableGutters
         maxWidth="sm"

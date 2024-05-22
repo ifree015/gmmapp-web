@@ -30,8 +30,8 @@ const CloseFab = styled(Fab)({
 });
 
 export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsblAcptNo }) {
-  const { data, isError, error, reset, refetch } = useQuery(
-    ['fetchTrcnRplcHstList'],
+  const { data, isError, error, refetch } = useQuery(
+    ['fetchTrcnRplcHstList', stlmAreaCd, dsblAcptNo],
     () => fetchTrcnRplcHstList({ stlmAreaCd, dsblAcptNo }),
     {
       suspense: false,
@@ -50,7 +50,7 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
   return (
     <Dialog open={open} onClose={onClose} scroll="paper" fullWidth maxWidth="sm">
       {/* <LoadingSpinner open={isRefetching} /> */}
-      <ErrorDialog open={isError} error={error} resetError={reset} />
+      <ErrorDialog open={isError} error={error} resetError={['fetchTrcnRplcHstList']} />
       {!data ? null : (
         <React.Fragment>
           <DialogTitle
@@ -66,7 +66,7 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
             {data.data.length > 0 ? (
               <Timeline position="alternate">
                 {data.data.map((trcnRplcHst, index) => (
-                  <TimelineItem key={index} sx={{ py: 0.5 }}>
+                  <TimelineItem key={index}>
                     <TimelineOppositeContent sx={{ m: 'auto 0' }} color="text.secondary">
                       <Typography variant="body2">
                         {trcnRplcHst.updrName ?? trcnRplcHst.updrId}
@@ -79,9 +79,9 @@ export default function TrcnDsblReplacementHst({ open, onClose, stlmAreaCd, dsbl
                       <TimelineDot
                         variant="outlined"
                         color={
-                          index === data.data.length - 1
+                          index === 0
                             ? 'secondary'
-                            : index === 0
+                            : index === data.data.length - 1
                             ? 'primary'
                             : 'grey'
                         }

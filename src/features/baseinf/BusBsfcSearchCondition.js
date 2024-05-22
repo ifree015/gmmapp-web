@@ -23,9 +23,9 @@ import { debounce } from 'lodash';
 import useCmnCodes from '@common/hooks/useCmnCodes';
 import { useQuery } from '@common/queries/query';
 import { fetchSrchTropList } from '@features/common/commonAPI';
-import LoadingSpinner from '@components/LoadingSpinner';
+// import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
-import ErrorDialog from '@components/ErrorDialog';
+// import ErrorDialog from '@components/ErrorDialog';
 
 const initialState = {
   tropSrchKwd: '',
@@ -50,7 +50,7 @@ function reducer(state, action) {
 export default function BusBsfcSearchCondition({ open, onClose, searchParams }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [, setSearchParams] = useSearchParams();
-  const [isFetching, isError, error, [stlmAreaCds, troaIds, dprtIds]] = useCmnCodes([
+  const [[stlmAreaCds, troaIds, dprtIds] /*isFetching, isError, error*/] = useCmnCodes([
     { cmnCdId: 'STLM_AREA_CD' },
     { cmnCdId: 'TROA_ID' },
     { cmnCdId: 'CENT' },
@@ -81,7 +81,6 @@ export default function BusBsfcSearchCondition({ open, onClose, searchParams }) 
 
   const {
     data: trops,
-    reset: resetTrop,
     refetch: refetchTrop,
     remove: removeTrop,
   } = useQuery(
@@ -99,7 +98,7 @@ export default function BusBsfcSearchCondition({ open, onClose, searchParams }) 
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetTrop);
+        openError(err, 'fetchSrchTropList');
       },
     }
   );
@@ -122,7 +121,6 @@ export default function BusBsfcSearchCondition({ open, onClose, searchParams }) 
 
   // const {
   //   data: busBsfcs,
-  //   reset: resetBusBsfc,
   //   refetch: refetchBusBsfc,
   //   remove: removeBusBsfc,
   // } = useQuery(
@@ -139,7 +137,7 @@ export default function BusBsfcSearchCondition({ open, onClose, searchParams }) 
   //     enabled: false,
   //     cacheTime: 0,
   //     onError: (err) => {
-  //       openError(err, resetBusBsfc);
+  //       openError(err, 'fetchSrchBusBsfcList');
   //     },
   //   }
   // );
@@ -166,10 +164,10 @@ export default function BusBsfcSearchCondition({ open, onClose, searchParams }) 
   //   }
   // };
 
-  if (open && isFetching) return <LoadingSpinner open={isFetching} />;
+  // if (open && isFetching) return <LoadingSpinner open={isFetching} />;
   return (
     <Drawer anchor="top" open={open} onClose={onClose}>
-      <ErrorDialog open={isError} error={error} />
+      {/* <ErrorDialog open={isError} error={error} /> */}
       <Container
         disableGutters
         maxWidth="sm"

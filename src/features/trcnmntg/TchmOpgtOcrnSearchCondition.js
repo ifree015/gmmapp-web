@@ -31,9 +31,9 @@ import {
   fetchSrchBusRotList,
   fetchSrchVhclList,
 } from '@features/common/commonAPI';
-import LoadingSpinner from '@components/LoadingSpinner';
+// import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
-import ErrorDialog from '@components/ErrorDialog';
+// import ErrorDialog from '@components/ErrorDialog';
 
 const initialState = {
   tropSrchKwd: '',
@@ -81,7 +81,7 @@ function getDates(oprnDtDvsCd) {
 export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isFetching, isError, error, [stlmAreaCds, troaIds]] = useCmnCodes([
+  const [[stlmAreaCds, troaIds]] = useCmnCodes([
     { cmnCdId: 'STLM_AREA_CD' },
     { cmnCdId: 'TROA_ID' },
   ]);
@@ -132,7 +132,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
 
   const {
     data: trops,
-    reset: resetTrop,
     refetch: refetchTrop,
     remove: removeTrop,
   } = useQuery(
@@ -150,7 +149,7 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetTrop);
+        openError(err, 'fetchSrchTropList');
       },
     }
   );
@@ -173,7 +172,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
 
   const {
     data: busBsfcs,
-    reset: resetBusBsfc,
     refetch: refetchBusBsfc,
     remove: removeBusBsfc,
   } = useQuery(
@@ -192,7 +190,7 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetBusBsfc);
+        openError(err, 'fetchSrchBusBsfcList');
       },
     }
   );
@@ -221,7 +219,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
 
   const {
     data: busRots,
-    reset: resetBusRot,
     refetch: refetchBusRot,
     remove: removeBusRot,
   } = useQuery(
@@ -238,7 +235,7 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetBusRot);
+        openError(err, 'fetchSrchBusRotList');
       },
     }
   );
@@ -267,7 +264,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
 
   const {
     data: vhcls,
-    reset: resetVhcl,
     refetch: refetchVhcl,
     remove: removeVhcl,
   } = useQuery(
@@ -286,7 +282,7 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetVhcl);
+        openError(err, 'fetchSrchVhclList');
       },
     }
   );
@@ -313,10 +309,10 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
     }
   };
 
-  if (open && isFetching) return <LoadingSpinner open={isFetching} />;
+  // if (open && isFetching) return <LoadingSpinner open={isFetching} />;
   return (
     <Drawer anchor="top" open={open} onClose={onClose}>
-      <ErrorDialog open={isError} error={error} />
+      {/* <ErrorDialog open={isError} error={error} /> */}
       <Container
         disableGutters
         maxWidth="sm"
@@ -389,7 +385,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
                       formik.setFieldValue('oprnDtDvsCd', newValue);
                       const dates = getDates(newValue);
                       formik.setFieldValue('oprnSttDt', dates[0]);
-                      formik.setFieldTouched('oprnEndDt');
                       formik.setFieldValue('oprnEndDt', dates[1]);
                     }}
                     exclusive
@@ -410,7 +405,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
                       value={formik.values.oprnSttDt}
                       onChange={(newValue) => {
                         formik.setFieldValue('oprnDtDvsCd', '');
-                        formik.setFieldTouched('oprnSttDt');
                         formik.setFieldValue('oprnSttDt', newValue?.format('YYYYMMDD') ?? '');
                       }}
                       inputFormat="YYYY-MM-DD"
@@ -439,7 +433,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
                       value={formik.values.oprnEndDt}
                       onChange={(newValue) => {
                         formik.setFieldValue('oprnDtDvsCd', '');
-                        formik.setFieldTouched('oprnEndDt');
                         formik.setFieldValue('oprnEndDt', newValue?.format('YYYYMMDD') ?? '');
                       }}
                       inputFormat="YYYY-MM-DD"
@@ -535,7 +528,6 @@ export default function TchmOpgtOcrnSearchCondition({ open, onClose }) {
                     onChange={(event, newValue) => {
                       formik.setFieldValue('busBsfcId', null);
                       formik.setFieldValue('vhclId', null);
-                      formik.setFieldTouched('tropId');
                       formik.setFieldValue('tropId', newValue);
                     }}
                     inputValue={state.tropSrchKwd}

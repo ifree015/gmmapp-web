@@ -70,7 +70,7 @@ const CentTrcnDsblListItem = React.forwardRef(({ trcnDsbl }, ref) => {
                 {trcnDsbl.vhclNo}
                 <Typography
                   sx={{
-                    pl: 2,
+                    pl: 1,
                     fontWeight: (theme) => theme.typography.fontWeightBold,
                   }}
                   component="span"

@@ -42,7 +42,7 @@ const BusBsfcDetailContentTab1 = forwardRef(({ busBsfc, onChangeStatus }, ref) =
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize
+        //enableReinitialize
         initialValues={{
           dprtId: busBsfc.dprtId ?? '',
         }}

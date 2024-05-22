@@ -1,17 +1,16 @@
 import React from 'react';
 import Dialog from '@mui/material/Dialog';
-import Slide from '@mui/material/Slide';
 import Container from '@mui/material/Container';
-// import useUser from '@common/hooks/useUser';
-// import TrcnDsblVhclSearchContent from './TrcnDsblVhclSearchContent';
+import Slide from '@mui/material/Slide';
+import TrcnDsblRgtContent from './TrcnDsblRgtContent';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction="left" ref={ref} {...props} />;
 });
 
 export default function TrcnDsblRgtDialog({ open, onClose }) {
   return (
-    <Dialog fullScreen open={open} TransitionComponent={Transition} scroll="paper">
+    <Dialog fullScreen open={open} TransitionComponent={Transition}>
       <Container
         disableGutters
         maxWidth="sm"
@@ -20,7 +19,7 @@ export default function TrcnDsblRgtDialog({ open, onClose }) {
           minHeight: '100vh',
         }}
       >
-        {/* <TrcnDsblRgtContent onClose={onClose} /> */}
+        <TrcnDsblRgtContent open={open} onClose={onClose} />
       </Container>
     </Dialog>
   );

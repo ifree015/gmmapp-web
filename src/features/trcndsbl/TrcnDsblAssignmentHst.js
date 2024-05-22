@@ -30,7 +30,7 @@ const CloseFab = styled(Fab)({
 });
 
 export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblAcptNo }) {
-  const { data, isError, error, reset, refetch } = useQuery(
+  const { data, isError, error, refetch } = useQuery(
     ['fetchAsgtEmpHstList'],
     () => fetchAsgtEmpHstList({ stlmAreaCd, dsblAcptNo }),
     {
@@ -50,7 +50,7 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
   return (
     <Dialog open={open} onClose={onClose} scroll="paper" fullWidth maxWidth="sm">
       {/* <LoadingSpinner open={isRefetching} /> */}
-      <ErrorDialog open={isError} error={error} resetError={reset} />
+      <ErrorDialog open={isError} error={error} resetError={['fetchAsgtEmpHstList']} />
       {!data ? null : (
         <React.Fragment>
           <DialogTitle
@@ -62,12 +62,12 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
           >
             배정 이력
           </DialogTitle>
-          <DialogContent sx={{ position: 'relative' }}>
+          <DialogContent sx={{ position: 'relative', px: 0 }}>
             <Timeline position="alternate">
               {data.data.map((asgtEmpHst, index) => (
                 <TimelineItem key={index}>
                   <TimelineOppositeContent color="text.secondary" sx={{ m: 'auto 0' }}>
-                    <Typography variant="subtitle2">
+                    <Typography variant="body2">
                       {asgtEmpHst.updrName ?? asgtEmpHst.updrId}
                     </Typography>
                     <Typography variant="caption">
@@ -94,11 +94,11 @@ export default function TrcnDsblAssignmentHst({ open, onClose, stlmAreaCd, dsblA
                         <QuestionMarkOutlinedIcon />
                       )}
                     </TimelineDot>
-                    {index === data.data.length - 1 ? null : <TimelineConnector />}
+                    <TimelineConnector />
                   </TimelineSeparator>
                   <TimelineContent sx={{ m: 'auto 0' }}>
                     <Typography
-                      variant="subtitle1"
+                      variant="body2"
                       noWrap
                       sx={{
                         fontWeight: (theme) => theme.typography.fontWeightBold,

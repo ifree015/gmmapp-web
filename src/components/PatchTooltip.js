@@ -7,9 +7,9 @@ const Span = styled('span')(({ theme }) => {
   };
 });
 
-export default function PatchTooltip({ children, ...props }) {
+export default function PatchTooltip({ children, ...others }) {
   return (
-    <Tooltip {...props}>
+    <Tooltip {...others}>
       <Span>{children}</Span>
     </Tooltip>
   );

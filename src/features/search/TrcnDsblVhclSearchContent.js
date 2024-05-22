@@ -25,7 +25,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
   // const [isPending, startTransition] = useTransition();
   // const user = useUser();
 
-  const { data, isError, error, reset, refetch, remove } = useQuery(
+  const { data, isError, error, refetch, remove } = useQuery(
     ['fetchSrchVhclList'],
     () => fetchSrchVhclList({ srchKwd }),
     {
@@ -79,7 +79,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
       .subtract(3, 'month')
       .format('YYYYMMDD')}&dsblAcptEndDt=${dayjs().format('YYYYMMDD')}&srchKwd=${srchKwd.trim()}`;
     if (nativeApp.isIOS()) {
-      nativeApp.pushView(to, { title: '단말기장애' });
+      nativeApp.pushView(to, { title: '단말기 장애' });
     } else {
       navigate(to, { state: { from: location.pathname } });
     }
@@ -87,7 +87,7 @@ export default function TrcnDsblVhclSearchContent({ onClose }) {
 
   return (
     <React.Fragment>
-      <ErrorDialog open={isError} error={error} resetError={reset} />
+      <ErrorDialog open={isError} error={error} resetError={['fetchSrchVhclList']} />
       <Paper elevation={0}>
         <InputBase
           autoFocus

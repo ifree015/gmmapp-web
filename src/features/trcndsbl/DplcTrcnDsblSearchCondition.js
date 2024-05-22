@@ -31,9 +31,9 @@ import { debounce } from 'lodash';
 import useCmnCodes from '@common/hooks/useCmnCodes';
 import { useQuery } from '@common/queries/query';
 import { fetchSrchTropList, fetchSrchVhclList } from '@features/common/commonAPI';
-import LoadingSpinner from '@components/LoadingSpinner';
+// import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
-import ErrorDialog from '@components/ErrorDialog';
+// import ErrorDialog from '@components/ErrorDialog';
 
 const initialState = {
   tropSrchKwd: '',
@@ -92,13 +92,12 @@ const marks = [
 export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParams }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [, setSearchParams] = useSearchParams();
-  const [isFetching, isError, error, [stlmAreaCds, troaIds, dsblAcptDvsCds, busTrcnErrTypCds]] =
-    useCmnCodes([
-      { cmnCdId: 'STLM_AREA_CD' },
-      { cmnCdId: 'TROA_ID' },
-      { cmnCdId: 'DSBL_ACPT_DVS_CD', params: { cdId: '236', excludes: '7|8' } },
-      { cmnCdId: 'BUS_TRCN_ERR_TYP_CD' },
-    ]);
+  const [[stlmAreaCds, troaIds, dsblAcptDvsCds, busTrcnErrTypCds]] = useCmnCodes([
+    { cmnCdId: 'STLM_AREA_CD' },
+    { cmnCdId: 'TROA_ID' },
+    { cmnCdId: 'DSBL_ACPT_DVS_CD', params: { cdId: '236', excludes: '7|8' } },
+    { cmnCdId: 'BUS_TRCN_ERR_TYP_CD' },
+  ]);
   const formRef = useRef();
   const openError = useError();
 
@@ -131,7 +130,6 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
 
   const {
     data: trops,
-    reset: resetTrop,
     refetch: refetchTrop,
     remove: removeTrop,
   } = useQuery(
@@ -149,7 +147,7 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetTrop);
+        openError(err, 'fetchSrchTropList');
       },
     }
   );
@@ -172,7 +170,6 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
 
   const {
     data: vhcls,
-    reset: resetVhcl,
     refetch: refetchVhcl,
     remove: removeVhcl,
   } = useQuery(
@@ -191,7 +188,7 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetVhcl);
+        openError(err, 'fetchSrchVhclList');
       },
     }
   );
@@ -218,10 +215,10 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
     }
   };
 
-  if (open && isFetching) return <LoadingSpinner open={isFetching} />;
+  // if (open && isFetching) return <LoadingSpinner open={isFetching} />;
   return (
     <Drawer anchor="top" open={open} onClose={onClose}>
-      <ErrorDialog open={isError} error={error} />
+      {/* <ErrorDialog open={isError} error={error} /> */}
       <Container
         disableGutters
         maxWidth="sm"
@@ -316,7 +313,6 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
                       formik.setFieldValue('dsblAcptDtDvsCd', newValue);
                       const dates = getDates(newValue);
                       formik.setFieldValue('dsblAcptSttDt', dates[0]);
-                      formik.setFieldTouched('dsblAcptEndDt');
                       formik.setFieldValue('dsblAcptEndDt', dates[1]);
                     }}
                     exclusive
@@ -337,7 +333,6 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
                       value={formik.values.dsblAcptSttDt}
                       onChange={(newValue) => {
                         formik.setFieldValue('dsblAcptDtDvsCd', '');
-                        formik.setFieldTouched('dsblAcptSttDt');
                         formik.setFieldValue('dsblAcptSttDt', newValue?.format('YYYYMMDD') ?? '');
                       }}
                       renderInput={(params) => (
@@ -367,7 +362,6 @@ export default function DplcTrcnDsblSearchCondition({ open, onClose, searchParam
                       value={formik.values.dsblAcptEndDt}
                       onChange={(newValue) => {
                         formik.setFieldValue('dsblAcptDtDvsCd', '');
-                        formik.setFieldTouched('dsblAcptEndDt');
                         formik.setFieldValue('dsblAcptEndDt', newValue?.format('YYYYMMDD') ?? '');
                       }}
                       renderInput={(params) => (

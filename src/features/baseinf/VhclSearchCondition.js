@@ -23,9 +23,9 @@ import { debounce } from 'lodash';
 import useCmnCodes from '@common/hooks/useCmnCodes';
 import { useQuery } from '@common/queries/query';
 import { fetchSrchTropList, fetchSrchBusBsfcList } from '@features/common/commonAPI';
-import LoadingSpinner from '@components/LoadingSpinner';
+// import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
-import ErrorDialog from '@components/ErrorDialog';
+// import ErrorDialog from '@components/ErrorDialog';
 
 const initialState = {
   tropSrchKwd: '',
@@ -54,7 +54,7 @@ function reducer(state, action) {
 export default function VhclSearchCondition({ open, onClose, searchParams }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [, setSearchParams] = useSearchParams();
-  const [isFetching, isError, error, [stlmAreaCds, troaIds]] = useCmnCodes([
+  const [[stlmAreaCds, troaIds]] = useCmnCodes([
     { cmnCdId: 'STLM_AREA_CD' },
     { cmnCdId: 'TROA_ID' },
   ]);
@@ -90,7 +90,6 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
 
   const {
     data: trops,
-    reset: resetTrop,
     refetch: refetchTrop,
     remove: removeTrop,
   } = useQuery(
@@ -108,7 +107,7 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetTrop);
+        openError(err, 'fetchSrchTropList');
       },
     }
   );
@@ -131,7 +130,6 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
 
   const {
     data: busBsfcs,
-    reset: resetBusBsfc,
     refetch: refetchBusBsfc,
     remove: removeBusBsfc,
   } = useQuery(
@@ -150,7 +148,7 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetBusBsfc);
+        openError(err, 'fetchSrchBusBsfcList');
       },
     }
   );
@@ -179,7 +177,6 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
 
   // const {
   //   data: vhcls,
-  //   reset: resetVhcl,
   //   refetch: refetchVhcl,
   //   remove: removeVhcl,
   // } = useQuery(
@@ -198,7 +195,7 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
   //     enabled: false,
   //     cacheTime: 0,
   //     onError: (err) => {
-  //       openError(err, resetVhcl);
+  //       openError(err, 'fetchSrchVhclList');
   //     },
   //   }
   // );
@@ -225,10 +222,10 @@ export default function VhclSearchCondition({ open, onClose, searchParams }) {
   //   }
   // };
 
-  if (open && isFetching) return <LoadingSpinner open={isFetching} />;
+  // if (open && isFetching) return <LoadingSpinner open={isFetching} />;
   return (
     <Drawer anchor="top" open={open} onClose={onClose}>
-      <ErrorDialog open={isError} error={error} />
+      {/* <ErrorDialog open={isError} error={error} /> */}
       <Container
         disableGutters
         maxWidth="sm"

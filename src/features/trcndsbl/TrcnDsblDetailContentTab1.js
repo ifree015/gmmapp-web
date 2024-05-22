@@ -174,7 +174,7 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
   const {
     mutate: assign,
     isLoading,
-    assignReset,
+    reset: assignReset,
   } = useMutation(assignTrcnDsbl, {
     onError: (err) => {
       openError(err, assignReset);
@@ -219,7 +219,7 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize
+        //enableReinitialize
         initialValues={{
           drvrDrcsDsblYn: trcnDsbl.drvrDrcsDsblYn === 'Y',
           rideTrcnDsblYn: trcnDsbl.rideTrcnDsblYn === 'Y',
@@ -261,8 +261,8 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                 etcDsblYn: values.etcDsblYn ? 'Y' : 'N',
                 busTrcnErrTypCd: values.busTrcnErrTypCd.code,
                 dsblPrcgPicId: values.dsblPrcgPicId.code,
-                dsblPt: values.dsblPt,
-                dsblAcptAnswCtt: values.dsblAcptAnswCtt,
+                dsblPt: values.dsblPt ?? '',
+                dsblAcptAnswCtt: values.dsblAcptAnswCtt ?? '',
               });
             }
           })();
@@ -465,7 +465,6 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="busTrcnErrTypCd"
                   value={formik.values.busTrcnErrTypCd}
                   onChange={(event, newValue) => {
-                    formik.setFieldTouched('busTrcnErrTypCd');
                     formik.setFieldValue('busTrcnErrTypCd', newValue);
                   }}
                   renderInput={(params) => (
@@ -549,7 +548,6 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
                   id="dsblPrcgPicId"
                   value={formik.values.dsblPrcgPicId}
                   onChange={(event, newValue) => {
-                    formik.setFieldTouched('dsblPrcgPicId');
                     formik.setFieldValue('dsblPrcgPicId', newValue);
                   }}
                   renderInput={(params) => (
@@ -630,7 +628,12 @@ const TrcnDsblDetailContentTab1 = forwardRef(({ trcnDsbl, onChangeStatus }, ref)
         stlmAreaCd={trcnDsbl.stlmAreaCd}
         dsblAcptNo={trcnDsbl.dsblAcptNo}
       />
-      <TrcnDsblRgtDialog open={state.trcnDsblRgt} onClose={closeTrcnDsblRgt} trcnDsbl={trcnDsbl} />
+      <TrcnDsblRgtDialog
+        open={state.trcnDsblRgt}
+        onClose={closeTrcnDsblRgt}
+        stlmAreaCd={trcnDsbl.stlmAreaCd}
+        dsblAcptNo={trcnDsbl.dsblAcptNo}
+      />
     </React.Fragment>
   );
 });

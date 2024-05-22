@@ -21,7 +21,7 @@ export default function TrcnSearchContent({ onClose }) {
   const location = useLocation();
   const [srchKwd, setSrchKwd] = useState('');
 
-  const { data, isError, error, reset, refetch, remove } = useQuery(
+  const { data, isError, error, refetch, remove } = useQuery(
     ['fetchSrchTrcnList'],
     () => fetchSrchTrcnList({ srchKwd }),
     {
@@ -69,7 +69,7 @@ export default function TrcnSearchContent({ onClose }) {
 
   return (
     <React.Fragment>
-      <ErrorDialog open={isError} error={error} resetError={reset} />
+      <ErrorDialog open={isError} error={error} resetError={['fetchSrchTrcnList']} />
       <Paper elevation={0}>
         <InputBase
           autoFocus

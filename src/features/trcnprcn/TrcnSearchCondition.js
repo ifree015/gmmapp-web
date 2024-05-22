@@ -23,9 +23,9 @@ import { debounce } from 'lodash';
 import useCmnCodes from '@common/hooks/useCmnCodes';
 import { useQuery } from '@common/queries/query';
 import { fetchSrchTropList, fetchSrchVhclList } from '@features/common/commonAPI';
-import LoadingSpinner from '@components/LoadingSpinner';
+// import LoadingSpinner from '@components/LoadingSpinner';
 import useError from '@common/hooks/useError';
-import ErrorDialog from '@components/ErrorDialog';
+// import ErrorDialog from '@components/ErrorDialog';
 
 const initialState = {
   tropSrchKwd: '',
@@ -50,19 +50,15 @@ function reducer(state, action) {
 export default function TrcnSearchCondition({ open, onClose }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [
-    isFetching,
-    isError,
-    error,
-    [intgAstsBzDvsCds, locIds, trcnDvsCds, eqpmDvsCds, dvcDvsCds, intgTrcnStaCds],
-  ] = useCmnCodes([
-    { cmnCdId: 'INTG_ASTS_BZ_DVS_CD' },
-    { cmnCdId: 'LOC' },
-    { cmnCdId: 'TRCN_DVS_CD', params: { cdId: '009', mngAttrCtt2: '1' } },
-    { cmnCdId: 'EQPM_DVS_CD', params: { cdId: '046', includes: '14|15|80|81' } },
-    { cmnCdId: 'DVC_DVS_CD', params: { cdId: '221', mngAttrCtt1: '1' } },
-    { cmnCdId: 'ASTS_INTG_TRCN_STA_CD', params: { hgrnCmnCdNm: 'INTG_TRCN_STA_CD' } },
-  ]);
+  const [[intgAstsBzDvsCds, locIds, trcnDvsCds, eqpmDvsCds, dvcDvsCds, intgTrcnStaCds]] =
+    useCmnCodes([
+      { cmnCdId: 'INTG_ASTS_BZ_DVS_CD' },
+      { cmnCdId: 'LOC' },
+      { cmnCdId: 'TRCN_DVS_CD', params: { cdId: '009', mngAttrCtt2: '1' } },
+      { cmnCdId: 'EQPM_DVS_CD', params: { cdId: '046', includes: '14|15|80|81' } },
+      { cmnCdId: 'DVC_DVS_CD', params: { cdId: '221', mngAttrCtt1: '1' } },
+      { cmnCdId: 'ASTS_INTG_TRCN_STA_CD', params: { hgrnCmnCdNm: 'INTG_TRCN_STA_CD' } },
+    ]);
   const formRef = useRef();
   const openError = useError();
 
@@ -93,7 +89,6 @@ export default function TrcnSearchCondition({ open, onClose }) {
 
   const {
     data: trops,
-    reset: resetTrop,
     refetch: refetchTrop,
     remove: removeTrop,
   } = useQuery(
@@ -109,7 +104,7 @@ export default function TrcnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetTrop);
+        openError(err, 'fetchSrchTropList');
       },
     }
   );
@@ -132,7 +127,6 @@ export default function TrcnSearchCondition({ open, onClose }) {
 
   const {
     data: vhcls,
-    reset: resetVhcl,
     refetch: refetchVhcl,
     remove: removeVhcl,
   } = useQuery(
@@ -149,7 +143,7 @@ export default function TrcnSearchCondition({ open, onClose }) {
       enabled: false,
       cacheTime: 0,
       onError: (err) => {
-        openError(err, resetVhcl);
+        openError(err, 'fetchSrchVhclList');
       },
     }
   );
@@ -176,10 +170,10 @@ export default function TrcnSearchCondition({ open, onClose }) {
     }
   };
 
-  if (open && isFetching) return <LoadingSpinner open={isFetching} />;
+  // if (open && isFetching) return <LoadingSpinner open={isFetching} />;
   return (
     <Drawer anchor="top" open={open} onClose={onClose}>
-      <ErrorDialog open={isError} error={error} />
+      {/* <ErrorDialog open={isError} error={error} /> */}
       <Container
         disableGutters
         maxWidth="sm"

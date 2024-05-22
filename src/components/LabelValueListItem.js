@@ -4,10 +4,10 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
 const LabelValueListItem = forwardRef(
-  ({ label, value, width = 100, divider = false, preLine = false, ...props }, ref) => {
+  ({ label, value, width = 100, divider = false, preLine = false, ...others }, ref) => {
     return (
       <React.Fragment>
-        <ListItem {...props}>
+        <ListItem {...others}>
           <Typography
             sx={{ display: 'inline-block', minWidth: width }}
             component="span"

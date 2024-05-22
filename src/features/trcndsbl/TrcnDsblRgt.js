@@ -1,27 +1,28 @@
-import React from 'react';
-import Dialog from '@mui/material/Dialog';
-import Slide from '@mui/material/Slide';
+import React, { useCallback } from 'react';
+import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-// import useUser from '@common/hooks/useUser';
-// import TrcnDsblVhclSearchContent from './TrcnDsblVhclSearchContent';
+import TrcnDsblRgtContent from './TrcnDsblRgtContent';
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
+export default function TrcnDsblRgt() {
+  const onClose = useCallback(() => {
+    // nativeApp.goBack();
+  }, []);
 
-export default function TrcnDsblRgtDialog({ open, onClose }) {
   return (
-    <Dialog fullScreen open={open} TransitionComponent={Transition} scroll="paper">
+    <Box
+      sx={{
+        backgroundColor: (theme) => theme.palette.background.color,
+      }}
+    >
       <Container
         disableGutters
         maxWidth="sm"
         sx={{
-          backgroundColor: (theme) => theme.palette.background.color,
           minHeight: '100vh',
         }}
       >
-        {/* <TrcnDsblRgtContent onClose={onClose} /> */}
+        <TrcnDsblRgtContent onClose={onClose} />
       </Container>
-    </Dialog>
+    </Box>
   );
 }

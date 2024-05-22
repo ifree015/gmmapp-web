@@ -44,7 +44,7 @@ const TropDetailContentTab1 = forwardRef(({ trop, onChangeStatus }, ref) => {
     <React.Fragment>
       <Formik
         innerRef={ref}
-        enableReinitialize
+        //enableReinitialize
         initialValues={{
           busBsfcUpdYn: true,
           dprtId: trop.dprtId ?? '',

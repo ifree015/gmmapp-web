@@ -107,8 +107,8 @@ export default function TrcnDsblDetailContentHeader({
       openAlertSnackbar('warning', '조회권한자는 처리가 불가능합니다.');
     } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
-    } else if (!trcnDsbl.busTrcnErrTypCd || !trcnDsbl.dsblPrcgPicId) {
-      openAlertSnackbar('warning', '미접수 건은 처리가 불가능합니다. 먼저 접수 해주세요.');
+    } else if (!trcnDsbl.dsblPrcgPicId) {
+      openAlertSnackbar('warning', '미배정 건은 처리가 불가능합니다. 먼저 배정 해주세요.');
       // } else if (user.intgAstsBzDvsCd !== trcnDsbl.intgAstsBzDvsCd) {
       //   openAlertSnackbar(
       //     'warning',

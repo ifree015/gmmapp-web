@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useCallback } from 'react';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
@@ -23,40 +24,40 @@ import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
 import useUser from '@common/hooks/useUser';
+import useRole from '@common/hooks/useRole';
 import { fetchChcStpPsbTrcnList } from '@features/trcnmvmn/trcnMvmnAPI';
 import { fetchDsblVhclTrcnList, replaceDsblTrcn } from '@features/trcndsbl/trcnDsblAPI';
 import TrcnDsblReplacementHst from './TrcnDsblReplacementHst';
 
+const trcnDvsRegexp = /B\d{3,}/gi;
+
 const getInitialState = (length) => ({
-  trcnOpen: { open: false, status: 'idle', index: 0 },
-  dvcTrcns: Array.from({ length: length }, () => []),
-  stpTrcns: new Array(length).fill(null),
+  rplcTrcn: { open: false, status: 'idle', index: 0 }, // 교체단말기, 선택 건을 구별하기 위해 상태 값을 가져 감
+  dvcTrcns: Array.from({ length: length }, () => []), // 장치단말기
+  stpTrcns: new Array(length).fill(null), // 설치단말기
   validErrors: new Array(length).fill(false),
-  replaceStatus: 'idle',
+  replace: 'idle',
   replacementHistory: false,
 });
 
 function reducer(state, action) {
   return produce(state, (draft) => {
     switch (action.type) {
-      case 'REINIT':
-        draft = getInitialState(action.payload);
-        break;
       case 'DVC_TRCN_OPEN':
-        draft.trcnOpen = { ...draft.trcnOpen, open: true, index: action.payload };
+        draft.rplcTrcn = { ...draft.rplcTrcn, open: true, index: action.payload };
         draft.validErrors[action.payload] = false;
         break;
       case 'DVC_TRCN_LOADING':
-        draft.trcnOpen = { open: true, status: 'loading', index: action.payload };
+        draft.rplcTrcn = { open: true, status: 'loading', index: action.payload };
         draft.validErrors[action.payload] = false;
         break;
       case 'DVC_TRCN_SET':
-        draft.trcnOpen.status = 'idle';
-        draft.dvcTrcns[draft.trcnOpen.index] = action.payload.trcns;
-        draft.stpTrcns[draft.trcnOpen.index] = action.payload.stpTrcn;
+        draft.rplcTrcn.status = 'idle';
+        draft.dvcTrcns[draft.rplcTrcn.index] = action.payload.trcns;
+        draft.stpTrcns[draft.rplcTrcn.index] = action.payload.stpTrcn;
         break;
       case 'DVC_TRCN_CLOSE':
-        draft.trcnOpen.open = false;
+        draft.rplcTrcn.open = false;
         break;
       case 'STP_TRCN':
         draft.stpTrcns[action.payload.index] = action.payload.stpTrcn;
@@ -65,18 +66,15 @@ function reducer(state, action) {
         draft.validErrors[action.payload] = true;
         break;
       case 'REPLACE':
-        draft.replaceStatus = action.payload;
+        draft.replace = action.payload;
         break;
       case 'REPLACE_SUCCESS':
-        draft.replaceStatus = action.payload.status;
+        draft.replace = action.payload.status;
         draft.dvcTrcns[action.payload.index] = [];
         draft.stpTrcns[action.payload.index] = null;
         break;
-      case 'REPLACEMENT_HISTORY_OPEN':
-        draft.replacementHistory = true;
-        break;
-      case 'REPLACEMENT_HISTORY_CLOSE':
-        draft.replacementHistory = false;
+      case 'REPLACEMENT_HISTORY':
+        draft.replacementHistory = action.payload;
         break;
       default:
         return draft;
@@ -84,30 +82,31 @@ function reducer(state, action) {
   });
 }
 
-export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAcptNo }) {
+export default function TrcnDsblDetailContentTab3({ trcnDsbl }) {
+  const [state, dispatch] = useReducer(reducer, getInitialState(6)); // 기본 6대 단말기
   const queryClient = useQueryClient();
   const openAlert = useAlert();
   const openConfirm = useConfirm();
   const openAlertSnackbar = useAlertSnackbar();
   const openError = useError();
   const user = useUser();
+  const userRole = useRole();
 
   const {
     data: { data: vhclTrcnList },
-  } = useQuery(['fetchDsblVhclTrcnList'], () =>
-    fetchDsblVhclTrcnList({ stlmAreaCd: stlmAreaCd, dsblAcptNo: dsblAcptNo })
+  } = useQuery(['fetchDsblVhclTrcnList', trcnDsbl.stlmAreaCd, trcnDsbl.dsblAcptNo], () =>
+    fetchDsblVhclTrcnList({ stlmAreaCd: trcnDsbl.stlmAreaCd, dsblAcptNo: trcnDsbl.dsblAcptNo })
   );
-  const [state, dispatch] = useReducer(reducer, getInitialState(6)); // 기본 6대 단말기
 
   const { refetch: fetchTrcns } = useQuery(
     ['fetchChcStpPsbTrcnList'],
     () =>
       fetchChcStpPsbTrcnList({
-        eqpmDvsCd: vhclTrcnList[state.trcnOpen.index].eqpmDvsCd,
+        eqpmDvsCd: vhclTrcnList[state.rplcTrcn.index].eqpmDvsCd,
         prsLocId: user.locId,
         tropId: trcnDsbl.tropId,
         vhclId: trcnDsbl.vhclId,
-        trcnNo: vhclTrcnList[state.trcnOpen.index].trcnNo,
+        trcnNo: vhclTrcnList[state.rplcTrcn.index].trcnNo,
       }),
     {
       suspense: false,
@@ -122,23 +121,15 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
     }
   );
   const trcnLoadingable =
-    state.trcnOpen.open &&
-    state.trcnOpen.status === 'loading' &&
-    state.dvcTrcns[state.trcnOpen.index].length === 0;
+    state.rplcTrcn.open &&
+    state.rplcTrcn.status === 'loading' &&
+    state.dvcTrcns[state.rplcTrcn.index].length === 0;
 
   useEffect(() => {
     if (trcnLoadingable) {
       fetchTrcns();
     }
   }, [trcnLoadingable, fetchTrcns]);
-
-  useEffect(() => {
-    if (vhclTrcnList.length > state.dvcTrcns.length) return;
-    dispatch({
-      type: 'REINIT',
-      payload: vhclTrcnList.length,
-    });
-  }, [vhclTrcnList, state.dvcTrcns.length]);
 
   const { mutate, reset } = useMutation(replaceDsblTrcn, {
     onMutate: () => {
@@ -157,31 +148,30 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
   });
 
   const handleReplace = (index) => {
-    if (trcnDsbl.dltYn === 'Y') {
+    if (userRole.isSelector()) {
+      openAlertSnackbar('warning', '조회권한자는 교체가 불가능합니다.');
+    } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
-    } else if (!trcnDsbl.busTrcnErrTypCd || !trcnDsbl.dsblPrcgPicId) {
-      openAlertSnackbar(
-        'warning',
-        '미접수/배정 건은 교체가 불가능합니다. 먼저 접수/배정 해주세요.'
-      );
-    } else if (user.dprtId !== trcnDsbl.dprtId) {
-      openAlertSnackbar('warning', '같은 부서 센터장 또는 사원만 교체가 가능합니다.');
+    } else if (!trcnDsbl.dsblPrcgPicId) {
+      openAlertSnackbar('warning', '미배정 건은 교체가 불가능합니다. 먼저 배정 해주세요.');
+    } else if (!state.stpTrcns[index]?.trcnId) {
+      dispatch({ type: 'VALID_ERROR', payload: index });
+    } else if (state.stpTrcns[index].stlmAreaCd !== trcnDsbl.stlmAreaCd) {
+      openAlertSnackbar('warning', '차량과 설치 단말기의 정산지역이 다르면 교체가 불가능합니다.');
     } else {
+      if (user.dprtId !== trcnDsbl.dprtId) {
+        openAlertSnackbar('warning', '같은 부서가 아닙니다.');
+      }
       (async () => {
-        if (!state.stpTrcns[index]?.trcnId) {
-          dispatch({ type: 'VALID_ERROR', payload: index });
-          return;
-        } else {
-          const confirmed = await openConfirm('단말기 교체', '교체하시겠습니다?');
-          if (confirmed) {
-            mutate({
-              stlmAreaCd: stlmAreaCd,
-              dsblAcptNo: dsblAcptNo,
-              dsblTrcnId: vhclTrcnList[index].trcnId,
-              stpTrcnId: state.stpTrcns[index].trcnId,
-              index: index,
-            });
-          }
+        const confirmed = await openConfirm('단말기 교체', '교체하시겠습니다?');
+        if (confirmed) {
+          mutate({
+            stlmAreaCd: trcnDsbl.stlmAreaCd,
+            dsblAcptNo: trcnDsbl.dsblAcptNo,
+            dsblTrcnId: vhclTrcnList[index].trcnId,
+            stpTrcnId: state.stpTrcns[index].trcnId,
+            index: index,
+          });
         }
       })();
     }
@@ -189,21 +179,22 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
 
   const closeReplacementHistory = useCallback(() => {
     dispatch({
-      type: 'REPLACEMENT_HISTORY_CLOSE',
+      type: 'REPLACEMENT_HISTORY',
+      payload: false,
     });
   }, []);
 
   return (
     <React.Fragment>
       <Box component="form" noValidate>
-        <List sx={{ pt: 0 }}>
+        <List aria-label="단말기 정보">
           {vhclTrcnList.map((vhclTrcn, index) => (
             <React.Fragment key={vhclTrcn.trcnId}>
               <ListItem sx={{ flexWrap: 'wrap' }}>
                 <ListItemAvatar>
                   <Avatar
                     sx={{
-                      bgcolor: ['11', '50', '80'].includes(vhclTrcn.dvcDvsCd)
+                      bgcolor: ['11', '50', '80'].includes(vhclTrcn.dvcDvsCd) // 버스메인단말기, 운전자조작기, 표출단말기
                         ? 'success.light'
                         : 'warning.light',
                     }}
@@ -217,7 +208,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                     fontWeight: (theme) => theme.typography.fontWeightBold,
                     color: 'info.main',
                   }}
-                  primary={vhclTrcn.dvcDvsNm}
+                  primary={`${vhclTrcn.dvcDvsNm} ${vhclTrcn.trcnDvsNm}`}
                   secondary={
                     <React.Fragment>
                       <Typography
@@ -234,12 +225,12 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                     </React.Fragment>
                   }
                 />
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mt: 1 }}>
+                <Stack direction="row" sx={{ width: '100%', mt: 1 }}>
                   <Autocomplete
                     disablePortal
                     size="small"
                     selectOnFocus={false}
-                    open={state.trcnOpen.index === index && state.trcnOpen.open}
+                    open={state.rplcTrcn.index === index && state.rplcTrcn.open}
                     onOpen={() => {
                       if (state.dvcTrcns[index].length === 0) {
                         dispatch({
@@ -256,9 +247,14 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                     onClose={() => {
                       dispatch({ type: 'DVC_TRCN_CLOSE' });
                     }}
-                    loading={state.trcnOpen.index === index && trcnLoadingable}
+                    loading={state.rplcTrcn.index === index && trcnLoadingable}
                     isOptionEqualToValue={(option, value) => option.trcnId === value.trcnId}
-                    getOptionLabel={(option) => option.trcnId}
+                    getOptionLabel={(option) =>
+                      `${option.trcnId} - ${String(option.trcnDvsNm.match(trcnDvsRegexp)).substring(
+                        0,
+                        4
+                      )}`
+                    }
                     options={state.dvcTrcns[index]}
                     id={'trcnId' + (index + 1)}
                     value={state.stpTrcns[index]}
@@ -276,8 +272,6 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                         {...params}
                         placeholder="선택해주세요"
                         variant="standard"
-                        fullWidth
-                        error={state.validErrors[index]}
                         // type="number"
                         inputProps={{
                           ...params.inputProps,
@@ -288,13 +282,14 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                           ...params.InputProps,
                           endAdornment: (
                             <React.Fragment>
-                              {state.trcnOpen.index === index && trcnLoadingable ? (
+                              {state.rplcTrcn.index === index && trcnLoadingable ? (
                                 <CircularProgress color="inherit" size={20} />
                               ) : null}
                               {params.InputProps.endAdornment}
                             </React.Fragment>
                           ),
                         }}
+                        error={state.validErrors[index]}
                         helperText={
                           state.validErrors[index]
                             ? '단말기를 선택해주세요.'
@@ -307,17 +302,17 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
                     variant="outlined"
                     color="secondary"
                     size="small"
-                    loading={state.trcnOpen.index === index && state.replaceStatus === 'loading'}
+                    loading={state.rplcTrcn.index === index && state.replace === 'loading'}
                     loadingPosition="start"
                     startIcon={<PublishedWithChangesOutlinedIcon />}
-                    sx={{ ml: 1, whiteSpace: 'nowrap' }}
+                    sx={{ ml: 1 }}
                     onClick={() => {
                       handleReplace(index);
                     }}
                   >
                     교체
                   </LoadingButton>
-                </Box>
+                </Stack>
               </ListItem>
               <Divider component="li" />
             </React.Fragment>
@@ -337,7 +332,7 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
             size="small"
             startIcon={<HistoryOutlinedIcon />}
             sx={{ ml: 2 }}
-            onClick={() => dispatch({ type: 'REPLACEMENT_HISTORY_OPEN' })}
+            onClick={() => dispatch({ type: 'REPLACEMENT_HISTORY', payload: true })}
           >
             교체 이력
           </Button>
@@ -346,8 +341,8 @@ export default function TrcnDsblDetailContentTab3({ trcnDsbl, stlmAreaCd, dsblAc
       <TrcnDsblReplacementHst
         open={state.replacementHistory}
         onClose={closeReplacementHistory}
-        stlmAreaCd={stlmAreaCd}
-        dsblAcptNo={dsblAcptNo}
+        stlmAreaCd={trcnDsbl.stlmAreaCd}
+        dsblAcptNo={trcnDsbl.dsblAcptNo}
       />
     </React.Fragment>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -15,6 +16,7 @@ import useConfirm from '@common/hooks/useConfirm';
 import useAlertSnackbar from '@common/hooks/useAlertSnackbar';
 import useError from '@common/hooks/useError';
 import useUser from '@common/hooks/useUser';
+import useRole from '@common/hooks/useRole';
 import { useMutation } from '@common/queries/query';
 import { addTrcnDsblSgn } from '@features/trcndsbl/trcnDsblAPI';
 import styles from './TrcnDsblSignature.module.css';
@@ -36,13 +38,14 @@ import styles from './TrcnDsblSignature.module.css';
 //   return new Blob([arr], { type: 'iamge/png' });
 // }
 
-export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch }) {
-  const [status, setStatus] = useState('idle');
+export default function TrcnDsblSignatureTab1({ trcnDsbl, sgns, canvasStatus, refetch }) {
+  const [status, setStatus] = useState('idle'); // idle -> loading
   const openAlert = useAlert();
   const openConfirm = useConfirm();
   const openAlertSnackbar = useAlertSnackbar();
   const openError = useError();
   const user = useUser();
+  const userRole = useRole();
   const nameCanvasRef = useRef(null);
   const signCanvasRef = useRef(null);
 
@@ -80,24 +83,31 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
   }, []);
 
   const handleAdd = useCallback(() => {
-    if (trcnDsbl.dltYn === 'Y') {
+    if (userRole.isSelector()) {
+      openAlertSnackbar('warning', '조회권한자는 서명 등록이 불가능합니다.');
+    } else if (trcnDsbl.dltYn === 'Y') {
       openAlertSnackbar('error', '이미 취소된 건입니다!');
-    } else if (!trcnDsbl.busTrcnErrTypCd || !trcnDsbl.dsblPrcgPicId) {
-      openAlertSnackbar(
-        'warning',
-        '미접수/배정 건은 서명이 불가능합니다. 먼저 접수/배정 해주세요.'
-      );
-    } else if (user.dprtId !== trcnDsbl.dprtId) {
-      openAlertSnackbar('warning', '같은 부서 센터장 또는 사원만 등록이 가능합니다.');
+    } else if (!trcnDsbl.dsblPrcgFnDtm) {
+      openAlertSnackbar('warning', '미처리 건은 서명 등록이 불가능합니다. 먼저 처리 해주세요.');
     } else if (signCanvasRef.current.isEmpty()) {
       openAlertSnackbar('warning', '서명을 적어 주세요.');
     } else {
+      if (user.dprtId !== trcnDsbl.dprtId) {
+        openAlertSnackbar('warning', '같은 부서가 아닙니다.');
+      }
       (async () => {
-        const confirmed = await openConfirm('서명', '등록하시겠습니다?');
+        let confirmed;
+        if (sgns.data.length > 0) {
+          confirmed = await openConfirm('서명', '이미 등록된 서명이 있습니다. 대체하시겠습니다?');
+        } else {
+          confirmed = await openConfirm('서명', '등록하시겠습니다?');
+        }
         if (confirmed) {
           const formData = new FormData();
           formData.append('stlmAreaCd', trcnDsbl.stlmAreaCd);
           formData.append('dsblAcptNo', trcnDsbl.dsblAcptNo);
+          formData.append('imgSno', 1);
+          formData.append('picOpnCtt', '운수사');
 
           if (!nameCanvasRef.current.isEmpty()) {
             const imageBlob = await new Promise((resolve) => {
@@ -112,7 +122,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
             formData.append(
               'signature1',
               imageBlob,
-              `${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}-signature-name.png`
+              `${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}-signature1-name.png`
             );
             // formData.append('fileSiz1', imageBlob.size);
           }
@@ -128,7 +138,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
           formData.append(
             'signature2',
             imageBlob,
-            `${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}-signature-sign.png`
+            `${trcnDsbl.stlmAreaCd}-${trcnDsbl.dsblAcptNo}-signature2-sign.png`
           );
           // formData.append('fileSiz2', signImageBlob.size);
 
@@ -136,7 +146,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
         }
       })();
     }
-  }, [trcnDsbl, openAlertSnackbar, openConfirm, mutate, user]);
+  }, [trcnDsbl, sgns, userRole, openAlertSnackbar, openConfirm, mutate, user]);
 
   useEffect(() => {
     if (canvasStatus === 'init') {
@@ -146,14 +156,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
 
   return (
     <React.Fragment>
-      <Stack
-        direction="row"
-        justifyContent="flex-end"
-        alignItems="center"
-        spacing={0.5}
-        mt={2}
-        mr={2}
-      >
+      <Stack direction="row" justifyContent="flex-end" spacing={0.5} mt={2} mr={2}>
         <Button
           variant="outlined"
           align="right"
@@ -210,7 +213,7 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
           width: 'calc((100% - 32px) * 1)',
           height: 120,
           my: 1,
-          mx: 2,
+          mr: 2,
           ml: 'auto',
           backgroundColor: (theme) =>
             theme.palette.mode === 'light' ? theme.palette.grey[50] : theme.palette.grey[700],
@@ -231,19 +234,17 @@ export default function TrcnDsblSignatureTab1({ trcnDsbl, canvasStatus, refetch 
           backgroundColor="rgba(0, 0, 0, 0)"
         />
       </Paper>
-      <Typography
-        variant="caption"
-        align="left"
-        color="text.secondary"
-        sx={{
-          display: 'block',
-          ml: 2,
-          mb: 1,
-          fontWeight: (theme) => theme.typography.fontWeightBold,
-        }}
-      >
-        이름과 서명을 적어 주세요.
-      </Typography>
+      <Box sx={{ pl: 2, pb: 1 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{
+            fontWeight: (theme) => theme.typography.fontWeightBold,
+          }}
+        >
+          이름과 서명을 적어 주세요.
+        </Typography>
+      </Box>
     </React.Fragment>
   );
 }

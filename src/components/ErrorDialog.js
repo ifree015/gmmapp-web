@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import { useQueryClient } from '@tanstack/react-query';
 import { setLocalItem } from '@common/utils/storage';
 import { logout } from '@features/user/userSlice';
 import nativeApp from '@common/utils/nativeApp';
@@ -16,12 +17,19 @@ export default function ErrorDialog({ open, error, resetError }) {
   // const [_open, setOpen] = useState(open);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // useEffect(() => {
   //   setOpen(open);
   // }, [open]);
   const handleClose = () => {
-    if (resetError) resetError();
+    if (Array.isArray(resetError)) {
+      queryClient.resetQueries(resetError);
+    } else if (typeof resetError === 'string') {
+      queryClient.resetQueries([resetError]);
+    } else if (resetError) {
+      resetError();
+    }
     // setOpen(false);
     if (error?.code) {
       if ('gmm.err.003 gmm.err.004'.includes(error.code)) {
@@ -61,7 +69,7 @@ export default function ErrorDialog({ open, error, resetError }) {
       </DialogContent>
 
       <DialogActions sx={{ my: 1 }}>
-        <Button variant="contained" color="error" autoFocus onClick={handleClose} sx={{}}>
+        <Button variant="contained" color="error" autoFocus onClick={handleClose}>
           확인
         </Button>
       </DialogActions>
